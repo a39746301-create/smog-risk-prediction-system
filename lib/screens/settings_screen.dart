@@ -9,7 +9,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   // ============================================================
-  // THEME
+  // COLORS
   // ============================================================
 
   static const Color background = Color(0xff081426);
@@ -38,6 +38,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool hasChanges = false;
 
   // ============================================================
+  // RESPONSIVE HELPERS
+  // ============================================================
+
+  bool _isMobile(double width) => width < 600;
+
+  bool _isTablet(double width) => width >= 600 && width < 1000;
+
+  // ============================================================
   // BUILD
   // ============================================================
 
@@ -46,126 +54,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: background,
 
-      appBar: AppBar(
-        backgroundColor: cardColor,
-        elevation: 0,
-        titleSpacing: 20,
-
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: cyan.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.settings_rounded,
-                color: cyan,
-                size: 22,
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            const Text(
-              "System Settings",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            if (hasChanges) ...[
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 9,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.orangeAccent.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  "Unsaved",
-                  style: TextStyle(
-                    color: Colors.orangeAccent,
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-
-        actions: [
-          IconButton(
-            tooltip: "Reset Settings",
-            onPressed: _showResetDialog,
-            icon: const Icon(
-              Icons.restart_alt_rounded,
-              color: Colors.white70,
-            ),
-          ),
-
-          const SizedBox(width: 8),
-        ],
-      ),
+      appBar: _buildAppBar(context),
 
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final compact = constraints.maxWidth < 850;
+          final width = constraints.maxWidth;
+          final mobile = _isMobile(width);
+          final tablet = _isTablet(width);
+
+          final horizontalPadding = mobile
+              ? 12.0
+              : tablet
+                  ? 18.0
+                  : 25.0;
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-
-            padding: EdgeInsets.all(
-              compact ? 18 : 25,
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              mobile ? 14 : 20,
+              horizontalPadding,
+              25,
             ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1450,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(
+                      mobile: mobile,
+                      tablet: tablet,
+                    ),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(compact),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 22),
+                    _buildGeneralSection(),
 
-                _buildGeneralSection(),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 20),
+                    _buildAlertSection(),
 
-                _buildAlertSection(),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 20),
+                    _buildDashboardSection(),
 
-                _buildDashboardSection(),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 20),
+                    _buildMonitoringSection(),
 
-                _buildMonitoringSection(),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 20),
+                    _buildDataSection(),
 
-                _buildDataSection(),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 20),
+                    _buildSecuritySection(),
 
-                _buildSecuritySection(),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 20),
+                    _buildSystemSection(),
 
-                _buildSystemSection(),
+                    const SizedBox(height: 18),
 
-                const SizedBox(height: 20),
+                    _buildSaveSection(
+                      mobile: mobile,
+                      tablet: tablet,
+                    ),
 
-                _buildSaveSection(compact),
-
-                const SizedBox(height: 10),
-              ],
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -174,14 +136,104 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // ============================================================
+  // APP BAR
+  // ============================================================
+
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: cardColor,
+      elevation: 0,
+      titleSpacing: 14,
+
+      title: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: cyan.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: const Icon(
+              Icons.settings_rounded,
+              color: cyan,
+              size: 21,
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Flexible(
+            child: Row(
+              children: [
+                Flexible(
+                  child: const Text(
+                    "System Settings",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                if (hasChanges) ...[
+                  const SizedBox(width: 8),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orangeAccent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      "Unsaved",
+                      style: TextStyle(
+                        color: Colors.orangeAccent,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+
+      actions: [
+        IconButton(
+          tooltip: "Reset Settings",
+          onPressed: _showResetDialog,
+          icon: const Icon(
+            Icons.restart_alt_rounded,
+            color: Colors.white70,
+          ),
+        ),
+
+        const SizedBox(width: 4),
+      ],
+    );
+  }
+
+  // ============================================================
   // HEADER
   // ============================================================
 
-  Widget _buildHeader(bool compact) {
+  Widget _buildHeader({
+    required bool mobile,
+    required bool tablet,
+  }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(compact ? 18 : 22),
-
+      padding: EdgeInsets.all(
+        mobile ? 16 : 22,
+      ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -191,101 +243,156 @@ class _SettingsScreenState extends State<SettingsScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-
-        borderRadius: BorderRadius.circular(20),
-
+        borderRadius: BorderRadius.circular(
+          mobile ? 16 : 20,
+        ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
+      child: mobile
+          ? _mobileHeader()
+          : _desktopHeader(tablet),
+    );
+  }
 
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-
-            decoration: BoxDecoration(
-              color: cyan.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            child: const Icon(
-              Icons.admin_panel_settings_rounded,
-              color: cyan,
-              size: 30,
-            ),
-          ),
-
-          const SizedBox(width: 15),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "System Preferences",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: compact ? 21 : 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 5),
-
-                const Text(
-                  "Configure dashboard, notifications, monitoring and system preferences",
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          if (!compact) ...[
-            const SizedBox(width: 15),
-
+  Widget _mobileHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
-                color: Colors.greenAccent.withOpacity(0.10),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Colors.greenAccent.withOpacity(0.15),
-                ),
+                color: cyan.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
               ),
+              child: const Icon(
+                Icons.admin_panel_settings_rounded,
+                color: cyan,
+                size: 27,
+              ),
+            ),
 
-              child: const Row(
-                children: [
-                  Icon(
-                    Icons.circle,
-                    color: Colors.greenAccent,
-                    size: 8,
-                  ),
+            const SizedBox(width: 13),
 
-                  SizedBox(width: 7),
-
-                  Text(
-                    "System Online",
-                    style: TextStyle(
-                      color: Colors.greenAccent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+            const Expanded(
+              child: Text(
+                "System Preferences",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
+        ),
+
+        const SizedBox(height: 12),
+
+        const Text(
+          "Configure dashboard, notifications, monitoring and system preferences.",
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+            height: 1.4,
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        _systemOnlineBadge(),
+      ],
+    );
+  }
+
+  Widget _desktopHeader(bool tablet) {
+    return Row(
+      children: [
+        Container(
+          width: tablet ? 52 : 56,
+          height: tablet ? 52 : 56,
+          decoration: BoxDecoration(
+            color: cyan.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            Icons.admin_panel_settings_rounded,
+            color: cyan,
+            size: tablet ? 28 : 30,
+          ),
+        ),
+
+        const SizedBox(width: 15),
+
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "System Preferences",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              SizedBox(height: 5),
+
+              Text(
+                "Configure dashboard, notifications, monitoring and system preferences",
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 15),
+
+        _systemOnlineBadge(),
+      ],
+    );
+  }
+
+  Widget _systemOnlineBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.greenAccent.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.greenAccent.withValues(alpha: 0.15),
+        ),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.circle,
+            color: Colors.greenAccent,
+            size: 8,
+          ),
+          SizedBox(width: 7),
+          Text(
+            "System Online",
+            style: TextStyle(
+              color: Colors.greenAccent,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -300,7 +407,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "General Preferences",
       subtitle: "Manage basic system preferences",
       icon: Icons.tune_rounded,
-
       children: [
         _settingTile(
           icon: Icons.notifications_none_rounded,
@@ -358,7 +464,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "Alert Preferences",
       subtitle: "Control smog and AI prediction alerts",
       icon: Icons.warning_amber_rounded,
-
       children: [
         _settingTile(
           icon: Icons.warning_rounded,
@@ -424,7 +529,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "Dashboard Configuration",
       subtitle: "Configure monitoring and display options",
       icon: Icons.dashboard_customize_rounded,
-
       children: [
         _settingTile(
           icon: Icons.sync_rounded,
@@ -468,7 +572,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "Monitoring Configuration",
       subtitle: "Manage live monitoring services",
       icon: Icons.monitor_heart_rounded,
-
       children: [
         _settingTile(
           icon: Icons.location_on_outlined,
@@ -511,7 +614,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "Data Management",
       subtitle: "Manage reports, backups and stored monitoring data",
       icon: Icons.storage_rounded,
-
       children: [
         _settingTile(
           icon: Icons.backup_rounded,
@@ -564,7 +666,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "Security & Access",
       subtitle: "Manage administrator security preferences",
       icon: Icons.security_rounded,
-
       children: [
         _actionTile(
           icon: Icons.lock_outline_rounded,
@@ -596,44 +697,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "System Information",
       subtitle: "Current Smog AI system information",
       icon: Icons.info_outline_rounded,
-
       children: [
         _infoRow(
           "System",
           "Smog Risk Prediction System",
           Icons.apps_rounded,
         ),
-
         _infoRow(
           "AI Model",
           "Smog Prediction Engine v2.1",
           Icons.psychology_rounded,
         ),
-
         _infoRow(
           "Monitoring",
           "24/7 Active",
           Icons.monitor_heart_rounded,
         ),
-
         _infoRow(
           "Stations",
           "35 Active Stations",
           Icons.route_rounded,
         ),
-
         _infoRow(
           "Database",
           "Connected",
           Icons.storage_rounded,
         ),
-
         _infoRow(
           "Last Update",
           "Just now",
           Icons.update_rounded,
         ),
-
         _infoRow(
           "Version",
           "1.0.0",
@@ -647,59 +741,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // SAVE SECTION
   // ============================================================
 
-  Widget _buildSaveSection(bool compact) {
-    if (compact) {
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(18),
-
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.08),
-          ),
-        ),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _saveContent(),
-
-            const SizedBox(height: 15),
-
-            SizedBox(
-              width: double.infinity,
-              child: _saveButton(),
-            ),
-          ],
-        ),
-      );
-    }
-
+  Widget _buildSaveSection({
+    required bool mobile,
+    required bool tablet,
+  }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
-
+      padding: EdgeInsets.all(
+        mobile ? 15 : 18,
+      ),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(
+          mobile ? 16 : 18,
+        ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
-
-      child: Row(
-        children: [
-          Expanded(
-            child: _saveContent(),
-          ),
-
-          const SizedBox(width: 20),
-
-          _saveButton(),
-        ],
-      ),
+      child: mobile || tablet
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _saveContent(),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: _saveButton(),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: _saveContent(),
+                ),
+                const SizedBox(width: 20),
+                _saveButton(),
+              ],
+            ),
     );
   }
 
@@ -709,12 +789,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Container(
           width: 45,
           height: 45,
-
           decoration: BoxDecoration(
-            color: Colors.greenAccent.withOpacity(0.10),
+            color: Colors.greenAccent.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(13),
           ),
-
           child: const Icon(
             Icons.check_circle_outline_rounded,
             color: Colors.greenAccent,
@@ -744,6 +822,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 hasChanges
                     ? "Save your preferences to apply the changes."
                     : "Your current preferences are saved.",
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Colors.white54,
                   fontSize: 10,
@@ -759,30 +839,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _saveButton() {
     return ElevatedButton.icon(
       onPressed: _saveSettings,
-
       icon: const Icon(
         Icons.save_rounded,
         size: 16,
       ),
-
-      label: const Text(
-        "Save Settings",
-      ),
-
+      label: const Text("Save Settings"),
       style: ElevatedButton.styleFrom(
         backgroundColor: cyan,
         foregroundColor: background,
         elevation: 0,
-
+        minimumSize: const Size(0, 45),
         padding: const EdgeInsets.symmetric(
           horizontal: 17,
           vertical: 13,
         ),
-
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-
         textStyle: const TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.bold,
@@ -803,25 +876,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
-
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
-
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
-
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 14,
             offset: const Offset(0, 5),
           ),
         ],
       ),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -830,12 +899,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Container(
                 width: 40,
                 height: 40,
-
                 decoration: BoxDecoration(
-                  color: cyan.withOpacity(0.10),
+                  color: cyan.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(11),
                 ),
-
                 child: Icon(
                   icon,
                   color: cyan,
@@ -875,7 +942,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
 
-          const SizedBox(height: 17),
+          const SizedBox(height: 16),
 
           ...children,
         ],
@@ -897,28 +964,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-
       padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
+        horizontal: 12,
+        vertical: 11,
       ),
-
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(14),
       ),
-
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 42,
             height: 42,
-
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.10),
+              color: iconColor.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(12),
             ),
-
             child: Icon(
               icon,
               color: iconColor,
@@ -956,10 +1019,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
+          const SizedBox(width: 6),
+
           Switch(
             value: value,
             activeColor: cyan,
-            activeTrackColor: cyan.withOpacity(0.25),
+            activeTrackColor: cyan.withValues(alpha: 0.25),
             inactiveThumbColor: Colors.white38,
             inactiveTrackColor: Colors.white10,
             onChanged: onChanged,
@@ -982,96 +1047,107 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final mobile = constraints.maxWidth < 500;
 
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
-      ),
-
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
-        borderRadius: BorderRadius.circular(14),
-      ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(12),
-            ),
-
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 21,
-            ),
+        return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.035),
+            borderRadius: BorderRadius.circular(14),
           ),
+          child: mobile
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _tileTitle(
+                      icon: icon,
+                      iconColor: iconColor,
+                      title: title,
+                      subtitle: subtitle,
+                    ),
 
-          const SizedBox(width: 12),
+                    const SizedBox(height: 10),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.035),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: value,
+                          isExpanded: true,
+                          dropdownColor: cardColor,
+                          icon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: Colors.white54,
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                          items: items.map((item) {
+                            return DropdownMenuItem<String>(
+                              value: item,
+                              child: Text(item),
+                            );
+                          }).toList(),
+                          onChanged: onChanged,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _tileIcon(
+                      icon: icon,
+                      iconColor: iconColor,
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: _tileText(
+                        title: title,
+                        subtitle: subtitle,
+                      ),
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: value,
+                        dropdownColor: cardColor,
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Colors.white54,
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
+                        items: items.map((item) {
+                          return DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(item),
+                          );
+                        }).toList(),
+                        onChanged: onChanged,
+                      ),
+                    ),
+                  ],
                 ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              dropdownColor: cardColor,
-
-              icon: const Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Colors.white54,
-              ),
-
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-              ),
-
-              items: items.map((item) {
-                return DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item),
-                );
-              }).toList(),
-
-              onChanged: onChanged,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -1087,99 +1163,182 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String buttonText,
     required VoidCallback onPressed,
   }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final mobile = constraints.maxWidth < 500;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.035),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: mobile
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _tileTitle(
+                      icon: icon,
+                      iconColor: iconColor,
+                      title: title,
+                      subtitle: subtitle,
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        onPressed: onPressed,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: iconColor,
+                          side: BorderSide(
+                            color: iconColor.withValues(alpha: 0.35),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                        ),
+                        child: Text(
+                          buttonText,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    _tileIcon(
+                      icon: icon,
+                      iconColor: iconColor,
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: _tileText(
+                        title: title,
+                        subtitle: subtitle,
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    OutlinedButton(
+                      onPressed: onPressed,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: iconColor,
+                        side: BorderSide(
+                          color: iconColor.withValues(alpha: 0.35),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 9,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(9),
+                        ),
+                      ),
+                      child: Text(
+                        buttonText,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        );
+      },
+    );
+  }
+
+  // ============================================================
+  // TILE HELPERS
+  // ============================================================
+
+  Widget _tileIcon({
+    required IconData icon,
+    required Color iconColor,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 12,
-      ),
-
+      width: 42,
+      height: 42,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
-        borderRadius: BorderRadius.circular(14),
+        color: iconColor.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(12),
       ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(12),
-            ),
-
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 21,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 8),
-
-          OutlinedButton(
-            onPressed: onPressed,
-
-            style: OutlinedButton.styleFrom(
-              foregroundColor: iconColor,
-
-              side: BorderSide(
-                color: iconColor.withOpacity(0.35),
-              ),
-
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 9,
-              ),
-
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(9),
-              ),
-            ),
-
-            child: Text(
-              buttonText,
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
+      child: Icon(
+        icon,
+        color: iconColor,
+        size: 21,
       ),
+    );
+  }
+
+  Widget _tileText({
+    required String title,
+    required String subtitle,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
+        const SizedBox(height: 4),
+
+        Text(
+          subtitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: Colors.white54,
+            fontSize: 10,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tileTitle({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required String subtitle,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _tileIcon(
+          icon: icon,
+          iconColor: iconColor,
+        ),
+
+        const SizedBox(width: 12),
+
+        Expanded(
+          child: _tileText(
+            title: title,
+            subtitle: subtitle,
+          ),
+        ),
+      ],
     );
   }
 
@@ -1192,24 +1351,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String value,
     IconData icon,
   ) {
-    final bool connected =
+    final connected =
         value.toLowerCase().contains("connected") ||
         value.toLowerCase().contains("active") ||
         value.toLowerCase().contains("24/7");
 
     return Container(
       margin: const EdgeInsets.only(bottom: 9),
-
       padding: const EdgeInsets.symmetric(
         horizontal: 13,
         vertical: 11,
       ),
-
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(12),
       ),
-
       child: Row(
         children: [
           Icon(
@@ -1272,7 +1428,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // ============================================================
-  // SAVE SETTINGS
+  // SAVE
   // ============================================================
 
   void _saveSettings() {
@@ -1288,15 +1444,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Icons.check_circle_outline_rounded,
               color: Colors.white,
             ),
-
             SizedBox(width: 10),
-
-            Text(
-              "Settings saved successfully",
-            ),
+            Text("Settings saved successfully"),
           ],
         ),
-
         backgroundColor: cardColor,
         behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: 2),
@@ -1311,24 +1462,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showResetDialog() {
     showDialog(
       context: context,
-
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: cardColor,
-
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-
           title: const Row(
             children: [
               Icon(
                 Icons.restart_alt_rounded,
                 color: Colors.orangeAccent,
               ),
-
               SizedBox(width: 10),
-
               Expanded(
                 child: Text(
                   "Reset Settings",
@@ -1340,7 +1486,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-
           content: const Text(
             "Are you sure you want to restore all settings to their default values?",
             style: TextStyle(
@@ -1349,13 +1494,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               height: 1.4,
             ),
           ),
-
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-
               child: const Text(
                 "Cancel",
                 style: TextStyle(
@@ -1378,40 +1521,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Icons.restart_alt_rounded,
                           color: Colors.white,
                         ),
-
                         SizedBox(width: 10),
-
                         Text(
                           "Settings restored to default",
                         ),
                       ],
                     ),
-
                     backgroundColor: cardColor,
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orangeAccent,
                 foregroundColor: background,
                 elevation: 0,
-
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-
-              child: const Text(
-                "Reset",
-              ),
+              child: const Text("Reset"),
             ),
           ],
         );
       },
     );
   }
+
+  // ============================================================
+  // RESET SETTINGS
+  // ============================================================
 
   void _resetSettings() {
     setState(() {
@@ -1435,72 +1574,66 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // ============================================================
-  // MONITORING STATIONS DIALOG
+  // STATIONS DIALOG
   // ============================================================
 
   void _showStationsDialog() {
     showDialog(
       context: context,
-
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: cardColor,
-
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-
           title: const Row(
             children: [
               Icon(
                 Icons.sensors_rounded,
                 color: cyan,
               ),
-
               SizedBox(width: 10),
-
-              Text(
-                "Monitoring Stations",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  "Monitoring Stations",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _dialogStatusRow(
-                "Active Stations",
-                "35",
-                Colors.greenAccent,
-              ),
-
-              _dialogStatusRow(
-                "Offline Stations",
-                "2",
-                Colors.redAccent,
-              ),
-
-              _dialogStatusRow(
-                "Maintenance",
-                "1",
-                Colors.orangeAccent,
-              ),
-
-              _dialogStatusRow(
-                "Total Stations",
-                "38",
-                cyan,
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _dialogStatusRow(
+                  "Active Stations",
+                  "35",
+                  Colors.greenAccent,
+                ),
+                _dialogStatusRow(
+                  "Offline Stations",
+                  "2",
+                  Colors.redAccent,
+                ),
+                _dialogStatusRow(
+                  "Maintenance",
+                  "1",
+                  Colors.orangeAccent,
+                ),
+                _dialogStatusRow(
+                  "Total Stations",
+                  "38",
+                  cyan,
+                ),
+              ],
+            ),
           ),
-
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(
                 "Close",
                 style: TextStyle(color: cyan),
@@ -1519,70 +1652,64 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showSensorStatus() {
     showDialog(
       context: context,
-
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: cardColor,
-
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-
           title: const Row(
             children: [
               Icon(
                 Icons.cloud_done_rounded,
                 color: Colors.greenAccent,
               ),
-
               SizedBox(width: 10),
-
-              Text(
-                "Sensor Connection",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  "Sensor Connection",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.check_circle_rounded,
-                color: Colors.greenAccent,
-                size: 55,
-              ),
-
-              SizedBox(height: 12),
-
-              Text(
-                "All sensors are connected",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
+          content: const SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.greenAccent,
+                  size: 55,
                 ),
-              ),
-
-              SizedBox(height: 6),
-
-              Text(
-                "Sensor network is operating normally.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 11,
+                SizedBox(height: 12),
+                Text(
+                  "All sensors are connected",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(height: 6),
+                Text(
+                  "Sensor network is operating normally.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
           ),
-
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(
                 "Close",
                 style: TextStyle(color: cyan),
@@ -1607,15 +1734,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Icons.download_done_rounded,
               color: Colors.white,
             ),
-
             SizedBox(width: 10),
-
-            Text(
-              "System report generated successfully",
+            Expanded(
+              child: Text(
+                "System report generated successfully",
+              ),
             ),
           ],
         ),
-
         backgroundColor: cardColor,
         behavior: SnackBarBehavior.floating,
       ),
@@ -1633,34 +1759,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     showDialog(
       context: context,
-
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: cardColor,
-
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-
           title: const Row(
             children: [
               Icon(
                 Icons.lock_outline_rounded,
                 color: Colors.redAccent,
               ),
-
               SizedBox(width: 10),
-
-              Text(
-                "Change Password",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  "Change Password",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -1669,16 +1791,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   currentController,
                   "Current Password",
                 ),
-
                 const SizedBox(height: 12),
-
                 _passwordField(
                   newController,
                   "New Password",
                 ),
-
                 const SizedBox(height: 12),
-
                 _passwordField(
                   confirmController,
                   "Confirm New Password",
@@ -1686,13 +1804,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
               },
-
               child: const Text(
                 "Cancel",
                 style: TextStyle(
@@ -1705,6 +1821,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 if (newController.text.isEmpty ||
                     confirmController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Please enter the new password",
+                      ),
+                    ),
+                  );
                   return;
                 }
 
@@ -1731,26 +1854,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 );
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: cyan,
                 foregroundColor: background,
                 elevation: 0,
-
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-
-              child: const Text(
-                "Update",
-              ),
+              child: const Text("Update"),
             ),
           ],
         );
       },
     );
   }
+
+  // ============================================================
+  // PASSWORD FIELD
+  // ============================================================
 
   Widget _passwordField(
     TextEditingController controller,
@@ -1759,29 +1881,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return TextField(
       controller: controller,
       obscureText: true,
-
       style: const TextStyle(
         color: Colors.white,
         fontSize: 12,
       ),
-
       decoration: InputDecoration(
         hintText: hint,
-
         hintStyle: const TextStyle(
           color: Colors.white38,
           fontSize: 12,
         ),
-
         filled: true,
-        fillColor: Colors.white.withOpacity(0.04),
-
+        fillColor: Colors.white.withValues(alpha: 0.04),
         prefixIcon: const Icon(
           Icons.lock_outline,
           color: Colors.white54,
           size: 18,
         ),
-
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(11),
           borderSide: BorderSide.none,
@@ -1805,91 +1921,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     showDialog(
       context: context,
-
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: cardColor,
-
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-
           title: const Row(
             children: [
               Icon(
                 Icons.history_rounded,
                 color: Colors.orangeAccent,
               ),
-
               SizedBox(width: 10),
-
-              Text(
-                "Recent Activity",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  "Recent Activity",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
-
           content: SizedBox(
             width: 420,
-
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: logs.length,
-
-              separatorBuilder: (_, __) {
-                return Divider(
-                  color: Colors.white.withOpacity(0.06),
-                );
-              },
-
-              itemBuilder: (context, index) {
-                return ListTile(
-                  contentPadding: EdgeInsets.zero,
-
-                  leading: Container(
-                    width: 34,
-                    height: 34,
-
-                    decoration: BoxDecoration(
-                      color: cyan.withOpacity(0.10),
-                      borderRadius: BorderRadius.circular(10),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 350,
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: logs.length,
+                separatorBuilder: (_, __) {
+                  return Divider(
+                    color: Colors.white.withValues(alpha: 0.06),
+                  );
+                },
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: cyan.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: cyan,
+                        size: 17,
+                      ),
                     ),
-
-                    child: const Icon(
-                      Icons.check_rounded,
-                      color: cyan,
-                      size: 17,
+                    title: Text(
+                      logs[index],
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                      ),
                     ),
-                  ),
-
-                  title: Text(
-                    logs[index],
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
+                    subtitle: const Text(
+                      "Recently",
+                      style: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 9,
+                      ),
                     ),
-                  ),
-
-                  subtitle: const Text(
-                    "Recently",
-                    style: TextStyle(
-                      color: Colors.white38,
-                      fontSize: 9,
-                    ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
-
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text(
                 "Close",
                 style: TextStyle(
@@ -1914,23 +2021,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 9),
-
       padding: const EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 10,
       ),
-
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(10),
       ),
-
       child: Row(
         children: [
           Container(
             width: 8,
             height: 8,
-
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,

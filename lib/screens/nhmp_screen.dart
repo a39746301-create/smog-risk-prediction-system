@@ -12,8 +12,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
   static const Color cardColor = Color(0xff102A43);
   static const Color cyanColor = Colors.cyanAccent;
 
-  final TextEditingController searchController =
-      TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   String selectedFilter = "All";
   bool isRefreshing = false;
@@ -109,32 +108,41 @@ class _NHMPScreenState extends State<NHMPScreen> {
       appBar: AppBar(
         backgroundColor: cardColor,
         elevation: 0,
-        titleSpacing: 20,
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: cyanColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.route_rounded,
-                color: cyanColor,
-                size: 22,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              "NHMP Stations",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+        titleSpacing: 16,
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool mobile = constraints.maxWidth < 500;
+
+            return Row(
+              children: [
+                Container(
+                  width: mobile ? 36 : 40,
+                  height: mobile ? 36 : 40,
+                  decoration: BoxDecoration(
+                    color: cyanColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: const Icon(
+                    Icons.route_rounded,
+                    color: cyanColor,
+                    size: 22,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Flexible(
+                  child: Text(
+                    mobile ? "NHMP" : "NHMP Stations",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: mobile ? 17 : 19,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
@@ -152,27 +160,43 @@ class _NHMPScreenState extends State<NHMPScreen> {
                   )
                 : const Icon(Icons.refresh_rounded),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 6),
         ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final bool compact = constraints.maxWidth < 850;
+          final double width = constraints.maxWidth;
+
+          final bool mobile = width < 600;
+          final bool tablet = width >= 600 && width < 1000;
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: EdgeInsets.all(compact ? 18 : 25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _pageHeader(compact),
-                const SizedBox(height: 22),
-                _statistics(compact),
-                const SizedBox(height: 22),
-                _searchAndFilter(),
-                const SizedBox(height: 20),
-                _stationList(),
-              ],
+            padding: EdgeInsets.all(
+              mobile
+                  ? 14
+                  : tablet
+                      ? 18
+                      : 25,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1450,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _pageHeader(mobile, tablet),
+                    const SizedBox(height: 20),
+                    _statistics(mobile, tablet),
+                    const SizedBox(height: 20),
+                    _searchAndFilter(mobile, tablet),
+                    const SizedBox(height: 20),
+                    _stationList(mobile, tablet),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -209,16 +233,22 @@ class _NHMPScreenState extends State<NHMPScreen> {
   }
 
   // ============================================================
-  // HEADER
+  // PAGE HEADER
   // ============================================================
 
-  Widget _pageHeader(bool compact) {
+  Widget _pageHeader(bool mobile, bool tablet) {
     final activeCount =
         stations.where((s) => s["status"] == "Active").length;
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(compact ? 18 : 22),
+      padding: EdgeInsets.all(
+        mobile
+            ? 16
+            : tablet
+                ? 18
+                : 22,
+      ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -231,74 +261,104 @@ class _NHMPScreenState extends State<NHMPScreen> {
           color: Colors.white.withOpacity(0.08),
         ),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: cyanColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(
-              Icons.location_on_rounded,
-              color: cyanColor,
-              size: 30,
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
+      child: mobile
+          ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Highway Monitoring Stations",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: compact ? 21 : 26,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    _headerIcon(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _headerText(mobile),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 5),
-                const Text(
-                  "Real-time motorway air quality and road monitoring",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
+                const SizedBox(height: 15),
+                _liveBadge(activeCount),
+              ],
+            )
+          : Row(
+              children: [
+                _headerIcon(),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: _headerText(tablet),
                 ),
+                const SizedBox(width: 12),
+                _liveBadge(activeCount),
               ],
             ),
+    );
+  }
+
+  Widget _headerIcon() {
+    return Container(
+      width: 54,
+      height: 54,
+      decoration: BoxDecoration(
+        color: cyanColor.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: const Icon(
+        Icons.location_on_rounded,
+        color: cyanColor,
+        size: 29,
+      ),
+    );
+  }
+
+  Widget _headerText(bool compact) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Highway Monitoring Stations",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: compact ? 20 : 26,
+            fontWeight: FontWeight.bold,
           ),
-          if (!compact)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.circle,
-                    color: Colors.greenAccent,
-                    size: 8,
-                  ),
-                  const SizedBox(width: 7),
-                  Text(
-                    "$activeCount Live Stations",
-                    style: const TextStyle(
-                      color: Colors.greenAccent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+        ),
+        const SizedBox(height: 5),
+        const Text(
+          "Real-time motorway air quality and road monitoring",
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 12,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _liveBadge(int activeCount) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.green.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.circle,
+            color: Colors.greenAccent,
+            size: 8,
+          ),
+          const SizedBox(width: 7),
+          Text(
+            "$activeCount Live Stations",
+            style: const TextStyle(
+              color: Colors.greenAccent,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
             ),
+          ),
         ],
       ),
     );
@@ -308,7 +368,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
   // STATISTICS
   // ============================================================
 
-  Widget _statistics(bool compact) {
+  Widget _statistics(bool mobile, bool tablet) {
     final total = stations.length;
 
     final active =
@@ -350,7 +410,20 @@ class _NHMPScreenState extends State<NHMPScreen> {
       ),
     ];
 
-    if (compact) {
+    if (mobile) {
+      return Column(
+        children: stats
+            .map(
+              (stat) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _statCard(stat),
+              ),
+            )
+            .toList(),
+      );
+    }
+
+    if (tablet) {
       return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -360,7 +433,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 2.1,
+          childAspectRatio: 2.4,
         ),
         itemBuilder: (context, index) {
           return _statCard(stats[index]);
@@ -411,26 +484,29 @@ class _NHMPScreenState extends State<NHMPScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                data.title,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 11,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.title,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 11,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                data.value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 3),
+                Text(
+                  data.value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -441,80 +517,102 @@ class _NHMPScreenState extends State<NHMPScreen> {
   // SEARCH + FILTER
   // ============================================================
 
-  Widget _searchAndFilter() {
+  Widget _searchAndFilter(bool mobile, bool tablet) {
+    if (mobile) {
+      return Column(
+        children: [
+          _searchField(),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: _filterButton(),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
     return Row(
       children: [
         Expanded(
           child: _searchField(),
         ),
         const SizedBox(width: 12),
-        PopupMenuButton<String>(
-          color: cardColor,
-          onSelected: (value) {
-            setState(() {
-              selectedFilter = value;
-            });
-          },
-          itemBuilder: (context) {
-            return [
-              "All",
-              "Good",
-              "Moderate Risk",
-              "High Risk",
-              "Unhealthy",
-              "Active",
-              "Offline",
-            ].map((item) {
-              return PopupMenuItem<String>(
-                value: item,
-                child: Text(
-                  item,
-                  style: const TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              );
-            }).toList();
-          },
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-            ),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(13),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.08),
+        _filterButton(),
+      ],
+    );
+  }
+
+  Widget _filterButton() {
+    return PopupMenuButton<String>(
+      color: cardColor,
+      onSelected: (value) {
+        setState(() {
+          selectedFilter = value;
+        });
+      },
+      itemBuilder: (context) {
+        return [
+          "All",
+          "Good",
+          "Moderate Risk",
+          "High Risk",
+          "Unhealthy",
+          "Active",
+          "Offline",
+        ].map((item) {
+          return PopupMenuItem<String>(
+            value: item,
+            child: Text(
+              item,
+              style: const TextStyle(
+                color: Colors.white,
               ),
             ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.filter_list_rounded,
-                  color: cyanColor,
-                  size: 19,
-                ),
-                const SizedBox(width: 7),
-                Text(
-                  selectedFilter,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 5),
-                const Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Colors.white54,
-                  size: 17,
-                ),
-              ],
-            ),
+          );
+        }).toList();
+      },
+      child: Container(
+        height: 48,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14,
+        ),
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(13),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.08),
           ),
         ),
-      ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.filter_list_rounded,
+              color: cyanColor,
+              size: 19,
+            ),
+            const SizedBox(width: 7),
+            Text(
+              selectedFilter,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: 5),
+            const Icon(
+              Icons.keyboard_arrow_down,
+              color: Colors.white54,
+              size: 17,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -560,7 +658,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
   // STATION LIST
   // ============================================================
 
-  Widget _stationList() {
+  Widget _stationList(bool mobile, bool tablet) {
     final query =
         searchController.text.trim().toLowerCase();
 
@@ -612,7 +710,15 @@ class _NHMPScreenState extends State<NHMPScreen> {
     }
 
     return Column(
-      children: filtered.map(_stationCard).toList(),
+      children: filtered
+          .map(
+            (station) => _stationCard(
+              station,
+              mobile,
+              tablet,
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -622,6 +728,8 @@ class _NHMPScreenState extends State<NHMPScreen> {
 
   Widget _stationCard(
     Map<String, dynamic> station,
+    bool mobile,
+    bool tablet,
   ) {
     final int aqi = station["aqi"];
 
@@ -647,7 +755,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(mobile ? 14 : 18),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(19),
@@ -666,141 +774,24 @@ class _NHMPScreenState extends State<NHMPScreen> {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Container(
-                width: 55,
-                height: 55,
-                decoration: BoxDecoration(
-                  color: riskColor.withOpacity(0.11),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  Icons.route_rounded,
-                  color: riskColor,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      station["name"],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.circle,
-                          color: active
-                              ? Colors.greenAccent
-                              : Colors.redAccent,
-                          size: 7,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          station["status"],
-                          style: TextStyle(
-                            color: active
-                                ? Colors.greenAccent
-                                : Colors.redAccent,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Flexible(
-                          child: Text(
-                            "Updated ${station["updated"]}",
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.end,
-                children: [
-                  const Text(
-                    "AQI",
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: 10,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    "$aqi",
-                    style: TextStyle(
-                      color: riskColor,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    station["risk"],
-                    style: TextStyle(
-                      color: riskColor,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          if (mobile)
+            _mobileStationHeader(
+              station,
+              aqi,
+              riskColor,
+              active,
+            )
+          else
+            _desktopStationHeader(
+              station,
+              aqi,
+              riskColor,
+              active,
+            ),
 
           const SizedBox(height: 16),
 
-          // AQI PROGRESS
-          Row(
-            children: [
-              const Text(
-                "AQI Level",
-                style: TextStyle(
-                  color: Colors.white54,
-                  fontSize: 10,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                "${((aqi / 300).clamp(0.0, 1.0) * 100).round()}%",
-                style: TextStyle(
-                  color: riskColor,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 7),
-
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: LinearProgressIndicator(
-              value: (aqi / 300).clamp(0.0, 1.0),
-              minHeight: 6,
-              backgroundColor: Colors.white.withOpacity(0.07),
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(riskColor),
-            ),
-          ),
+          _aqiProgress(aqi, riskColor),
 
           const SizedBox(height: 17),
 
@@ -811,55 +802,414 @@ class _NHMPScreenState extends State<NHMPScreen> {
 
           const SizedBox(height: 14),
 
-          Row(
-            children: [
-              _stationDetail(
-                Icons.air_rounded,
-                "Air Quality",
-                station["risk"],
-                riskColor,
-              ),
-              _stationDetail(
-                Icons.visibility_rounded,
-                "Visibility",
-                station["visibility"],
-                Colors.white,
-              ),
-              _stationDetail(
-                Icons.directions_car_rounded,
-                "Road",
-                station["road"],
-                station["road"] == "Foggy"
-                    ? Colors.orangeAccent
-                    : Colors.white,
-              ),
-              _stationDetail(
-                Icons.traffic_rounded,
-                "Traffic",
-                station["traffic"],
-                Colors.white,
-              ),
-            ],
-          ),
+          if (mobile)
+            _mobileStationDetails(
+              station,
+              riskColor,
+            )
+          else
+            Row(
+              children: [
+                _stationDetail(
+                  Icons.air_rounded,
+                  "Air Quality",
+                  station["risk"],
+                  riskColor,
+                ),
+                _stationDetail(
+                  Icons.visibility_rounded,
+                  "Visibility",
+                  station["visibility"],
+                  Colors.white,
+                ),
+                _stationDetail(
+                  Icons.directions_car_rounded,
+                  "Road",
+                  station["road"],
+                  station["road"] == "Foggy"
+                      ? Colors.orangeAccent
+                      : Colors.white,
+                ),
+                _stationDetail(
+                  Icons.traffic_rounded,
+                  "Traffic",
+                  station["traffic"],
+                  Colors.white,
+                ),
+              ],
+            ),
 
           const SizedBox(height: 15),
 
-          Row(
+          if (mobile)
+            _mobileBottomMetrics(
+              station,
+            )
+          else
+            _desktopBottomMetrics(
+              station,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mobileStationHeader(
+    Map<String, dynamic> station,
+    int aqi,
+    Color riskColor,
+    bool active,
+  ) {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: riskColor.withOpacity(0.11),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                Icons.route_rounded,
+                color: riskColor,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    station["name"],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        color: active
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
+                        size: 7,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        station["status"],
+                        style: TextStyle(
+                          color: active
+                              ? Colors.greenAccent
+                              : Colors.redAccent,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    "Updated ${station["updated"]}",
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white54,
+                      fontSize: 9,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.end,
+              children: [
+                const Text(
+                  "AQI",
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 9,
+                  ),
+                ),
+                Text(
+                  "$aqi",
+                  style: TextStyle(
+                    color: riskColor,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  station["risk"],
+                  style: TextStyle(
+                    color: riskColor,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _desktopStationHeader(
+    Map<String, dynamic> station,
+    int aqi,
+    Color riskColor,
+    bool active,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 55,
+          height: 55,
+          decoration: BoxDecoration(
+            color: riskColor.withOpacity(0.11),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(
+            Icons.route_rounded,
+            color: riskColor,
+            size: 28,
+          ),
+        ),
+        const SizedBox(width: 15),
+        Expanded(
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
-              _smallMetric(
+              Text(
+                station["name"],
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    color: active
+                        ? Colors.greenAccent
+                        : Colors.redAccent,
+                    size: 7,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    station["status"],
+                    style: TextStyle(
+                      color: active
+                          ? Colors.greenAccent
+                          : Colors.redAccent,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      "Updated ${station["updated"]}",
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.end,
+          children: [
+            const Text(
+              "AQI",
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 10,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              "$aqi",
+              style: TextStyle(
+                color: riskColor,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              station["risk"],
+              style: TextStyle(
+                color: riskColor,
+                fontSize: 9,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // AQI PROGRESS
+  // ============================================================
+
+  Widget _aqiProgress(
+    int aqi,
+    Color riskColor,
+  ) {
+    final double progress =
+        (aqi / 300).clamp(0.0, 1.0).toDouble();
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            const Text(
+              "AQI Level",
+              style: TextStyle(
+                color: Colors.white54,
+                fontSize: 10,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              "${(progress * 100).round()}%",
+              style: TextStyle(
+                color: riskColor,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 7),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 6,
+            backgroundColor:
+                Colors.white.withOpacity(0.07),
+            valueColor:
+                AlwaysStoppedAnimation<Color>(
+              riskColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // MOBILE DETAILS
+  // ============================================================
+
+  Widget _mobileStationDetails(
+    Map<String, dynamic> station,
+    Color riskColor,
+  ) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            _stationDetail(
+              Icons.air_rounded,
+              "Air Quality",
+              station["risk"],
+              riskColor,
+            ),
+            _stationDetail(
+              Icons.visibility_rounded,
+              "Visibility",
+              station["visibility"],
+              Colors.white,
+            ),
+          ],
+        ),
+        const SizedBox(height: 13),
+        Row(
+          children: [
+            _stationDetail(
+              Icons.directions_car_rounded,
+              "Road",
+              station["road"],
+              station["road"] == "Foggy"
+                  ? Colors.orangeAccent
+                  : Colors.white,
+            ),
+            _stationDetail(
+              Icons.traffic_rounded,
+              "Traffic",
+              station["traffic"],
+              Colors.white,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // BOTTOM METRICS
+  // ============================================================
+
+  Widget _mobileBottomMetrics(
+    Map<String, dynamic> station,
+  ) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _metricBox(
                 Icons.thermostat_rounded,
+                "Temperature",
                 station["temperature"],
               ),
-              _smallMetric(
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _metricBox(
                 Icons.water_drop_rounded,
+                "Humidity",
                 station["humidity"],
               ),
-              _smallMetric(
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _metricBox(
                 Icons.speed_rounded,
+                "Vehicle Speed",
                 station["speed"],
               ),
-              const Spacer(),
-              OutlinedButton.icon(
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
                 onPressed: () {
                   _showStationDetails(station);
                 },
@@ -869,16 +1219,15 @@ class _NHMPScreenState extends State<NHMPScreen> {
                 ),
                 label: const Text("View Details"),
                 style: OutlinedButton.styleFrom(
+                  minimumSize:
+                      const Size.fromHeight(44),
                   foregroundColor: cyanColor,
                   side: BorderSide(
                     color: cyanColor.withOpacity(0.5),
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 13,
-                    vertical: 10,
+                    borderRadius:
+                        BorderRadius.circular(10),
                   ),
                   textStyle: const TextStyle(
                     fontSize: 11,
@@ -886,7 +1235,113 @@ class _NHMPScreenState extends State<NHMPScreen> {
                   ),
                 ),
               ),
-            ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _desktopBottomMetrics(
+    Map<String, dynamic> station,
+  ) {
+    return Row(
+      children: [
+        _smallMetric(
+          Icons.thermostat_rounded,
+          station["temperature"],
+        ),
+        _smallMetric(
+          Icons.water_drop_rounded,
+          station["humidity"],
+        ),
+        _smallMetric(
+          Icons.speed_rounded,
+          station["speed"],
+        ),
+        const Spacer(),
+        OutlinedButton.icon(
+          onPressed: () {
+            _showStationDetails(station);
+          },
+          icon: const Icon(
+            Icons.analytics_outlined,
+            size: 16,
+          ),
+          label: const Text("View Details"),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: cyanColor,
+            side: BorderSide(
+              color: cyanColor.withOpacity(0.5),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 13,
+              vertical: 10,
+            ),
+            textStyle: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _metricBox(
+    IconData icon,
+    String title,
+    String value,
+  ) {
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.035),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.06),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: cyanColor,
+            size: 16,
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white54,
+                    fontSize: 8,
+                  ),
+                ),
+                Text(
+                  value,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -984,99 +1439,166 @@ class _NHMPScreenState extends State<NHMPScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: cardColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 24,
           ),
-          title: Row(
-            children: [
-              const Icon(
-                Icons.route_rounded,
-                color: cyanColor,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 520,
+              maxHeight: 650,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.08),
+                ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  station["name"],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          color:
+                              cyanColor.withOpacity(0.10),
+                          borderRadius:
+                              BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.route_rounded,
+                          color: cyanColor,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          station["name"],
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(dialogContext);
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+
+                  const Divider(
+                    color: Colors.white12,
+                    height: 25,
+                  ),
+
+                  Flexible(
+                    child: SingleChildScrollView(
+                      physics:
+                          const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          _dialogRow(
+                            "AQI",
+                            "${station["aqi"]}",
+                          ),
+                          _dialogRow(
+                            "Risk Level",
+                            station["risk"],
+                          ),
+                          _dialogRow(
+                            "Visibility",
+                            station["visibility"],
+                          ),
+                          _dialogRow(
+                            "Road Condition",
+                            station["road"],
+                          ),
+                          _dialogRow(
+                            "Traffic",
+                            station["traffic"],
+                          ),
+                          _dialogRow(
+                            "Temperature",
+                            station["temperature"],
+                          ),
+                          _dialogRow(
+                            "Humidity",
+                            station["humidity"],
+                          ),
+                          _dialogRow(
+                            "PM2.5",
+                            station["pm25"],
+                          ),
+                          _dialogRow(
+                            "PM10",
+                            station["pm10"],
+                          ),
+                          _dialogRow(
+                            "Vehicle Speed",
+                            station["speed"],
+                          ),
+                          _dialogRow(
+                            "Station Status",
+                            station["status"],
+                          ),
+                          _dialogRow(
+                            "Last Updated",
+                            station["updated"],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: cyanColor,
+                        backgroundColor:
+                            cyanColor.withOpacity(0.07),
+                        padding:
+                            const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "Close",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                _dialogRow(
-                  "AQI",
-                  "${station["aqi"]}",
-                ),
-                _dialogRow(
-                  "Risk Level",
-                  station["risk"],
-                ),
-                _dialogRow(
-                  "Visibility",
-                  station["visibility"],
-                ),
-                _dialogRow(
-                  "Road Condition",
-                  station["road"],
-                ),
-                _dialogRow(
-                  "Traffic",
-                  station["traffic"],
-                ),
-                _dialogRow(
-                  "Temperature",
-                  station["temperature"],
-                ),
-                _dialogRow(
-                  "Humidity",
-                  station["humidity"],
-                ),
-                _dialogRow(
-                  "PM2.5",
-                  station["pm25"],
-                ),
-                _dialogRow(
-                  "PM10",
-                  station["pm10"],
-                ),
-                _dialogRow(
-                  "Vehicle Speed",
-                  station["speed"],
-                ),
-                _dialogRow(
-                  "Station Status",
-                  station["status"],
-                ),
-                _dialogRow(
-                  "Last Updated",
-                  station["updated"],
-                ),
-              ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-              },
-              child: const Text(
-                "Close",
-                style: TextStyle(
-                  color: cyanColor,
-                ),
-              ),
-            ),
-          ],
         );
       },
     );
@@ -1089,9 +1611,11 @@ class _NHMPScreenState extends State<NHMPScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 11),
       child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 105,
+            width: 110,
             child: Text(
               title,
               style: const TextStyle(

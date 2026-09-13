@@ -54,6 +54,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ============================================================
+  // RESPONSIVE HELPERS
+  // ============================================================
+
+  bool _isMobile(double width) => width < 600;
+
+  bool _isTablet(double width) => width >= 600 && width < 1000;
+
+  // ============================================================
   // BUILD
   // ============================================================
 
@@ -61,103 +69,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-
-      appBar: AppBar(
-        backgroundColor: cardColor,
-        elevation: 0,
-        titleSpacing: 20,
-
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: cyanColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.person_rounded,
-                color: cyanColor,
-                size: 22,
-              ),
-            ),
-
-            const SizedBox(width: 12),
-
-            const Text(
-              "Admin Profile",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-
-        actions: [
-          IconButton(
-            tooltip: editing ? "Cancel Editing" : "Edit Profile",
-            onPressed: () {
-              setState(() {
-                editing = !editing;
-              });
-            },
-            icon: Icon(
-              editing
-                  ? Icons.close_rounded
-                  : Icons.edit_rounded,
-              color: Colors.white70,
-            ),
-          ),
-
-          const SizedBox(width: 10),
-        ],
-      ),
+      appBar: _buildAppBar(),
 
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final compact = constraints.maxWidth < 850;
+          final width = constraints.maxWidth;
+          final mobile = _isMobile(width);
+          final tablet = _isTablet(width);
+
+          final horizontalPadding = mobile
+              ? 14.0
+              : tablet
+                  ? 20.0
+                  : 28.0;
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
 
-            padding: EdgeInsets.all(
-              compact ? 18 : 25,
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              mobile ? 16 : 24,
+              horizontalPadding,
+              30,
             ),
 
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1450,
+                ),
 
-              children: [
-                _buildProfileHeader(compact),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileHeader(
+                      mobile: mobile,
+                      tablet: tablet,
+                    ),
 
-                const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                _buildPersonalInformation(compact),
+                    _buildPersonalInformation(
+                      mobile: mobile,
+                      tablet: tablet,
+                    ),
 
-                const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                _buildAccountInformation(),
+                    _buildAccountInformation(),
 
-                const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                _buildSecuritySection(),
+                    _buildSecuritySection(
+                      mobile: mobile,
+                    ),
 
-                const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                _buildPermissionsSection(),
+                    _buildPermissionsSection(),
 
-                const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                _buildActivitySection(),
+                    _buildActivitySection(),
 
-                const SizedBox(height: 20),
+                    if (editing) ...[
+                      const SizedBox(height: 18),
 
-                if (editing) _buildSaveSection(),
-              ],
+                      _buildSaveSection(
+                        mobile: mobile,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -166,15 +150,92 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ============================================================
+  // APP BAR
+  // ============================================================
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: cardColor,
+      elevation: 0,
+      titleSpacing: 16,
+
+      title: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+
+            decoration: BoxDecoration(
+              color: cyanColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+
+            child: const Icon(
+              Icons.person_rounded,
+              color: cyanColor,
+              size: 22,
+            ),
+          ),
+
+          const SizedBox(width: 11),
+
+          const Flexible(
+            child: Text(
+              "Admin Profile",
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+
+      actions: [
+        IconButton(
+          tooltip: editing
+              ? "Cancel Editing"
+              : "Edit Profile",
+
+          onPressed: () {
+            setState(() {
+              editing = !editing;
+
+              if (!editing) {
+                passwordController.clear();
+                confirmPasswordController.clear();
+              }
+            });
+          },
+
+          icon: Icon(
+            editing
+                ? Icons.close_rounded
+                : Icons.edit_rounded,
+            color: Colors.white70,
+          ),
+        ),
+
+        const SizedBox(width: 6),
+      ],
+    );
+  }
+
+  // ============================================================
   // PROFILE HEADER
   // ============================================================
 
-  Widget _buildProfileHeader(bool compact) {
+  Widget _buildProfileHeader({
+    required bool mobile,
+    required bool tablet,
+  }) {
     return Container(
       width: double.infinity,
 
       padding: EdgeInsets.all(
-        compact ? 20 : 25,
+        mobile ? 18 : 24,
       ),
 
       decoration: BoxDecoration(
@@ -187,14 +248,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           end: Alignment.bottomRight,
         ),
 
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(
+          mobile ? 17 : 20,
+        ),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
 
-      child: compact
+      child: mobile
           ? Column(
               children: [
                 _profileAvatar(),
@@ -217,6 +280,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     center: false,
                   ),
                 ),
+
+                const SizedBox(width: 15),
 
                 _onlineBadge(),
               ],
@@ -245,7 +310,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         boxShadow: [
           BoxShadow(
-            color: cyanColor.withOpacity(0.15),
+            color: cyanColor.withValues(alpha: 0.15),
             blurRadius: 18,
           ),
         ],
@@ -277,9 +342,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : CrossAxisAlignment.start,
 
       children: [
-        const Text(
-          "Admin User",
-          style: TextStyle(
+        Text(
+          nameController.text,
+          textAlign: center
+              ? TextAlign.center
+              : TextAlign.left,
+
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 23,
             fontWeight: FontWeight.bold,
@@ -288,9 +357,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         const SizedBox(height: 5),
 
-        const Text(
-          "System Administrator",
-          style: TextStyle(
+        Text(
+          roleController.text,
+          textAlign: center
+              ? TextAlign.center
+              : TextAlign.left,
+
+          style: const TextStyle(
             color: cyanColor,
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -299,9 +372,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         const SizedBox(height: 8),
 
-        const Text(
-          "admin@smogsystem.com",
-          style: TextStyle(
+        Text(
+          emailController.text,
+          textAlign: center
+              ? TextAlign.center
+              : TextAlign.left,
+
+          style: const TextStyle(
             color: Colors.white60,
             fontSize: 11,
           ),
@@ -327,10 +404,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: Colors.greenAccent.withOpacity(0.10),
+        color: Colors.greenAccent.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(20),
+
         border: Border.all(
-          color: Colors.greenAccent.withOpacity(0.18),
+          color: Colors.greenAccent.withValues(alpha: 0.18),
         ),
       ),
 
@@ -362,14 +440,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // PERSONAL INFORMATION
   // ============================================================
 
-  Widget _buildPersonalInformation(bool compact) {
+  Widget _buildPersonalInformation({
+    required bool mobile,
+    required bool tablet,
+  }) {
     return _section(
       title: "Personal Information",
       subtitle: "Manage administrator contact details",
       icon: Icons.person_outline_rounded,
 
       children: [
-        if (compact)
+        if (mobile)
           Column(
             children: [
               _inputField(
@@ -384,6 +465,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 controller: emailController,
                 label: "Email Address",
                 icon: Icons.email_outlined,
+              ),
+
+              const SizedBox(height: 12),
+
+              _inputField(
+                controller: phoneController,
+                label: "Phone Number",
+                icon: Icons.phone_outlined,
+              ),
+            ],
+          )
+        else if (tablet)
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _inputField(
+                      controller: nameController,
+                      label: "Full Name",
+                      icon: Icons.person_outline_rounded,
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Expanded(
+                    child: _inputField(
+                      controller: emailController,
+                      label: "Email Address",
+                      icon: Icons.email_outlined,
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 12),
@@ -474,7 +589,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // SECURITY
   // ============================================================
 
-  Widget _buildSecuritySection() {
+  Widget _buildSecuritySection({
+    required bool mobile,
+  }) {
     return _section(
       title: "Security",
       subtitle: "Protect your administrator account",
@@ -485,6 +602,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           controller: passwordController,
           label: "New Password",
           obscure: !showPassword,
+
           onToggle: () {
             setState(() {
               showPassword = !showPassword;
@@ -498,6 +616,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           controller: confirmPasswordController,
           label: "Confirm New Password",
           obscure: !showConfirmPassword,
+
           onToggle: () {
             setState(() {
               showConfirmPassword =
@@ -509,32 +628,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 15),
 
         Container(
+          width: double.infinity,
+
           padding: const EdgeInsets.all(13),
 
           decoration: BoxDecoration(
-            color: Colors.orangeAccent.withOpacity(0.07),
+            color: Colors.orangeAccent.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(13),
+
             border: Border.all(
-              color: Colors.orangeAccent.withOpacity(0.12),
+              color: Colors.orangeAccent.withValues(alpha: 0.12),
             ),
           ),
 
-          child: const Row(
+          child: Row(
             crossAxisAlignment:
                 CrossAxisAlignment.start,
+
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline_rounded,
                 color: Colors.orangeAccent,
                 size: 18,
               ),
 
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
 
               Expanded(
                 child: Text(
                   "Use a strong password containing uppercase letters, numbers and special characters.",
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white60,
                     fontSize: 10,
                     height: 1.5,
@@ -631,7 +754,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // SAVE SECTION
   // ============================================================
 
-  Widget _buildSaveSection() {
+  Widget _buildSaveSection({
+    required bool mobile,
+  }) {
     return Container(
       width: double.infinity,
 
@@ -642,94 +767,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(18),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
 
-      child: Row(
-        children: [
-          Container(
-            width: 45,
-            height: 45,
-
-            decoration: BoxDecoration(
-              color: Colors.greenAccent.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(13),
-            ),
-
-            child: const Icon(
-              Icons.save_rounded,
-              color: Colors.greenAccent,
-            ),
-          ),
-
-          const SizedBox(width: 13),
-
-          const Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-
+      child: mobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Save Profile Changes",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    _saveIcon(),
+
+                    const SizedBox(width: 12),
+
+                    const Expanded(
+                      child: Text(
+                        "Save Profile Changes",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
 
-                SizedBox(height: 4),
+                const SizedBox(height: 8),
 
-                Text(
+                const Text(
                   "Update your administrator profile information.",
                   style: TextStyle(
                     color: Colors.white54,
                     fontSize: 10,
                   ),
                 ),
+
+                const SizedBox(height: 14),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: _saveButton(),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                _saveIcon(),
+
+                const SizedBox(width: 13),
+
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Save Profile Changes",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      SizedBox(height: 4),
+
+                      Text(
+                        "Update your administrator profile information.",
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                _saveButton(),
               ],
             ),
-          ),
+    );
+  }
 
-          ElevatedButton.icon(
-            onPressed: _saveProfile,
+  // ============================================================
+  // SAVE ICON
+  // ============================================================
 
-            icon: const Icon(
-              Icons.check_rounded,
-              size: 16,
-            ),
+  Widget _saveIcon() {
+    return Container(
+      width: 45,
+      height: 45,
 
-            label: const Text("Save"),
+      decoration: BoxDecoration(
+        color: Colors.greenAccent.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(13),
+      ),
 
-            style: ElevatedButton.styleFrom(
-              backgroundColor: cyanColor,
-              foregroundColor: backgroundColor,
-              elevation: 0,
-
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 12,
-              ),
-
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-
-              textStyle: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
+      child: const Icon(
+        Icons.save_rounded,
+        color: Colors.greenAccent,
       ),
     );
   }
 
   // ============================================================
-  // SECTION
+  // SAVE BUTTON
+  // ============================================================
+
+  Widget _saveButton() {
+    return ElevatedButton.icon(
+      onPressed: _saveProfile,
+
+      icon: const Icon(
+        Icons.check_rounded,
+        size: 16,
+      ),
+
+      label: const Text("Save"),
+
+      style: ElevatedButton.styleFrom(
+        backgroundColor: cyanColor,
+        foregroundColor: backgroundColor,
+        elevation: 0,
+
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 13,
+        ),
+
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+
+        textStyle: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // SECTION CONTAINER
   // ============================================================
 
   Widget _section({
@@ -748,7 +931,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(20),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
 
@@ -764,7 +947,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 height: 40,
 
                 decoration: BoxDecoration(
-                  color: cyanColor.withOpacity(0.10),
+                  color: cyanColor.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(11),
                 ),
 
@@ -835,6 +1018,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       decoration: InputDecoration(
         labelText: label,
+
         labelStyle: const TextStyle(
           color: Colors.white54,
           fontSize: 11,
@@ -847,7 +1031,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
 
         filled: true,
-        fillColor: Colors.white.withOpacity(0.035),
+
+        fillColor: Colors.white.withValues(alpha: 0.035),
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -856,15 +1041,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.06),
+            color: Colors.white.withValues(alpha: 0.06),
           ),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+
           borderSide: const BorderSide(
             color: cyanColor,
+          ),
+        ),
+
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.04),
           ),
         ),
 
@@ -913,6 +1108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         suffixIcon: IconButton(
           onPressed: editing ? onToggle : null,
+
           icon: Icon(
             obscure
                 ? Icons.visibility_outlined
@@ -923,7 +1119,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
 
         filled: true,
-        fillColor: Colors.white.withOpacity(0.035),
+
+        fillColor: Colors.white.withValues(alpha: 0.035),
 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -932,15 +1129,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.06),
+            color: Colors.white.withValues(alpha: 0.06),
           ),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+
           borderSide: const BorderSide(
             color: cyanColor,
+          ),
+        ),
+
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.04),
           ),
         ),
       ),
@@ -966,7 +1173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(12),
       ),
 
@@ -995,6 +1202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               value,
               textAlign: TextAlign.right,
               overflow: TextOverflow.ellipsis,
+
               style: TextStyle(
                 color: valueColor,
                 fontSize: 11,
@@ -1025,18 +1233,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(12),
       ),
 
       child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.center,
+
         children: [
           Container(
             width: 38,
             height: 38,
 
             decoration: BoxDecoration(
-              color: cyanColor.withOpacity(0.08),
+              color: cyanColor.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
 
@@ -1068,6 +1279,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 Text(
                   subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+
                   style: const TextStyle(
                     color: Colors.white54,
                     fontSize: 9,
@@ -1077,6 +1291,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
 
+          const SizedBox(width: 8),
+
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 9,
@@ -1084,7 +1300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
 
             decoration: BoxDecoration(
-              color: Colors.greenAccent.withOpacity(0.10),
+              color: Colors.greenAccent.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(15),
             ),
 
@@ -1118,7 +1334,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       padding: const EdgeInsets.all(12),
 
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(12),
       ),
 
@@ -1129,7 +1345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             height: 38,
 
             decoration: BoxDecoration(
-              color: color.withOpacity(0.10),
+              color: color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
 
@@ -1161,6 +1377,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 Text(
                   subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+
                   style: const TextStyle(
                     color: Colors.white54,
                     fontSize: 9,
@@ -1187,6 +1406,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: Text(
             "Passwords do not match",
           ),
+
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -1209,12 +1429,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icons.check_circle_outline,
               color: Colors.white,
             ),
+
             SizedBox(width: 10),
+
             Text(
               "Profile updated successfully",
             ),
           ],
         ),
+
         backgroundColor: cardColor,
         behavior: SnackBarBehavior.floating,
       ),

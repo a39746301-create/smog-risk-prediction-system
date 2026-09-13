@@ -20,7 +20,7 @@ class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
 
   // ============================================================
-  // COLORS — ORIGINAL THEME
+  // COLORS
   // ============================================================
 
   static const Color backgroundColor = Color(0xff081426);
@@ -36,67 +36,124 @@ class AdminDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final bool isSmall = constraints.maxWidth < 1000;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double width = constraints.maxWidth;
 
-            return Row(
+        // ========================================================
+        // RESPONSIVE BREAKPOINTS
+        // ========================================================
+
+        final bool isMobile = width < 700;
+        final bool isTablet = width >= 700 && width < 1100;
+        final bool isDesktop = width >= 1100;
+
+        return Scaffold(
+          backgroundColor: backgroundColor,
+
+          // ======================================================
+          // MOBILE DRAWER
+          // ======================================================
+
+          drawer: isMobile
+              ? Drawer(
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  child: SafeArea(
+                    child: SizedBox(
+                      width: 285,
+                      child: _buildSidebar(
+                        context,
+                        false,
+                      ),
+                    ),
+                  ),
+                )
+              : null,
+
+          body: SafeArea(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSidebar(context, isSmall),
+                // ==================================================
+                // DESKTOP SIDEBAR
+                // ==================================================
+
+                if (!isMobile)
+                  _buildSidebar(
+                    context,
+                    isTablet,
+                  ),
+
+                // ==================================================
+                // MAIN CONTENT
+                // ==================================================
 
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
-                      isSmall ? 18 : 28,
-                      isSmall ? 18 : 24,
-                      isSmall ? 18 : 28,
+                      isMobile ? 14 : isTablet ? 20 : 28,
+                      isMobile ? 14 : isTablet ? 20 : 24,
+                      isMobile ? 14 : isTablet ? 20 : 28,
                       35,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // ==================================================
-                        // TOP HEADER
+                        // HEADER
                         // ==================================================
 
-                        _buildHeader(context, isSmall),
+                        _buildHeader(
+                          context,
+                          isMobile,
+                          isTablet,
+                        ),
 
-                        const SizedBox(height: 24),
+                        SizedBox(
+                          height: isMobile ? 18 : 24,
+                        ),
 
                         // ==================================================
-                        // OVERVIEW TITLE
+                        // OVERVIEW
                         // ==================================================
 
                         _buildSectionHeading(
                           "Dashboard Overview",
                           "Real-time system performance at a glance",
+                          isMobile: isMobile,
                         ),
 
-                        const SizedBox(height: 15),
+                        SizedBox(
+                          height: isMobile ? 12 : 15,
+                        ),
 
                         // ==================================================
-                        // STAT CARDS
+                        // DASHBOARD CARDS
                         // ==================================================
 
                         _buildDashboardCards(
                           context,
-                          isSmall,
+                          isMobile,
+                          isTablet,
                         ),
 
-                        const SizedBox(height: 27),
+                        SizedBox(
+                          height: isMobile ? 20 : 27,
+                        ),
 
                         // ==================================================
-                        // LIVE SYSTEM STATUS
+                        // LIVE STATUS
                         // ==================================================
 
-                        _buildLiveStatusPanel(isSmall),
+                        _buildLiveStatusPanel(
+                          isMobile || isTablet,
+                        ),
 
-                        const SizedBox(height: 28),
+                        SizedBox(
+                          height: isMobile ? 20 : 28,
+                        ),
 
                         // ==================================================
                         // ANALYTICS
@@ -105,105 +162,113 @@ class AdminDashboard extends StatelessWidget {
                         _buildSectionHeading(
                           "Air Quality Analytics",
                           "AQI trends and smog risk distribution",
+                          isMobile: isMobile,
                         ),
 
-                        const SizedBox(height: 15),
+                        SizedBox(
+                          height: isMobile ? 12 : 15,
+                        ),
 
                         _buildCharts(
                           context,
-                          isSmall,
+                          isMobile,
+                          isTablet,
                         ),
 
-                        const SizedBox(height: 28),
+                        SizedBox(
+                          height: isMobile ? 20 : 28,
+                        ),
 
                         // ==================================================
-                        // ALERTS
+                        // RECENT SMOG ALERTS
                         // ==================================================
 
-                       // ==================================================
-// RECENT SMOG ALERTS
-// ==================================================
+                        _buildDashboardSection(
+                          title: "Recent Smog Alerts",
+                          subtitle:
+                              "Latest alerts generated by the monitoring system",
+                          icon: Icons.warning_amber_rounded,
+                          color: redColor,
+                          buttonText: "View All",
+                          isMobile: isMobile,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const AlertScreen(),
+                              ),
+                            );
+                          },
+                          child: const AlertTable(),
+                        ),
 
-_buildDashboardSection(
-  title: "Recent Smog Alerts",
-  subtitle: "Latest alerts generated by the monitoring system",
-  icon: Icons.warning_amber_rounded,
-  color: redColor,
-  buttonText: "View All",
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const AlertScreen(),
-      ),
-    );
-  },
-  child: const AlertTable(),
-),
-
-const SizedBox(height: 28),
+                        SizedBox(
+                          height: isMobile ? 20 : 28,
+                        ),
 
                         // ==================================================
-                        // MOTORWAY
+                        // MOTORWAY MONITORING
                         // ==================================================
 
-                       // ==================================================
-// MOTORWAY MONITORING
-// ==================================================
+                        _buildDashboardSection(
+                          title: "Motorway Monitoring",
+                          subtitle:
+                              "Current NHMP motorway monitoring status",
+                          icon: Icons.route_rounded,
+                          color: blueColor,
+                          buttonText: "View Stations",
+                          isMobile: isMobile,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const NHMPScreen(),
+                              ),
+                            );
+                          },
+                          child: const MotorwayMonitor(),
+                        ),
 
-_buildDashboardSection(
-  title: "Motorway Monitoring",
-  subtitle: "Current NHMP motorway monitoring status",
-  icon: Icons.route_rounded,
-  color: blueColor,
-  buttonText: "View Stations",
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const NHMPScreen(),
-      ),
-    );
-  },
-  child: const MotorwayMonitor(),
-),
+                        SizedBox(
+                          height: isMobile ? 20 : 28,
+                        ),
 
-const SizedBox(height: 28),
                         // ==================================================
-                        // AI PREDICTION
+                        // AI RISK PREDICTION
                         // ==================================================
 
-                       // ==================================================
-// AI RISK PREDICTION
-// ==================================================
+                        _buildDashboardSection(
+                          title: "AI Risk Prediction",
+                          subtitle:
+                              "AI-powered smog risk analysis and forecasting",
+                          icon: Icons.psychology_rounded,
+                          color: cyanColor,
+                          buttonText: "View Reports",
+                          isMobile: isMobile,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const ReportsScreen(),
+                              ),
+                            );
+                          },
+                          child: const AIPrediction(),
+                        ),
 
-_buildDashboardSection(
-  title: "AI Risk Prediction",
-  subtitle: "AI-powered smog risk analysis and forecasting",
-  icon: Icons.psychology_rounded,
-  color: cyanColor,
-  buttonText: "View Reports",
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const ReportsScreen(),
-      ),
-    );
-  },
-  child: const AIPrediction(),
-),
-
-const SizedBox(height: 30),
+                        const SizedBox(height: 30),
                       ],
                     ),
                   ),
                 ),
               ],
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -213,10 +278,10 @@ const SizedBox(height: 30),
 
   Widget _buildSidebar(
     BuildContext context,
-    bool isSmall,
+    bool isTablet,
   ) {
     return Container(
-      width: isSmall ? 225 : 260,
+      width: isTablet ? 225 : 260,
       margin: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: sidebarColor,
@@ -240,7 +305,10 @@ const SizedBox(height: 30),
           children: [
             const SizedBox(height: 28),
 
+            // ========================================================
             // LOGO
+            // ========================================================
+
             Container(
               width: 58,
               height: 58,
@@ -271,11 +339,15 @@ const SizedBox(height: 30),
 
             const SizedBox(height: 5),
 
-            const Text(
-              "Risk Prediction System",
-              style: TextStyle(
-                color: secondaryColor,
-                fontSize: 11.5,
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
+              child: Text(
+                "Risk Prediction System",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: secondaryColor,
+                  fontSize: 11.5,
+                ),
               ),
             ),
 
@@ -386,10 +458,20 @@ const SizedBox(height: 30),
           hoverColor: Colors.white.withOpacity(0.05),
           splashColor: cyanColor.withOpacity(0.08),
           onTap: () {
-            _navigate(context, title);
+            // Mobile drawer close
+            if (MediaQuery.of(context).size.width < 700) {
+              Navigator.pop(context);
+            }
+
+            _navigate(
+              context,
+              title,
+            );
           },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
+            duration: const Duration(
+              milliseconds: 180,
+            ),
             padding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 10,
@@ -432,7 +514,9 @@ const SizedBox(height: 30),
                             : Colors.white70,
                   ),
                 ),
+
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: Text(
                     title,
@@ -445,15 +529,19 @@ const SizedBox(height: 30),
                               : whiteColor,
                       fontSize: 14,
                       fontWeight:
-                          active ? FontWeight.bold : FontWeight.w500,
+                          active
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                     ),
                   ),
                 ),
+
                 if (active)
                   Container(
                     width: 5,
                     height: 5,
-                    decoration: const BoxDecoration(
+                    decoration:
+                        const BoxDecoration(
                       color: cyanColor,
                       shape: BoxShape.circle,
                     ),
@@ -482,7 +570,8 @@ const SizedBox(height: 30),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const UsersScreen(),
+            builder: (_) =>
+                const UsersScreen(),
           ),
         );
         break;
@@ -491,7 +580,8 @@ const SizedBox(height: 30),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const NHMPScreen(),
+            builder: (_) =>
+                const NHMPScreen(),
           ),
         );
         break;
@@ -500,7 +590,8 @@ const SizedBox(height: 30),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const AirQualityScreen(),
+            builder: (_) =>
+                const AirQualityScreen(),
           ),
         );
         break;
@@ -509,7 +600,8 @@ const SizedBox(height: 30),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const AlertScreen(),
+            builder: (_) =>
+                const AlertScreen(),
           ),
         );
         break;
@@ -518,7 +610,8 @@ const SizedBox(height: 30),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const ReportsScreen(),
+            builder: (_) =>
+                const ReportsScreen(),
           ),
         );
         break;
@@ -527,7 +620,8 @@ const SizedBox(height: 30),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const SettingsScreen(),
+            builder: (_) =>
+                const SettingsScreen(),
           ),
         );
         break;
@@ -536,7 +630,8 @@ const SizedBox(height: 30),
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const ProfileScreen(),
+            builder: (_) =>
+                const ProfileScreen(),
           ),
         );
         break;
@@ -556,12 +651,14 @@ const SizedBox(height: 30),
   ) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.65),
+      barrierColor:
+          Colors.black.withOpacity(0.65),
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: sidebarColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius:
+                BorderRadius.circular(20),
           ),
           title: Row(
             children: [
@@ -569,20 +666,27 @@ const SizedBox(height: 30),
                 width: 45,
                 height: 45,
                 decoration: BoxDecoration(
-                  color: redColor.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(13),
+                  color:
+                      redColor.withOpacity(0.10),
+                  borderRadius:
+                      BorderRadius.circular(13),
                 ),
                 child: const Icon(
                   Icons.logout_rounded,
                   color: redColor,
                 ),
               ),
+
               const SizedBox(width: 12),
-              const Text(
-                "Logout",
-                style: TextStyle(
-                  color: whiteColor,
-                  fontWeight: FontWeight.bold,
+
+              const Expanded(
+                child: Text(
+                  "Logout",
+                  style: TextStyle(
+                    color: whiteColor,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -597,7 +701,9 @@ const SizedBox(height: 30),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
+                Navigator.pop(
+                  dialogContext,
+                );
               },
               child: const Text(
                 "Cancel",
@@ -606,29 +712,37 @@ const SizedBox(height: 30),
                 ),
               ),
             ),
+
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(dialogContext);
+                Navigator.pop(
+                  dialogContext,
+                );
 
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const LoginPage(),
+                    builder: (_) =>
+                        const LoginPage(),
                   ),
                   (route) => false,
                 );
               },
-              style: ElevatedButton.styleFrom(
+              style:
+                  ElevatedButton.styleFrom(
                 backgroundColor: redColor,
                 foregroundColor: whiteColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(10),
                 ),
               ),
               child: const Text(
                 "Logout",
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight:
+                      FontWeight.bold,
                 ),
               ),
             ),
@@ -644,11 +758,14 @@ const SizedBox(height: 30),
 
   Widget _buildHeader(
     BuildContext context,
-    bool isSmall,
+    bool isMobile,
+    bool isTablet,
   ) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(isSmall ? 18 : 22),
+      padding: EdgeInsets.all(
+        isMobile ? 14 : 22,
+      ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -656,122 +773,218 @@ const SizedBox(height: 30),
             Color(0xff163B5C),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius:
+            BorderRadius.circular(
+          isMobile ? 18 : 24,
+        ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.09),
+          color:
+              Colors.white.withOpacity(0.09),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color:
+                Colors.black.withOpacity(0.18),
             blurRadius: 25,
-            offset: const Offset(0, 8),
+            offset:
+                const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
+          // ======================================================
+          // MOBILE MENU BUTTON
+          // ======================================================
+
+          if (isMobile) ...[
+            Builder(
+              builder: (drawerContext) {
+                return GestureDetector(
+                  onTap: () {
+                    Scaffold.of(
+                      drawerContext,
+                    ).openDrawer();
+                  },
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          Colors.white.withOpacity(
+                        0.07,
+                      ),
+                      borderRadius:
+                          BorderRadius.circular(
+                        13,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.menu_rounded,
+                      color: whiteColor,
+                      size: 24,
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(width: 10),
+          ],
+
+          // ======================================================
+          // ADMIN ICON
+          // ======================================================
+
           Container(
-            width: 56,
-            height: 56,
+            width: isMobile ? 46 : 56,
+            height: isMobile ? 46 : 56,
             decoration: BoxDecoration(
-              color: cyanColor.withOpacity(0.13),
-              borderRadius: BorderRadius.circular(17),
+              color:
+                  cyanColor.withOpacity(0.13),
+              borderRadius:
+                  BorderRadius.circular(17),
               border: Border.all(
-                color: cyanColor.withOpacity(0.20),
+                color:
+                    cyanColor.withOpacity(0.20),
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.admin_panel_settings_rounded,
               color: cyanColor,
-              size: 30,
+              size: isMobile ? 24 : 30,
             ),
           ),
 
-          const SizedBox(width: 15),
+          SizedBox(
+            width: isMobile ? 10 : 15,
+          ),
+
+          // ======================================================
+          // WELCOME TEXT
+          // ======================================================
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Welcome back, Admin 👋",
+                  isMobile
+                      ? "Welcome, Admin 👋"
+                      : "Welcome back, Admin 👋",
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
                     color: whiteColor,
-                    fontSize: isSmall ? 20 : 25,
-                    fontWeight: FontWeight.bold,
+                    fontSize:
+                        isMobile ? 16 : 25,
+                    fontWeight:
+                        FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 5),
-                const Text(
-                  "Monitor air quality, predictions and alerts",
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: secondaryColor,
-                    fontSize: 13,
+
+                if (!isMobile) ...[
+                  const SizedBox(height: 5),
+
+                  const Text(
+                    "Monitor air quality, predictions and alerts",
+                    maxLines: 1,
+                    overflow:
+                        TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color:
+                          secondaryColor,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
 
-          if (!isSmall) ...[
-            const SizedBox(width: 15),
+          // ======================================================
+          // NOTIFICATION
+          // ======================================================
 
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const NotificationsScreen(),
-                  ),
-                );
-              },
-              child: _headerButton(
-                icon: Icons.notifications_none_rounded,
-                badge: "3",
-              ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      const NotificationsScreen(),
+                ),
+              );
+            },
+            child: _headerButton(
+              icon:
+                  Icons.notifications_none_rounded,
+              badge: "3",
+              small: isMobile,
             ),
+          ),
 
+          // ======================================================
+          // PROFILE
+          // ======================================================
+
+          if (!isMobile) ...[
             const SizedBox(width: 10),
 
             Container(
-              padding: const EdgeInsets.symmetric(
+              padding:
+                  const EdgeInsets.symmetric(
                 horizontal: 10,
                 vertical: 7,
               ),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.06),
-                borderRadius: BorderRadius.circular(14),
+                color:
+                    Colors.white.withOpacity(
+                  0.06,
+                ),
+                borderRadius:
+                    BorderRadius.circular(14),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.06),
+                  color:
+                      Colors.white.withOpacity(
+                    0.06,
+                  ),
                 ),
               ),
               child: Row(
                 children: [
                   const CircleAvatar(
                     radius: 19,
-                    backgroundColor: cyanColor,
+                    backgroundColor:
+                        cyanColor,
                     child: Icon(
                       Icons.person,
-                      color: backgroundColor,
+                      color:
+                          backgroundColor,
                       size: 21,
                     ),
                   ),
+
                   const SizedBox(width: 8),
+
                   const Text(
                     "Admin",
                     style: TextStyle(
                       color: whiteColor,
-                      fontWeight: FontWeight.bold,
+                      fontWeight:
+                          FontWeight.bold,
                       fontSize: 13,
                     ),
                   ),
+
                   const SizedBox(width: 4),
+
                   const Icon(
-                    Icons.keyboard_arrow_down_rounded,
+                    Icons
+                        .keyboard_arrow_down_rounded,
                     color: Colors.white60,
                     size: 18,
                   ),
@@ -791,15 +1004,19 @@ const SizedBox(height: 30),
   Widget _headerButton({
     required IconData icon,
     String? badge,
+    bool small = false,
   }) {
     return Container(
-      width: 45,
-      height: 45,
+      width: small ? 42 : 45,
+      height: small ? 42 : 45,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(14),
+        color:
+            Colors.white.withOpacity(0.07),
+        borderRadius:
+            BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white.withOpacity(0.07),
+          color:
+              Colors.white.withOpacity(0.07),
         ),
       ),
       child: Stack(
@@ -808,27 +1025,32 @@ const SizedBox(height: 30),
             child: Icon(
               icon,
               color: whiteColor,
-              size: 23,
+              size: small ? 21 : 23,
             ),
           ),
+
           if (badge != null)
             Positioned(
-              right: 7,
-              top: 6,
+              right: 6,
+              top: 5,
               child: Container(
                 width: 14,
                 height: 14,
-                decoration: const BoxDecoration(
+                decoration:
+                    const BoxDecoration(
                   color: redColor,
                   shape: BoxShape.circle,
                 ),
-                alignment: Alignment.center,
+                alignment:
+                    Alignment.center,
                 child: Text(
                   badge,
-                  style: const TextStyle(
+                  style:
+                      const TextStyle(
                     color: whiteColor,
                     fontSize: 8,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.bold,
                   ),
                 ),
               ),
@@ -847,34 +1069,47 @@ const SizedBox(height: 30),
     String subtitle, {
     String? buttonText,
     VoidCallback? onPressed,
+    bool isMobile = false,
   }) {
     return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         Container(
           width: 4,
           height: 34,
           decoration: BoxDecoration(
             color: cyanColor,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius:
+                BorderRadius.circular(10),
           ),
         ),
+
         const SizedBox(width: 11),
 
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   color: whiteColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize:
+                      isMobile ? 16 : 18,
+                  fontWeight:
+                      FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 4),
+
               Text(
                 subtitle,
+                maxLines: isMobile ? 2 : 1,
+                overflow:
+                    TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: secondaryColor,
                   fontSize: 12,
@@ -884,7 +1119,9 @@ const SizedBox(height: 30),
           ),
         ),
 
-        if (buttonText != null && onPressed != null)
+        if (!isMobile &&
+            buttonText != null &&
+            onPressed != null)
           _actionButton(
             text: buttonText,
             onPressed: onPressed,
@@ -911,15 +1148,20 @@ const SizedBox(height: 30),
       style: OutlinedButton.styleFrom(
         foregroundColor: cyanColor,
         side: BorderSide(
-          color: cyanColor.withOpacity(0.30),
+          color:
+              cyanColor.withOpacity(0.30),
         ),
-        backgroundColor: cyanColor.withOpacity(0.05),
-        padding: const EdgeInsets.symmetric(
+        backgroundColor:
+            cyanColor.withOpacity(0.05),
+        padding:
+            const EdgeInsets.symmetric(
           horizontal: 13,
           vertical: 10,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(10),
         ),
         textStyle: const TextStyle(
           fontSize: 11,
@@ -935,7 +1177,8 @@ const SizedBox(height: 30),
 
   Widget _buildDashboardCards(
     BuildContext context,
-    bool isSmall,
+    bool isMobile,
+    bool isTablet,
   ) {
     final cards = [
       _DashboardCardData(
@@ -972,19 +1215,46 @@ const SizedBox(height: 30),
       ),
     ];
 
-    if (isSmall) {
+    // ==========================================================
+    // MOBILE
+    // ==========================================================
+
+    if (isMobile) {
+      return Column(
+        children: [
+          for (int i = 0;
+              i < cards.length;
+              i++) ...[
+            _dashboardCard(
+              context,
+              cards[i],
+            ),
+            if (i != cards.length - 1)
+              const SizedBox(height: 12),
+          ],
+        ],
+      );
+    }
+
+    // ==========================================================
+    // TABLET
+    // ==========================================================
+
+    if (isTablet) {
       return GridView.builder(
         shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
+        physics:
+            const NeverScrollableScrollPhysics(),
         itemCount: cards.length,
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 14,
           mainAxisSpacing: 14,
-          childAspectRatio: 1.55,
+          childAspectRatio: 2.0,
         ),
-        itemBuilder: (context, index) {
+        itemBuilder:
+            (context, index) {
           return _dashboardCard(
             context,
             cards[index],
@@ -993,6 +1263,10 @@ const SizedBox(height: 30),
       );
     }
 
+    // ==========================================================
+    // DESKTOP
+    // ==========================================================
+
     return Row(
       children: List.generate(
         cards.length,
@@ -1000,7 +1274,11 @@ const SizedBox(height: 30),
           return Expanded(
             child: Padding(
               padding: EdgeInsets.only(
-                right: index == cards.length - 1 ? 0 : 14,
+                right:
+                    index ==
+                            cards.length - 1
+                        ? 0
+                        : 14,
               ),
               child: _dashboardCard(
                 context,
@@ -1023,10 +1301,13 @@ const SizedBox(height: 30),
   ) {
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius:
+          BorderRadius.circular(20),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        hoverColor: Colors.white.withOpacity(0.025),
+        borderRadius:
+            BorderRadius.circular(20),
+        hoverColor:
+            Colors.white.withOpacity(0.025),
         onTap: () {
           Navigator.push(
             context,
@@ -1036,41 +1317,65 @@ const SizedBox(height: 30),
           );
         },
         child: Container(
-          padding: const EdgeInsets.all(18),
+          width: double.infinity,
+          padding:
+              const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient:
+                LinearGradient(
               colors: [
-                Colors.white.withOpacity(0.09),
-                Colors.white.withOpacity(0.035),
+                Colors.white
+                    .withOpacity(0.09),
+                Colors.white
+                    .withOpacity(0.035),
               ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              begin:
+                  Alignment.topLeft,
+              end:
+                  Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius:
+                BorderRadius.circular(20),
             border: Border.all(
-              color: Colors.white.withOpacity(0.09),
+              color:
+                  Colors.white.withOpacity(
+                0.09,
+              ),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.12),
+                color:
+                    Colors.black.withOpacity(
+                  0.12,
+                ),
                 blurRadius: 18,
-                offset: const Offset(0, 7),
+                offset:
+                    const Offset(0, 7),
               ),
             ],
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    MainAxisAlignment
+                        .spaceBetween,
                 children: [
                   Container(
                     width: 47,
                     height: 47,
-                    decoration: BoxDecoration(
-                      color: data.color.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(14),
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          data.color.withOpacity(
+                        0.12,
+                      ),
+                      borderRadius:
+                          BorderRadius.circular(
+                        14,
+                      ),
                     ),
                     child: Icon(
                       data.icon,
@@ -1078,21 +1383,32 @@ const SizedBox(height: 30),
                       size: 25,
                     ),
                   ),
+
                   Container(
-                    padding: const EdgeInsets.symmetric(
+                    padding:
+                        const EdgeInsets
+                            .symmetric(
                       horizontal: 8,
                       vertical: 5,
                     ),
-                    decoration: BoxDecoration(
-                      color: data.color.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(8),
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          data.color.withOpacity(
+                        0.08,
+                      ),
+                      borderRadius:
+                          BorderRadius.circular(
+                        8,
+                      ),
                     ),
                     child: Text(
                       data.status,
                       style: TextStyle(
                         color: data.color,
                         fontSize: 9,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                            FontWeight.bold,
                       ),
                     ),
                   ),
@@ -1103,7 +1419,8 @@ const SizedBox(height: 30),
 
               Text(
                 data.title,
-                style: const TextStyle(
+                style:
+                    const TextStyle(
                   color: secondaryColor,
                   fontSize: 13,
                 ),
@@ -1115,16 +1432,24 @@ const SizedBox(height: 30),
                 children: [
                   Text(
                     data.value,
-                    style: const TextStyle(
+                    style:
+                        const TextStyle(
                       color: whiteColor,
                       fontSize: 23,
-                      fontWeight: FontWeight.bold,
+                      fontWeight:
+                          FontWeight.bold,
                     ),
                   ),
+
                   const Spacer(),
+
                   Icon(
-                    Icons.arrow_forward_rounded,
-                    color: data.color.withOpacity(0.65),
+                    Icons
+                        .arrow_forward_rounded,
+                    color:
+                        data.color.withOpacity(
+                      0.65,
+                    ),
                     size: 18,
                   ),
                 ],
@@ -1147,10 +1472,12 @@ const SizedBox(height: 30),
   }
 
   // ============================================================
-  // LIVE STATUS PANEL
+  // LIVE STATUS
   // ============================================================
 
-  Widget _buildLiveStatusPanel(bool isSmall) {
+  Widget _buildLiveStatusPanel(
+    bool isSmall,
+  ) {
     final content = [
       _liveItem(
         Icons.cloud_rounded,
@@ -1180,114 +1507,181 @@ const SizedBox(height: 30),
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(19),
+      padding:
+          const EdgeInsets.all(19),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient:
+            const LinearGradient(
           colors: [
             Color(0xff0D2139),
             Color(0xff102A43),
           ],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius:
+            BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color:
+              Colors.white.withOpacity(0.08),
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
-                  color: cyanColor.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(10),
+                decoration:
+                    BoxDecoration(
+                  color:
+                      cyanColor.withOpacity(
+                    0.10,
+                  ),
+                  borderRadius:
+                      BorderRadius.circular(
+                    10,
+                  ),
                 ),
                 child: const Icon(
-                  Icons.monitor_heart_rounded,
+                  Icons
+                      .monitor_heart_rounded,
                   color: cyanColor,
                   size: 20,
                 ),
               ),
+
               const SizedBox(width: 11),
+
               const Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Text(
                       "Live System Status",
                       style: TextStyle(
                         color: whiteColor,
                         fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                            FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 3),
                     Text(
                       "Current platform health",
                       style: TextStyle(
-                        color: secondaryColor,
+                        color:
+                            secondaryColor,
                         fontSize: 10,
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.greenAccent.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.circle,
-                      color: Colors.greenAccent,
-                      size: 7,
+
+              if (!isSmall)
+                Container(
+                  padding:
+                      const EdgeInsets
+                          .symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration:
+                      BoxDecoration(
+                    color: Colors
+                        .greenAccent
+                        .withOpacity(0.08),
+                    borderRadius:
+                        BorderRadius.circular(
+                      20,
                     ),
-                    SizedBox(width: 6),
-                    Text(
-                      "All Systems Normal",
-                      style: TextStyle(
-                        color: Colors.greenAccent,
-                        fontSize: 9,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        color:
+                            Colors.greenAccent,
+                        size: 7,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 6),
+                      Text(
+                        "All Systems Normal",
+                        style: TextStyle(
+                          color:
+                              Colors.greenAccent,
+                          fontSize: 9,
+                          fontWeight:
+                              FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
+
+          if (isSmall)
+            const Padding(
+              padding:
+                  EdgeInsets.only(top: 12),
+              child: Align(
+                alignment:
+                    Alignment.centerLeft,
+                child: Text(
+                  "●  All Systems Normal",
+                  style: TextStyle(
+                    color:
+                        Colors.greenAccent,
+                    fontSize: 10,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
 
           const SizedBox(height: 18),
 
           if (isSmall)
             Column(
               children: [
-                for (int i = 0; i < content.length; i++) ...[
+                for (int i = 0;
+                    i < content.length;
+                    i++) ...[
                   content[i],
-                  if (i != content.length - 1)
-                    const SizedBox(height: 10),
+                  if (i !=
+                      content.length - 1)
+                    const SizedBox(
+                      height: 10,
+                    ),
                 ],
               ],
             )
           else
             Row(
               children: [
-                for (int i = 0; i < content.length; i++)
+                for (int i = 0;
+                    i < content.length;
+                    i++)
                   Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(
-                        right: i == content.length - 1 ? 0 : 10,
+                      padding:
+                          EdgeInsets.only(
+                        right:
+                            i ==
+                                    content.length -
+                                        1
+                                ? 0
+                                : 10,
                       ),
-                      child: content[i],
+                      child:
+                          content[i],
                     ),
                   ),
               ],
@@ -1304,12 +1698,16 @@ const SizedBox(height: 30),
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(13),
+      padding:
+          const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
-        borderRadius: BorderRadius.circular(14),
+        color:
+            Colors.white.withOpacity(0.035),
+        borderRadius:
+            BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color:
+              Colors.white.withOpacity(0.06),
         ),
       ),
       child: Row(
@@ -1317,9 +1715,12 @@ const SizedBox(height: 30),
           Container(
             width: 35,
             height: 35,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.10),
-              borderRadius: BorderRadius.circular(10),
+            decoration:
+                BoxDecoration(
+              color:
+                  color.withOpacity(0.10),
+              borderRadius:
+                  BorderRadius.circular(10),
             ),
             child: Icon(
               icon,
@@ -1327,21 +1728,29 @@ const SizedBox(height: 30),
               size: 18,
             ),
           ),
+
           const SizedBox(width: 9),
+
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style:
+                      const TextStyle(
                     color: Colors.white70,
                     fontSize: 10,
-                    fontWeight: FontWeight.w600,
+                    fontWeight:
+                        FontWeight.w600,
                   ),
                 ),
+
                 const SizedBox(height: 4),
+
                 Row(
                   children: [
                     Icon(
@@ -1349,15 +1758,19 @@ const SizedBox(height: 30),
                       color: color,
                       size: 6,
                     ),
+
                     const SizedBox(width: 5),
+
                     Expanded(
                       child: Text(
                         value,
-                        overflow: TextOverflow.ellipsis,
+                        overflow:
+                            TextOverflow.ellipsis,
                         style: TextStyle(
                           color: color,
                           fontSize: 9,
-                          fontWeight: FontWeight.bold,
+                          fontWeight:
+                              FontWeight.bold,
                         ),
                       ),
                     ),
@@ -1377,26 +1790,48 @@ const SizedBox(height: 30),
 
   Widget _buildCharts(
     BuildContext context,
-    bool isSmall,
+    bool isMobile,
+    bool isTablet,
   ) {
-    if (isSmall) {
+    if (isMobile) {
       return Column(
         children: [
           _chartContainer(
             const AQIChart(),
-            330,
+            290,
           ),
-          const SizedBox(height: 18),
+
+          const SizedBox(height: 16),
+
           _chartContainer(
             const RiskChart(),
-            330,
+            290,
+          ),
+        ],
+      );
+    }
+
+    if (isTablet) {
+      return Column(
+        children: [
+          _chartContainer(
+            const AQIChart(),
+            320,
+          ),
+
+          const SizedBox(height: 18),
+
+          _chartContainer(
+            const RiskChart(),
+            320,
           ),
         ],
       );
     }
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 3,
@@ -1405,7 +1840,9 @@ const SizedBox(height: 30),
             350,
           ),
         ),
+
         const SizedBox(width: 20),
+
         Expanded(
           flex: 2,
           child: _chartContainer(
@@ -1424,29 +1861,36 @@ const SizedBox(height: 30),
     return Container(
       height: height,
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding:
+          const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
-        borderRadius: BorderRadius.circular(20),
+        color:
+            Colors.white.withOpacity(0.035),
+        borderRadius:
+            BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color:
+              Colors.white.withOpacity(0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color:
+                Colors.black.withOpacity(0.12),
             blurRadius: 18,
-            offset: const Offset(0, 7),
+            offset:
+                const Offset(0, 7),
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius:
+            BorderRadius.circular(14),
         child: child,
       ),
     );
   }
 
-    // ============================================================
+  // ============================================================
   // PROFESSIONAL DASHBOARD SECTION
   // ============================================================
 
@@ -1456,6 +1900,7 @@ const SizedBox(height: 30),
     required IconData icon,
     required Color color,
     required Widget child,
+    required bool isMobile,
     String? buttonText,
     VoidCallback? onPressed,
   }) {
@@ -1463,125 +1908,341 @@ const SizedBox(height: 30),
       width: double.infinity,
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius:
+            BorderRadius.circular(22),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color:
+              Colors.white.withOpacity(0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.18),
+            color:
+                Colors.black.withOpacity(0.18),
             blurRadius: 20,
-            offset: const Offset(0, 8),
+            offset:
+                const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
+          // ======================================================
           // HEADER
+          // ======================================================
+
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              20,
-              18,
-              20,
+            padding:
+                const EdgeInsets.fromLTRB(
               16,
+              16,
+              16,
+              14,
             ),
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 22,
-                  ),
-                ),
-
-                const SizedBox(width: 13),
-
-                Expanded(
-                  child: Column(
+            child: isMobile
+                ? Column(
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: whiteColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: secondaryColor,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                      Row(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration:
+                                BoxDecoration(
+                              color: color
+                                  .withOpacity(
+                                0.12,
+                              ),
+                              borderRadius:
+                                  BorderRadius
+                                      .circular(
+                                13,
+                              ),
+                            ),
+                            child: Icon(
+                              icon,
+                              color: color,
+                              size: 21,
+                            ),
+                          ),
 
-                if (buttonText != null &&
-                    onPressed != null)
-                  OutlinedButton(
-                    onPressed: onPressed,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: color,
-                      side: BorderSide(
-                        color: color.withOpacity(0.30),
+                          const SizedBox(
+                            width: 11,
+                          ),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment
+                                      .start,
+                              children: [
+                                Text(
+                                  title,
+                                  style:
+                                      const TextStyle(
+                                    color:
+                                        whiteColor,
+                                    fontSize:
+                                        15,
+                                    fontWeight:
+                                        FontWeight
+                                            .bold,
+                                  ),
+                                ),
+
+                                const SizedBox(
+                                  height: 4,
+                                ),
+
+                                Text(
+                                  subtitle,
+                                  maxLines: 3,
+                                  overflow:
+                                      TextOverflow
+                                          .ellipsis,
+                                  style:
+                                      const TextStyle(
+                                    color:
+                                        secondaryColor,
+                                    fontSize:
+                                        10,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      backgroundColor:
-                          color.withOpacity(0.06),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 9,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          buttonText,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+
+                      if (buttonText !=
+                              null &&
+                          onPressed != null)
+                        Padding(
+                          padding:
+                              const EdgeInsets
+                                  .only(
+                            top: 12,
+                          ),
+                          child:
+                              SizedBox(
+                            width:
+                                double.infinity,
+                            child:
+                                OutlinedButton.icon(
+                              onPressed:
+                                  onPressed,
+                              icon:
+                                  const Icon(
+                                Icons
+                                    .arrow_forward_rounded,
+                                size: 14,
+                              ),
+                              label:
+                                  Text(
+                                buttonText,
+                              ),
+                              style:
+                                  OutlinedButton
+                                      .styleFrom(
+                                foregroundColor:
+                                    color,
+                                side:
+                                    BorderSide(
+                                  color: color
+                                      .withOpacity(
+                                    0.30,
+                                  ),
+                                ),
+                                backgroundColor:
+                                    color
+                                        .withOpacity(
+                                  0.06,
+                                ),
+                                padding:
+                                    const EdgeInsets
+                                        .symmetric(
+                                  vertical:
+                                      10,
+                                ),
+                                shape:
+                                    RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius
+                                          .circular(
+                                    10,
+                                  ),
+                                ),
+                                textStyle:
+                                    const TextStyle(
+                                  fontSize:
+                                      10,
+                                  fontWeight:
+                                      FontWeight
+                                          .bold,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 5),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          size: 14,
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration:
+                            BoxDecoration(
+                          color: color
+                              .withOpacity(
+                            0.12,
+                          ),
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            13,
+                          ),
                         ),
-                      ],
-                    ),
+                        child: Icon(
+                          icon,
+                          color: color,
+                          size: 22,
+                        ),
+                      ),
+
+                      const SizedBox(
+                        width: 13,
+                      ),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment:
+                              CrossAxisAlignment
+                                  .start,
+                          children: [
+                            Text(
+                              title,
+                              style:
+                                  const TextStyle(
+                                color:
+                                    whiteColor,
+                                fontSize:
+                                    16,
+                                fontWeight:
+                                    FontWeight
+                                        .bold,
+                              ),
+                            ),
+
+                            const SizedBox(
+                              height: 4,
+                            ),
+
+                            Text(
+                              subtitle,
+                              maxLines: 2,
+                              overflow:
+                                  TextOverflow
+                                      .ellipsis,
+                              style:
+                                  const TextStyle(
+                                color:
+                                    secondaryColor,
+                                fontSize:
+                                    11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      if (buttonText !=
+                              null &&
+                          onPressed != null)
+                        OutlinedButton.icon(
+                          onPressed:
+                              onPressed,
+                          icon:
+                              const Icon(
+                            Icons
+                                .arrow_forward_rounded,
+                            size: 14,
+                          ),
+                          label:
+                              Text(
+                            buttonText,
+                          ),
+                          style:
+                              OutlinedButton
+                                  .styleFrom(
+                            foregroundColor:
+                                color,
+                            side:
+                                BorderSide(
+                              color: color
+                                  .withOpacity(
+                                0.30,
+                              ),
+                            ),
+                            backgroundColor:
+                                color
+                                    .withOpacity(
+                              0.06,
+                            ),
+                            padding:
+                                const EdgeInsets
+                                    .symmetric(
+                              horizontal:
+                                  12,
+                              vertical:
+                                  9,
+                            ),
+                            shape:
+                                RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius
+                                      .circular(
+                                10,
+                              ),
+                            ),
+                            textStyle:
+                                const TextStyle(
+                              fontSize:
+                                  10,
+                              fontWeight:
+                                  FontWeight
+                                      .bold,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-              ],
+          ),
+
+          // ======================================================
+          // DIVIDER
+          // ======================================================
+
+          Container(
+            height: 1,
+            color:
+                Colors.white.withOpacity(
+              0.06,
             ),
           ),
 
-          // DIVIDER
-          Container(
-            height: 1,
-            color: Colors.white.withOpacity(0.06),
-          ),
+          // ======================================================
+          // CHILD WIDGET
+          // ======================================================
 
-          // EXISTING WIDGET
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding:
+                const EdgeInsets.all(10),
             child: child,
           ),
         ],
@@ -1592,7 +2253,6 @@ const SizedBox(height: 30),
 
 // ================================================================
 // DASHBOARD CARD DATA
-// IMPORTANT: Ye AdminDashboard class ke BAHAR hai
 // ================================================================
 
 class _DashboardCardData {

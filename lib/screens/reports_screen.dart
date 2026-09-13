@@ -33,41 +33,39 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: background,
-
       appBar: AppBar(
         backgroundColor: sidebarBlue,
         elevation: 0,
-        titleSpacing: 20,
-
+        titleSpacing: 14,
         title: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 color: cyan.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(11),
               ),
               child: const Icon(
                 Icons.analytics_rounded,
                 color: cyan,
-                size: 22,
+                size: 21,
               ),
             ),
-
-            const SizedBox(width: 12),
-
-            const Text(
-              "Reports & Analytics",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                "Reports & Analytics",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
         ),
-
         actions: [
           IconButton(
             tooltip: "Refresh Reports",
@@ -86,55 +84,86 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     color: Colors.white,
                   ),
           ),
-
-          const SizedBox(width: 10),
+          const SizedBox(width: 6),
         ],
       ),
-
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final compact = constraints.maxWidth < 850;
+          final width = constraints.maxWidth;
+
+          final mobile = width < 600;
+          final tablet = width >= 600 && width < 1000;
+          final desktop = width >= 1000;
+
+          final horizontalPadding = mobile
+              ? 12.0
+              : tablet
+                  ? 18.0
+                  : 25.0;
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-
-            padding: EdgeInsets.all(
-              compact ? 18 : 25,
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: mobile ? 14 : 22,
             ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1450,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _header(
+                      mobile: mobile,
+                      tablet: tablet,
+                    ),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _header(compact),
+                    SizedBox(height: mobile ? 14 : 20),
 
-                const SizedBox(height: 22),
+                    _periodSelector(
+                      mobile: mobile,
+                    ),
 
-                _periodSelector(),
+                    SizedBox(height: mobile ? 14 : 20),
 
-                const SizedBox(height: 20),
+                    _summaryCards(
+                      mobile: mobile,
+                      tablet: tablet,
+                    ),
 
-                _summaryCards(compact),
+                    SizedBox(height: mobile ? 14 : 22),
 
-                const SizedBox(height: 22),
+                    _airQualityChart(
+                      mobile: mobile,
+                    ),
 
-                _airQualityChart(compact),
+                    SizedBox(height: mobile ? 14 : 22),
 
-                const SizedBox(height: 22),
+                    _reportCategories(
+                      mobile: mobile,
+                      tablet: tablet,
+                    ),
 
-                _reportCategories(compact),
+                    SizedBox(height: mobile ? 14 : 22),
 
-                const SizedBox(height: 22),
+                    _monthlyOverview(),
 
-                _monthlyOverview(),
+                    SizedBox(height: mobile ? 14 : 22),
 
-                const SizedBox(height: 22),
+                    _recentReports(
+                      mobile: mobile,
+                    ),
 
-                _recentReports(compact),
+                    SizedBox(height: mobile ? 14 : 22),
 
-                const SizedBox(height: 22),
-
-                _downloadSection(),
-              ],
+                    _downloadSection(
+                      mobile: mobile,
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -170,7 +199,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
               color: Colors.greenAccent,
             ),
             SizedBox(width: 10),
-            Text("Reports refreshed successfully"),
+            Expanded(
+              child: Text(
+                "Reports refreshed successfully",
+              ),
+            ),
           ],
         ),
         backgroundColor: sidebarBlue,
@@ -182,14 +215,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // HEADER
   // ============================================================
 
-  Widget _header(bool compact) {
+  Widget _header({
+    required bool mobile,
+    required bool tablet,
+  }) {
     return Container(
       width: double.infinity,
-
       padding: EdgeInsets.all(
-        compact ? 18 : 22,
+        mobile ? 16 : 22,
       ),
-
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -197,95 +231,115 @@ class _ReportsScreenState extends State<ReportsScreen> {
             Color(0xff163B5C),
           ],
         ),
-
         borderRadius: BorderRadius.circular(20),
-
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-
-            decoration: BoxDecoration(
-              color: cyan.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            child: const Icon(
-              Icons.insert_chart_rounded,
-              color: cyan,
-              size: 30,
-            ),
-          ),
-
-          const SizedBox(width: 15),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-
+      child: mobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "System Reports",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: compact ? 21 : 26,
-                    fontWeight: FontWeight.bold,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _headerIcon(),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _headerText(
+                        mobile: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                _liveBadge(),
+              ],
+            )
+          : Row(
+              children: [
+                _headerIcon(),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: _headerText(
+                    mobile: false,
                   ),
                 ),
-
-                const SizedBox(height: 5),
-
-                const Text(
-                  "Analyze air quality, predictions and alert activity",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                ),
+                _liveBadge(),
               ],
             ),
+    );
+  }
+
+  Widget _headerIcon() {
+    return Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: cyan.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Icon(
+        Icons.insert_chart_rounded,
+        color: cyan,
+        size: 30,
+      ),
+    );
+  }
+
+  Widget _headerText({
+    required bool mobile,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "System Reports",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: mobile ? 20 : 26,
+            fontWeight: FontWeight.bold,
           ),
+        ),
+        const SizedBox(height: 5),
+        const Text(
+          "Analyze air quality, predictions and alert activity",
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
 
-          if (!compact)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-
-              decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-              ),
-
-              child: const Row(
-                children: [
-                  Icon(
-                    Icons.circle,
-                    color: Colors.greenAccent,
-                    size: 8,
-                  ),
-
-                  SizedBox(width: 7),
-
-                  Text(
-                    "Live Analytics",
-                    style: TextStyle(
-                      color: Colors.greenAccent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+  Widget _liveBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.green.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.circle,
+            color: Colors.greenAccent,
+            size: 8,
+          ),
+          SizedBox(width: 7),
+          Text(
+            "Live Analytics",
+            style: TextStyle(
+              color: Colors.greenAccent,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
             ),
+          ),
         ],
       ),
     );
@@ -295,135 +349,173 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // PERIOD SELECTOR
   // ============================================================
 
-  Widget _periodSelector() {
+  Widget _periodSelector({
+    required bool mobile,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
-
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: card,
         borderRadius: BorderRadius.circular(16),
-
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-
-            decoration: BoxDecoration(
-              color: cyan.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(10),
-            ),
-
-            child: const Icon(
-              Icons.calendar_month_rounded,
-              color: cyan,
-              size: 20,
-            ),
-          ),
-
-          const SizedBox(width: 11),
-
-          const Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+      child: mobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Analytics Period",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    _calendarIcon(),
+                    const SizedBox(width: 11),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Analytics Period",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            "Select the reporting period",
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _periodDropdown(
+                  fullWidth: true,
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                _calendarIcon(),
+                const SizedBox(width: 11),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Analytics Period",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        "Select the reporting period",
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(height: 3),
-                Text(
-                  "Select the reporting period",
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 10,
-                  ),
+                _periodDropdown(
+                  fullWidth: false,
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _calendarIcon() {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: cyan.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Icon(
+        Icons.calendar_month_rounded,
+        color: cyan,
+        size: 20,
+      ),
+    );
+  }
+
+  Widget _periodDropdown({
+    required bool fullWidth,
+  }) {
+    return Container(
+      width: fullWidth ? double.infinity : null,
+      height: 40,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+      decoration: BoxDecoration(
+        color: sidebarBlue,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: selectedPeriod,
+          isExpanded: fullWidth,
+          dropdownColor: sidebarBlue,
+          icon: const Icon(
+            Icons.keyboard_arrow_down_rounded,
+            color: Colors.white70,
           ),
-
-          Container(
-            height: 40,
-
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+          items: const [
+            DropdownMenuItem(
+              value: "Today",
+              child: Text("Today"),
             ),
-
-            decoration: BoxDecoration(
-              color: sidebarBlue,
-              borderRadius: BorderRadius.circular(10),
+            DropdownMenuItem(
+              value: "This Week",
+              child: Text("This Week"),
             ),
+            DropdownMenuItem(
+              value: "This Month",
+              child: Text("This Month"),
+            ),
+            DropdownMenuItem(
+              value: "This Year",
+              child: Text("This Year"),
+            ),
+          ],
+          onChanged: (value) {
+            if (value == null) return;
 
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: selectedPeriod,
+            setState(() {
+              selectedPeriod = value;
+            });
 
-                dropdownColor: sidebarBlue,
-
-                icon: const Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: Colors.white70,
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "Analytics updated for $value",
                 ),
-
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-
-                items: const [
-                  DropdownMenuItem(
-                    value: "Today",
-                    child: Text("Today"),
-                  ),
-                  DropdownMenuItem(
-                    value: "This Week",
-                    child: Text("This Week"),
-                  ),
-                  DropdownMenuItem(
-                    value: "This Month",
-                    child: Text("This Month"),
-                  ),
-                  DropdownMenuItem(
-                    value: "This Year",
-                    child: Text("This Year"),
-                  ),
-                ],
-
-                onChanged: (value) {
-                  if (value == null) return;
-
-                  setState(() {
-                    selectedPeriod = value;
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        "Analytics updated for $value",
-                      ),
-                      backgroundColor: sidebarBlue,
-                    ),
-                  );
-                },
+                backgroundColor: sidebarBlue,
               ),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -432,7 +524,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // SUMMARY CARDS
   // ============================================================
 
-  Widget _summaryCards(bool compact) {
+  Widget _summaryCards({
+    required bool mobile,
+    required bool tablet,
+  }) {
     final cards = [
       _Summary(
         "Average AQI",
@@ -441,7 +536,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Icons.air_rounded,
         Colors.orangeAccent,
       ),
-
       _Summary(
         "Predictions",
         "560",
@@ -449,7 +543,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Icons.auto_graph_rounded,
         cyan,
       ),
-
       _Summary(
         "Alerts Generated",
         "18",
@@ -457,7 +550,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Icons.warning_amber_rounded,
         Colors.redAccent,
       ),
-
       _Summary(
         "AI Accuracy",
         "94.6%",
@@ -467,22 +559,33 @@ class _ReportsScreenState extends State<ReportsScreen> {
       ),
     ];
 
-    if (compact) {
+    if (mobile) {
+      return Column(
+        children: cards
+            .map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 10,
+                ),
+                child: _summaryCard(item),
+              ),
+            )
+            .toList(),
+      );
+    }
+
+    if (tablet) {
       return GridView.builder(
         shrinkWrap: true,
-        physics:
-            const NeverScrollableScrollPhysics(),
-
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: cards.length,
-
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 1.75,
+          childAspectRatio: 2.5,
         ),
-
         itemBuilder: (context, index) {
           return _summaryCard(cards[index]);
         },
@@ -496,10 +599,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
           return Expanded(
             child: Padding(
               padding: EdgeInsets.only(
-                right:
-                    index == cards.length - 1
-                        ? 0
-                        : 13,
+                right: index == cards.length - 1
+                    ? 0
+                    : 13,
               ),
               child: _summaryCard(
                 cards[index],
@@ -514,54 +616,43 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _summaryCard(_Summary item) {
     return Container(
       padding: const EdgeInsets.all(17),
-
       decoration: BoxDecoration(
         color: card,
         borderRadius: BorderRadius.circular(18),
-
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
-
       child: Row(
         children: [
           Container(
             width: 45,
             height: 45,
-
             decoration: BoxDecoration(
               color: item.color.withValues(alpha: 0.11),
               borderRadius: BorderRadius.circular(13),
             ),
-
             child: Icon(
               item.icon,
               color: item.color,
               size: 23,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
-
               children: [
                 Text(
                   item.title,
                   overflow: TextOverflow.ellipsis,
-
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 10,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
                   item.value,
                   style: const TextStyle(
@@ -570,9 +661,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 2),
-
                 Text(
                   item.change,
                   style: TextStyle(
@@ -595,7 +684,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // AQI CHART
   // ============================================================
 
-  Widget _airQualityChart(bool compact) {
+  Widget _airQualityChart({
+    required bool mobile,
+  }) {
     final values = [
       70.0,
       90.0,
@@ -613,22 +704,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     return Container(
       width: double.infinity,
-
-      padding: const EdgeInsets.all(22),
-
+      padding: EdgeInsets.all(
+        mobile ? 16 : 22,
+      ),
       decoration: BoxDecoration(
         color: card,
         borderRadius: BorderRadius.circular(20),
-
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
-
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
-
         children: [
           Row(
             children: [
@@ -636,7 +724,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 child: Column(
                   crossAxisAlignment:
                       CrossAxisAlignment.start,
-
                   children: [
                     Text(
                       "AQI Trend",
@@ -646,9 +733,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     SizedBox(height: 4),
-
                     Text(
                       "Average air quality index over selected period",
                       style: TextStyle(
@@ -659,19 +744,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ],
                 ),
               ),
-
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 6,
                 ),
-
                 decoration: BoxDecoration(
                   color: cyan.withValues(alpha: 0.08),
-                  borderRadius:
-                      BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-
                 child: const Text(
                   "AQI",
                   style: TextStyle(
@@ -683,25 +764,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ],
           ),
-
-          const SizedBox(height: 25),
-
+          SizedBox(height: mobile ? 18 : 25),
           SizedBox(
-            height: compact ? 210 : 250,
-
+            height: mobile ? 195 : 250,
+            width: double.infinity,
             child: CustomPaint(
-              painter:
-                  _ReportChartPainter(values),
+              painter: _ReportChartPainter(values),
               child: const SizedBox.expand(),
             ),
           ),
-
           const SizedBox(height: 10),
-
           const Row(
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
-
             children: [
               _ChartLabel("Jan"),
               _ChartLabel("Feb"),
@@ -720,7 +795,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // REPORT CATEGORIES
   // ============================================================
 
-  Widget _reportCategories(bool compact) {
+  Widget _reportCategories({
+    required bool mobile,
+    required bool tablet,
+  }) {
     final cards = [
       _ReportType(
         "Air Quality Report",
@@ -728,21 +806,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Icons.air_rounded,
         cyan,
       ),
-
       _ReportType(
         "AI Prediction Report",
         "Prediction performance",
         Icons.psychology_rounded,
         Colors.purpleAccent,
       ),
-
       _ReportType(
         "Alert Report",
         "Smog alert history",
         Icons.warning_rounded,
         Colors.orangeAccent,
       ),
-
       _ReportType(
         "Motorway Report",
         "Highway monitoring status",
@@ -751,13 +826,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
       ),
     ];
 
-    if (compact) {
+    if (mobile) {
       return Column(
         children: cards
             .map(
               (item) => Padding(
-                padding:
-                    const EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   bottom: 12,
                 ),
                 child: _reportTypeCard(item),
@@ -769,19 +843,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     return GridView.builder(
       shrinkWrap: true,
-      physics:
-          const NeverScrollableScrollPhysics(),
-
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: cards.length,
-
       gridDelegate:
           const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 14,
         mainAxisSpacing: 14,
-        childAspectRatio: 2.2,
+        childAspectRatio: 2.15,
       ),
-
       itemBuilder: (context, index) {
         return _reportTypeCard(cards[index]);
       },
@@ -792,57 +862,46 @@ class _ReportsScreenState extends State<ReportsScreen> {
     _ReportType item,
   ) {
     return Container(
-      padding: const EdgeInsets.all(18),
-
+      padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
         color: card,
         borderRadius: BorderRadius.circular(18),
-
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
-
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
-
         children: [
           Row(
             children: [
               Container(
                 width: 46,
                 height: 46,
-
                 decoration: BoxDecoration(
                   color: item.color.withValues(alpha: 0.11),
                   borderRadius:
                       BorderRadius.circular(13),
                 ),
-
                 child: Icon(
                   item.icon,
                   color: item.color,
                   size: 24,
                 ),
               ),
-
               const Spacer(),
-
               Container(
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
-
                 decoration: BoxDecoration(
                   color: Colors.greenAccent
                       .withValues(alpha: 0.08),
                   borderRadius:
                       BorderRadius.circular(8),
                 ),
-
                 child: const Text(
                   "AVAILABLE",
                   style: TextStyle(
@@ -854,77 +913,60 @@ class _ReportsScreenState extends State<ReportsScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 13),
-
           Text(
             item.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 4),
-
           Text(
             item.subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: Colors.white54,
               fontSize: 10,
             ),
           ),
-
-          const Spacer(),
-
+          const SizedBox(height: 13),
           SizedBox(
             width: double.infinity,
-
             child: OutlinedButton.icon(
               onPressed: () {
                 setState(() {
-                  selectedReport =
-                      item.title;
+                  selectedReport = item.title;
                 });
 
                 _showReportDialog(item);
               },
-
               icon: const Icon(
                 Icons.visibility_rounded,
                 size: 15,
               ),
-
               label: const Text(
                 "View Report",
               ),
-
-              style:
-                  OutlinedButton.styleFrom(
+              style: OutlinedButton.styleFrom(
                 foregroundColor: cyan,
-
                 side: BorderSide(
-                  color:
-                      cyan.withValues(alpha: 0.35),
+                  color: cyan.withValues(alpha: 0.35),
                 ),
-
-                shape:
-                    RoundedRectangleBorder(
+                shape: RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.circular(10),
                 ),
-
-                padding:
-                    const EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   vertical: 10,
                 ),
-
-                textStyle:
-                    const TextStyle(
+                textStyle: const TextStyle(
                   fontSize: 10,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -943,262 +985,74 @@ class _ReportsScreenState extends State<ReportsScreen> {
   ) {
     showDialog(
       context: context,
-
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: card,
-
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(22),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 20,
           ),
-
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
           child: ConstrainedBox(
-            constraints:
-                const BoxConstraints(
+            constraints: const BoxConstraints(
               maxWidth: 520,
+              maxHeight: 650,
             ),
-
             child: Padding(
-              padding:
-                  const EdgeInsets.all(24),
-
+              padding: const EdgeInsets.all(20),
               child: Column(
-                mainAxisSize:
-                    MainAxisSize.min,
-
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
-
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-
-                        decoration:
-                            BoxDecoration(
-                          color: item.color
-                              .withValues(
-                            alpha: 0.12,
-                          ),
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            13,
-                          ),
-                        ),
-
-                        child: Icon(
-                          item.icon,
-                          color:
-                              item.color,
-                        ),
-                      ),
-
-                      const SizedBox(
-                        width: 12,
-                      ),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
-
-                          children: [
-                            Text(
-                              item.title,
-                              style:
-                                  const TextStyle(
-                                color:
-                                    Colors.white,
-                                fontSize: 17,
-                                fontWeight:
-                                    FontWeight.bold,
-                              ),
-                            ),
-
-                            const SizedBox(
-                              height: 3,
-                            ),
-
-                            Text(
-                              selectedPeriod,
-                              style:
-                                  const TextStyle(
-                                color:
-                                    Colors.white54,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pop(
-                            dialogContext,
-                          );
-                        },
-                        icon:
-                            const Icon(
-                          Icons.close_rounded,
-                          color:
-                              Colors.white54,
-                        ),
-                      ),
-                    ],
+                  _dialogHeader(
+                    icon: item.icon,
+                    color: item.color,
+                    title: item.title,
+                    subtitle: selectedPeriod,
+                    onClose: () {
+                      Navigator.pop(dialogContext);
+                    },
                   ),
-
-                  const SizedBox(height: 20),
-
-                  _dialogStat(
-                    "Report Status",
-                    "Generated",
-                    Icons.check_circle_rounded,
-                    Colors.greenAccent,
-                  ),
-
-                  _dialogStat(
-                    "Reporting Period",
-                    selectedPeriod,
-                    Icons.calendar_month_rounded,
-                    cyan,
-                  ),
-
-                  _dialogStat(
-                    "Records Analyzed",
-                    "1,248",
-                    Icons.dataset_rounded,
-                    Colors.orangeAccent,
-                  ),
-
-                  _dialogStat(
-                    "Last Generated",
-                    "Just now",
-                    Icons.update_rounded,
-                    Colors.purpleAccent,
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child:
-                            OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(
-                              dialogContext,
-                            );
-
-                            _showExportDialog(
-                              reportName:
-                                  item.title,
-                            );
-                          },
-
-                          style:
-                              OutlinedButton.styleFrom(
-                            foregroundColor:
-                                cyan,
-
-                            side:
-                                const BorderSide(
-                              color: cyan,
-                            ),
-
-                            padding:
-                                const EdgeInsets
-                                    .symmetric(
-                              vertical: 13,
-                            ),
-
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                10,
-                              ),
-                            ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _dialogStat(
+                            "Report Status",
+                            "Generated",
+                            Icons.check_circle_rounded,
+                            Colors.greenAccent,
                           ),
-
-                          child:
-                              const Text(
-                            "Export",
+                          _dialogStat(
+                            "Reporting Period",
+                            selectedPeriod,
+                            Icons.calendar_month_rounded,
+                            cyan,
                           ),
-                        ),
+                          _dialogStat(
+                            "Records Analyzed",
+                            "1,248",
+                            Icons.dataset_rounded,
+                            Colors.orangeAccent,
+                          ),
+                          _dialogStat(
+                            "Last Generated",
+                            "Just now",
+                            Icons.update_rounded,
+                            Colors.purpleAccent,
+                          ),
+                        ],
                       ),
-
-                      const SizedBox(width: 10),
-
-                      Expanded(
-                        child:
-                            ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(
-                              dialogContext,
-                            );
-
-                            ScaffoldMessenger
-                                .of(context)
-                                .showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "${item.title} generated successfully",
-                                ),
-                                backgroundColor:
-                                    sidebarBlue,
-                              ),
-                            );
-                          },
-
-                          icon:
-                              const Icon(
-                            Icons
-                                .autorenew_rounded,
-                            size: 17,
-                          ),
-
-                          label:
-                              const Text(
-                            "Generate",
-                          ),
-
-                          style:
-                              ElevatedButton
-                                  .styleFrom(
-                            backgroundColor:
-                                cyan,
-
-                            foregroundColor:
-                                background,
-
-                            elevation: 0,
-
-                            padding:
-                                const EdgeInsets
-                                    .symmetric(
-                              vertical: 13,
-                            ),
-
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                10,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  _dialogActionButtons(
+                    dialogContext,
+                    item,
                   ),
                 ],
               ),
@@ -1209,6 +1063,197 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
+  Widget _dialogHeader({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onClose,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 46,
+          height: 46,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: Colors.white54,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          onPressed: onClose,
+          icon: const Icon(
+            Icons.close_rounded,
+            color: Colors.white54,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _dialogActionButtons(
+    BuildContext dialogContext,
+    _ReportType item,
+  ) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = constraints.maxWidth < 360;
+
+        if (narrow) {
+          return Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: _exportOutlinedButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+
+                    _showExportDialog(
+                      reportName: item.title,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 9),
+              SizedBox(
+                width: double.infinity,
+                child: _generateButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "${item.title} generated successfully",
+                        ),
+                        backgroundColor: sidebarBlue,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            Expanded(
+              child: _exportOutlinedButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+
+                  _showExportDialog(
+                    reportName: item.title,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _generateButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "${item.title} generated successfully",
+                      ),
+                      backgroundColor: sidebarBlue,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _exportOutlinedButton({
+    required VoidCallback onPressed,
+  }) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: cyan,
+        side: const BorderSide(
+          color: cyan,
+        ),
+        padding: const EdgeInsets.symmetric(
+          vertical: 13,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      child: const Text(
+        "Export",
+      ),
+    );
+  }
+
+  Widget _generateButton({
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: const Icon(
+        Icons.autorenew_rounded,
+        size: 17,
+      ),
+      label: const Text(
+        "Generate",
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: cyan,
+        foregroundColor: background,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(
+          vertical: 13,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
   Widget _dialogStat(
     String title,
     String value,
@@ -1216,26 +1261,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
     Color color,
   ) {
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 9,
       ),
-
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 13,
         vertical: 12,
       ),
-
       decoration: BoxDecoration(
-        color:
-            Colors.white.withValues(
+        color: Colors.white.withValues(
           alpha: 0.035,
         ),
-        borderRadius:
-            BorderRadius.circular(11),
+        borderRadius: BorderRadius.circular(11),
       ),
-
       child: Row(
         children: [
           Icon(
@@ -1243,28 +1281,26 @@ class _ReportsScreenState extends State<ReportsScreen> {
             color: color,
             size: 18,
           ),
-
           const SizedBox(width: 10),
-
           Expanded(
             child: Text(
               title,
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 color: Colors.white54,
                 fontSize: 11,
               ),
             ),
           ),
-
-          Text(
-            value,
-            style:
-                const TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-              fontWeight:
-                  FontWeight.w600,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -1284,21 +1320,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Colors.greenAccent,
         0.40,
       ),
-
       _Overview(
         "Moderate",
         "9 Days",
         Colors.yellowAccent,
         0.30,
       ),
-
       _Overview(
         "Poor",
         "6 Days",
         Colors.orangeAccent,
         0.20,
       ),
-
       _Overview(
         "Critical Smog",
         "3 Days",
@@ -1309,83 +1342,68 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     return Container(
       width: double.infinity,
-
-      padding: const EdgeInsets.all(22),
-
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: card,
         borderRadius: BorderRadius.circular(20),
-
         border: Border.all(
-          color:
-              Colors.white.withValues(
+          color: Colors.white.withValues(
             alpha: 0.08,
           ),
         ),
       ),
-
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
-
         children: [
           Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Container(
                 width: 40,
                 height: 40,
-
-                decoration:
-                    BoxDecoration(
-                  color:
-                      cyan.withValues(
+                decoration: BoxDecoration(
+                  color: cyan.withValues(
                     alpha: 0.10,
                   ),
                   borderRadius:
-                      BorderRadius.circular(
-                    11,
-                  ),
+                      BorderRadius.circular(11),
                 ),
-
                 child: const Icon(
                   Icons.donut_small_rounded,
                   color: cyan,
                   size: 20,
                 ),
               ),
-
               const SizedBox(width: 11),
-
-              const Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Air Quality Overview",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight:
-                          FontWeight.bold,
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Air Quality Overview",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-
-                  SizedBox(height: 3),
-
-                  Text(
-                    "Distribution of air quality conditions",
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: 10,
+                    SizedBox(height: 3),
+                    Text(
+                      "Distribution of air quality conditions",
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 10,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
-
           const SizedBox(height: 22),
-
           ...rows.map(
             (row) => _overviewRow(row),
           ),
@@ -1398,11 +1416,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     _Overview item,
   ) {
     return Padding(
-      padding:
-          const EdgeInsets.only(
+      padding: const EdgeInsets.only(
         bottom: 18,
       ),
-
       child: Column(
         children: [
           Row(
@@ -1410,63 +1426,44 @@ class _ReportsScreenState extends State<ReportsScreen> {
               Container(
                 width: 8,
                 height: 8,
-
-                decoration:
-                    BoxDecoration(
+                decoration: BoxDecoration(
                   color: item.color,
                   shape: BoxShape.circle,
                 ),
               ),
-
               const SizedBox(width: 9),
-
               Expanded(
                 child: Text(
                   item.title,
-                  style:
-                      const TextStyle(
-                    color:
-                        Colors.white70,
+                  style: const TextStyle(
+                    color: Colors.white70,
                     fontSize: 12,
                   ),
                 ),
               ),
-
               Text(
                 item.value,
                 style: TextStyle(
                   color: item.color,
                   fontSize: 12,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
           ClipRRect(
             borderRadius:
-                BorderRadius.circular(
-              10,
-            ),
-
-            child:
-                LinearProgressIndicator(
+                BorderRadius.circular(10),
+            child: LinearProgressIndicator(
               value: item.progress,
-
               minHeight: 6,
-
               backgroundColor:
-                  Colors.white
-                      .withValues(
+                  Colors.white.withValues(
                 alpha: 0.06,
               ),
-
               valueColor:
-                  AlwaysStoppedAnimation<
-                      Color>(
+                  AlwaysStoppedAnimation<Color>(
                 item.color,
               ),
             ),
@@ -1480,9 +1477,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // RECENT REPORTS
   // ============================================================
 
-  Widget _recentReports(
-    bool compact,
-  ) {
+  Widget _recentReports({
+    required bool mobile,
+  }) {
     final reports = [
       _RecentReport(
         "Air Quality Analysis",
@@ -1492,7 +1489,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Icons.air_rounded,
         cyan,
       ),
-
       _RecentReport(
         "AI Prediction Summary",
         "This Month",
@@ -1501,7 +1497,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Icons.psychology_rounded,
         Colors.purpleAccent,
       ),
-
       _RecentReport(
         "Smog Alert History",
         "This Week",
@@ -1510,7 +1505,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
         Icons.warning_rounded,
         Colors.orangeAccent,
       ),
-
       _RecentReport(
         "Motorway Monitoring",
         "This Week",
@@ -1523,28 +1517,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     return Container(
       width: double.infinity,
-
-      padding: const EdgeInsets.all(22),
-
+      padding: EdgeInsets.all(
+        mobile ? 16 : 22,
+      ),
       decoration: BoxDecoration(
         color: card,
-        borderRadius:
-            BorderRadius.circular(20),
-
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color:
-              Colors.white.withValues(
+          color: Colors.white.withValues(
             alpha: 0.08,
           ),
         ),
       ),
-
       child: Column(
         crossAxisAlignment:
             CrossAxisAlignment.start,
-
         children: [
           Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Expanded(
                 child: Column(
@@ -1556,13 +1547,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
-                        fontWeight:
-                            FontWeight.bold,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     SizedBox(height: 4),
-
                     Text(
                       "Recently generated system reports",
                       style: TextStyle(
@@ -1573,177 +1561,178 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ],
                 ),
               ),
-
               TextButton.icon(
                 onPressed: () {
                   _showAllReportsDialog(
                     reports,
                   );
                 },
-
                 icon: const Icon(
                   Icons.arrow_forward_rounded,
                   size: 14,
                 ),
-
                 label: const Text(
                   "View All",
                 ),
-
-                style:
-                    TextButton.styleFrom(
+                style: TextButton.styleFrom(
                   foregroundColor: cyan,
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 15),
-
-          if (compact)
-            Column(
-              children: reports
-                  .map(
-                    (item) =>
-                        _recentReportRow(
-                      item,
-                    ),
-                  )
-                  .toList(),
-            )
-          else
-            ...reports.map(
-              (item) =>
-                  _recentReportRow(item),
+          ...reports.map(
+            (item) => _recentReportRow(
+              item,
+              mobile: mobile,
             ),
+          ),
         ],
       ),
     );
   }
 
   Widget _recentReportRow(
-    _RecentReport item,
-  ) {
+    _RecentReport item, {
+    required bool mobile,
+  }) {
+    if (mobile) {
+      return Container(
+        margin: const EdgeInsets.only(
+          bottom: 9,
+        ),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(
+            alpha: 0.035,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                _recentReportIcon(item),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        "${item.period} • ${item.date}",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white38,
+                          fontSize: 9,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _readyBadge(),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  _showExportDialog(
+                    reportName: item.title,
+                  );
+                },
+                icon: const Icon(
+                  Icons.download_rounded,
+                  size: 16,
+                ),
+                label: const Text(
+                  "Export Report",
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white70,
+                  side: BorderSide(
+                    color: Colors.white.withValues(
+                      alpha: 0.10,
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(9),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 10,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 9,
       ),
-
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 13,
         vertical: 12,
       ),
-
       decoration: BoxDecoration(
-        color:
-            Colors.white.withValues(
+        color: Colors.white.withValues(
           alpha: 0.035,
         ),
-
-        borderRadius:
-            BorderRadius.circular(
-          12,
-        ),
+        borderRadius: BorderRadius.circular(12),
       ),
-
       child: Row(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-
-            decoration:
-                BoxDecoration(
-              color:
-                  item.color.withValues(
-                alpha: 0.10,
-              ),
-
-              borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
-            ),
-
-            child: Icon(
-              item.icon,
-              color: item.color,
-              size: 19,
-            ),
-          ),
-
+          _recentReportIcon(item),
           const SizedBox(width: 11),
-
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
-
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   item.title,
-                  style:
-                      const TextStyle(
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight:
-                        FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
                   "${item.period} • ${item.date}",
-                  style:
-                      const TextStyle(
-                    color:
-                        Colors.white38,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white38,
                     fontSize: 9,
                   ),
                 ),
               ],
             ),
           ),
-
-          Container(
-            padding:
-                const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 5,
-            ),
-
-            decoration:
-                BoxDecoration(
-              color:
-                  Colors.greenAccent
-                      .withValues(
-                alpha: 0.08,
-              ),
-
-              borderRadius:
-                  BorderRadius.circular(
-                7,
-              ),
-            ),
-
-            child: const Text(
-              "READY",
-              style: TextStyle(
-                color:
-                    Colors.greenAccent,
-                fontSize: 8,
-                fontWeight:
-                    FontWeight.bold,
-              ),
-            ),
-          ),
-
+          _readyBadge(),
           const SizedBox(width: 8),
-
           IconButton(
             tooltip: "Export",
             onPressed: () {
@@ -1751,7 +1740,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 reportName: item.title,
               );
             },
-
             icon: const Icon(
               Icons.download_rounded,
               color: Colors.white54,
@@ -1759,6 +1747,49 @@ class _ReportsScreenState extends State<ReportsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _recentReportIcon(
+    _RecentReport item,
+  ) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: item.color.withValues(
+          alpha: 0.10,
+        ),
+        borderRadius: BorderRadius.circular(11),
+      ),
+      child: Icon(
+        item.icon,
+        color: item.color,
+        size: 19,
+      ),
+    );
+  }
+
+  Widget _readyBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 5,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.greenAccent.withValues(
+          alpha: 0.08,
+        ),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: const Text(
+        "READY",
+        style: TextStyle(
+          color: Colors.greenAccent,
+          fontSize: 8,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -1772,60 +1803,88 @@ class _ReportsScreenState extends State<ReportsScreen> {
   ) {
     showDialog(
       context: context,
-
       builder: (dialogContext) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: card,
-
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 20,
           ),
-
-          title: const Text(
-            "All Recent Reports",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight:
-                  FontWeight.bold,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 600,
+              maxHeight: 600,
             ),
-          ),
-
-          content: SizedBox(
-            width: 480,
-
-            child: Column(
-              mainAxisSize:
-                  MainAxisSize.min,
-
-              children: reports
-                  .map(
-                    (item) =>
-                        _recentReportRow(
-                      item,
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          "All Recent Reports",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(
+                            dialogContext,
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: Colors.white54,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: reports
+                            .map(
+                              (item) =>
+                                  _recentReportRow(
+                                item,
+                                mobile: true,
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
-                  )
-                  .toList(),
-            ),
-          ),
-
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(
-                  dialogContext,
-                );
-              },
-
-              child: const Text(
-                "Close",
-                style: TextStyle(
-                  color: cyan,
-                ),
+                  ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(
+                          dialogContext,
+                        );
+                      },
+                      child: const Text(
+                        "Close",
+                        style: TextStyle(
+                          color: cyan,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         );
       },
     );
@@ -1835,12 +1894,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
   // EXPORT SECTION
   // ============================================================
 
-  Widget _downloadSection() {
+  Widget _downloadSection({
+    required bool mobile,
+  }) {
     return Container(
       width: double.infinity,
-
-      padding: const EdgeInsets.all(20),
-
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
@@ -1848,124 +1907,94 @@ class _ReportsScreenState extends State<ReportsScreen> {
             Color(0xff153B5C),
           ],
         ),
-
-        borderRadius:
-            BorderRadius.circular(18),
-
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color:
-              Colors.white.withValues(
+          color: Colors.white.withValues(
             alpha: 0.08,
           ),
         ),
       ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-
-            decoration:
-                BoxDecoration(
-              color:
-                  cyan.withValues(
-                alpha: 0.10,
-              ),
-
-              borderRadius:
-                  BorderRadius.circular(
-                13,
-              ),
-            ),
-
-            child: const Icon(
-              Icons.description_rounded,
-              color: cyan,
-              size: 23,
-            ),
-          ),
-
-          const SizedBox(width: 13),
-
-          const Expanded(
-            child: Column(
+      child: mobile
+          ? Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
-
               children: [
-                Text(
-                  "Export System Report",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
+                Row(
+                  children: [
+                    _downloadIcon(),
+                    const SizedBox(width: 13),
+                    const Expanded(
+                      child: _DownloadText(),
+                    ),
+                  ],
                 ),
-
-                SizedBox(height: 4),
-
-                Text(
-                  "Generate a professional report for the selected period",
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 10,
-                  ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: _exportMainButton(),
                 ),
               ],
-            ),
-          ),
-
-          ElevatedButton.icon(
-            onPressed: () {
-              _showExportDialog(
-                reportName:
-                    selectedReport,
-              );
-            },
-
-            icon: const Icon(
-              Icons.download_rounded,
-              size: 16,
-            ),
-
-            label: const Text(
-              "Export",
-            ),
-
-            style:
-                ElevatedButton.styleFrom(
-              backgroundColor: cyan,
-
-              foregroundColor:
-                  background,
-
-              elevation: 0,
-
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 17,
-                vertical: 12,
-              ),
-
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  10,
+            )
+          : Row(
+              children: [
+                _downloadIcon(),
+                const SizedBox(width: 13),
+                const Expanded(
+                  child: _DownloadText(),
                 ),
-              ),
-
-              textStyle:
-                  const TextStyle(
-                fontSize: 11,
-                fontWeight:
-                    FontWeight.bold,
-              ),
+                _exportMainButton(),
+              ],
             ),
-          ),
-        ],
+    );
+  }
+
+  Widget _downloadIcon() {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: cyan.withValues(
+          alpha: 0.10,
+        ),
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: const Icon(
+        Icons.description_rounded,
+        color: cyan,
+        size: 23,
+      ),
+    );
+  }
+
+  Widget _exportMainButton() {
+    return ElevatedButton.icon(
+      onPressed: () {
+        _showExportDialog(
+          reportName: selectedReport,
+        );
+      },
+      icon: const Icon(
+        Icons.download_rounded,
+        size: 16,
+      ),
+      label: const Text(
+        "Export",
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: cyan,
+        foregroundColor: background,
+        elevation: 0,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 17,
+          vertical: 12,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        textStyle: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -1981,295 +2010,228 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     showDialog(
       context: context,
-
       builder: (dialogContext) {
         return StatefulBuilder(
-          builder:
-              (context, setDialogState) {
+          builder: (
+            dialogBuildContext,
+            setDialogState,
+          ) {
             return Dialog(
               backgroundColor: card,
-
-              shape:
-                  RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(
-                  22,
-                ),
+              insetPadding:
+                  const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 20,
               ),
-
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(22),
+              ),
               child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(
+                constraints: const BoxConstraints(
                   maxWidth: 500,
+                  maxHeight: 650,
                 ),
-
                 child: Padding(
-                  padding:
-                      const EdgeInsets.all(
-                    24,
-                  ),
-
+                  padding: const EdgeInsets.all(20),
                   child: Column(
-                    mainAxisSize:
-                        MainAxisSize.min,
-
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
-
                     children: [
                       Row(
                         children: [
                           Container(
                             width: 46,
                             height: 46,
-
-                            decoration:
-                                BoxDecoration(
-                              color:
-                                  cyan.withValues(
+                            decoration: BoxDecoration(
+                              color: cyan.withValues(
                                 alpha: 0.10,
                               ),
-
                               borderRadius:
-                                  BorderRadius
-                                      .circular(
+                                  BorderRadius.circular(
                                 12,
                               ),
                             ),
-
                             child: const Icon(
-                              Icons
-                                  .file_download_rounded,
+                              Icons.file_download_rounded,
                               color: cyan,
                             ),
                           ),
-
-                          const SizedBox(
-                            width: 12,
-                          ),
-
+                          const SizedBox(width: 12),
                           const Expanded(
                             child: Column(
                               crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .start,
-
+                                  CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   "Export Report",
-                                  style:
-                                      TextStyle(
-                                    color:
-                                        Colors.white,
+                                  style: TextStyle(
+                                    color: Colors.white,
                                     fontSize: 17,
                                     fontWeight:
-                                        FontWeight
-                                            .bold,
+                                        FontWeight.bold,
                                   ),
                                 ),
-
-                                SizedBox(
-                                  height: 3,
-                                ),
-
+                                SizedBox(height: 3),
                                 Text(
                                   "Choose export format",
-                                  style:
-                                      TextStyle(
-                                    color:
-                                        Colors.white54,
+                                  style: TextStyle(
+                                    color: Colors.white54,
                                     fontSize: 10,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-
                           IconButton(
                             onPressed: () {
                               Navigator.pop(
                                 dialogContext,
                               );
                             },
-
-                            icon:
-                                const Icon(
+                            icon: const Icon(
                               Icons.close_rounded,
-                              color:
-                                  Colors.white54,
+                              color: Colors.white54,
                             ),
                           ),
                         ],
                       ),
-
-                      const SizedBox(
-                        height: 20,
-                      ),
-
-                      _exportInfo(
-                        "Report",
-                        reportName,
-                        Icons.description_rounded,
-                      ),
-
-                      _exportInfo(
-                        "Period",
-                        selectedPeriod,
-                        Icons.calendar_month_rounded,
-                      ),
-
-                      const SizedBox(
-                        height: 15,
-                      ),
-
-                      const Text(
-                        "Export Format",
-                        style:
-                            TextStyle(
-                          color:
-                              Colors.white,
-                          fontSize: 12,
-                          fontWeight:
-                              FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child:
-                                _formatButton(
-                              title: "PDF",
-                              icon: Icons
-                                  .picture_as_pdf_rounded,
-                              selected:
-                                  format ==
-                                      "PDF",
-                              color:
-                                  Colors.redAccent,
-                              onTap: () {
-                                setDialogState(
-                                  () {
-                                    format =
-                                        "PDF";
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-
-                          const SizedBox(
-                            width: 10,
-                          ),
-
-                          Expanded(
-                            child:
-                                _formatButton(
-                              title: "CSV",
-                              icon: Icons
-                                  .table_chart_rounded,
-                              selected:
-                                  format ==
-                                      "CSV",
-                              color:
-                                  Colors.greenAccent,
-                              onTap: () {
-                                setDialogState(
-                                  () {
-                                    format =
-                                        "CSV";
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(
-                        height: 20,
-                      ),
-
-                      SizedBox(
-                        width:
-                            double.infinity,
-
-                        child:
-                            ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(
-                              dialogContext,
-                            );
-
-                            ScaffoldMessenger
-                                .of(context)
-                                .showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons
-                                          .check_circle_rounded,
+                      const SizedBox(height: 16),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              _exportInfo(
+                                "Report",
+                                reportName,
+                                Icons.description_rounded,
+                              ),
+                              _exportInfo(
+                                "Period",
+                                selectedPeriod,
+                                Icons.calendar_month_rounded,
+                              ),
+                              const SizedBox(height: 14),
+                              const Text(
+                                "Export Format",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight:
+                                      FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _formatButton(
+                                      title: "PDF",
+                                      icon: Icons
+                                          .picture_as_pdf_rounded,
+                                      selected:
+                                          format == "PDF",
+                                      color:
+                                          Colors.redAccent,
+                                      onTap: () {
+                                        setDialogState(
+                                          () {
+                                            format = "PDF";
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: _formatButton(
+                                      title: "CSV",
+                                      icon: Icons
+                                          .table_chart_rounded,
+                                      selected:
+                                          format == "CSV",
                                       color:
                                           Colors.greenAccent,
+                                      onTap: () {
+                                        setDialogState(
+                                          () {
+                                            format = "CSV";
+                                          },
+                                        );
+                                      },
                                     ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                width: double.infinity,
+                                child:
+                                    ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.pop(
+                                      dialogContext,
+                                    );
 
-                                    const SizedBox(
-                                      width: 10,
+                                    ScaffoldMessenger
+                                            .of(context)
+                                        .showSnackBar(
+                                      SnackBar(
+                                        content: Row(
+                                          children: [
+                                            const Icon(
+                                              Icons
+                                                  .check_circle_rounded,
+                                              color:
+                                                  Colors.greenAccent,
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                "$reportName exported as $format",
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        backgroundColor:
+                                            sidebarBlue,
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.download_rounded,
+                                    size: 17,
+                                  ),
+                                  label: Text(
+                                    "Generate $format Report",
+                                  ),
+                                  style:
+                                      ElevatedButton.styleFrom(
+                                    backgroundColor: cyan,
+                                    foregroundColor:
+                                        background,
+                                    elevation: 0,
+                                    padding:
+                                        const EdgeInsets
+                                            .symmetric(
+                                      vertical: 14,
                                     ),
-
-                                    Expanded(
-                                      child:
-                                          Text(
-                                        "$reportName exported as $format",
+                                    shape:
+                                        RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(
+                                        11,
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
-                                backgroundColor:
-                                    sidebarBlue,
                               ),
-                            );
-                          },
-
-                          icon:
-                              const Icon(
-                            Icons.download_rounded,
-                            size: 17,
-                          ),
-
-                          label: Text(
-                            "Generate $format Report",
-                          ),
-
-                          style:
-                              ElevatedButton
-                                  .styleFrom(
-                            backgroundColor:
-                                cyan,
-
-                            foregroundColor:
-                                background,
-
-                            elevation: 0,
-
-                            padding:
-                                const EdgeInsets
-                                    .symmetric(
-                              vertical: 14,
-                            ),
-
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(
-                                11,
-                              ),
-                            ),
+                            ],
                           ),
                         ),
                       ),
@@ -2290,29 +2252,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
     IconData icon,
   ) {
     return Container(
-      margin:
-          const EdgeInsets.only(
+      margin: const EdgeInsets.only(
         bottom: 8,
       ),
-
-      padding:
-          const EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 10,
       ),
-
       decoration: BoxDecoration(
-        color:
-            Colors.white.withValues(
+        color: Colors.white.withValues(
           alpha: 0.035,
         ),
-
-        borderRadius:
-            BorderRadius.circular(
-          10,
-        ),
+        borderRadius: BorderRadius.circular(10),
       ),
-
       child: Row(
         children: [
           Icon(
@@ -2320,28 +2272,26 @@ class _ReportsScreenState extends State<ReportsScreen> {
             color: cyan,
             size: 17,
           ),
-
           const SizedBox(width: 9),
-
           Expanded(
             child: Text(
               title,
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 color: Colors.white54,
                 fontSize: 10,
               ),
             ),
           ),
-
-          Text(
-            value,
-            style:
-                const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -2358,47 +2308,29 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-
-      borderRadius:
-          BorderRadius.circular(12),
-
+      borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
-        duration:
-            const Duration(
+        duration: const Duration(
           milliseconds: 180,
         ),
-
-        padding:
-            const EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           vertical: 14,
         ),
-
-        decoration:
-            BoxDecoration(
+        decoration: BoxDecoration(
           color: selected
-              ? color.withValues(
-                  alpha: 0.10,
-                )
-              : Colors.white
-                  .withValues(
+              ? color.withValues(alpha: 0.10)
+              : Colors.white.withValues(
                   alpha: 0.035,
                 ),
-
-          borderRadius:
-              BorderRadius.circular(
-            12,
-          ),
-
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
                 ? color
-                : Colors.white
-                    .withValues(
+                : Colors.white.withValues(
                     alpha: 0.08,
                   ),
           ),
         ),
-
         child: Column(
           children: [
             Icon(
@@ -2406,11 +2338,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               color: color,
               size: 24,
             ),
-
-            const SizedBox(
-              height: 6,
-            ),
-
+            const SizedBox(height: 6),
             Text(
               title,
               style: TextStyle(
@@ -2418,13 +2346,46 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     ? color
                     : Colors.white70,
                 fontSize: 11,
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ================================================================
+// DOWNLOAD TEXT
+// ================================================================
+
+class _DownloadText extends StatelessWidget {
+  const _DownloadText();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Export System Report",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          "Generate a professional report for the selected period",
+          style: TextStyle(
+            color: Colors.white54,
+            fontSize: 10,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -2520,8 +2481,7 @@ class _ChartLabel extends StatelessWidget {
 // CUSTOM AQI CHART
 // ================================================================
 
-class _ReportChartPainter
-    extends CustomPainter {
+class _ReportChartPainter extends CustomPainter {
   final List<double> values;
 
   _ReportChartPainter(this.values);
@@ -2531,21 +2491,25 @@ class _ReportChartPainter
     Canvas canvas,
     Size size,
   ) {
+    if (values.isEmpty ||
+        size.width <= 0 ||
+        size.height <= 0) {
+      return;
+    }
+
     final paint = Paint()
       ..color = Colors.cyanAccent
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
     final fillPaint = Paint()
-      ..color =
-          Colors.cyanAccent.withValues(
+      ..color = Colors.cyanAccent.withValues(
         alpha: 0.08,
       )
       ..style = PaintingStyle.fill;
 
     final gridPaint = Paint()
-      ..color =
-          Colors.white.withValues(
+      ..color = Colors.white.withValues(
         alpha: 0.06,
       )
       ..strokeWidth = 1;
@@ -2560,6 +2524,11 @@ class _ReportChartPainter
 
     final chartHeight =
         size.height - top - bottom;
+
+    if (chartWidth <= 0 ||
+        chartHeight <= 0) {
+      return;
+    }
 
     // Horizontal grid
     for (int i = 0; i <= 4; i++) {
@@ -2586,14 +2555,16 @@ class _ReportChartPainter
       i < values.length;
       i++
     ) {
-      final x =
-          left +
-          chartWidth *
-              i /
-              (values.length - 1);
+      final x = values.length == 1
+          ? left + chartWidth / 2
+          : left +
+              chartWidth *
+                  i /
+                  (values.length - 1);
 
       final normalized =
-          values[i] / maxValue;
+          (values[i] / maxValue)
+              .clamp(0.0, 1.0);
 
       final y =
           top +
@@ -2603,10 +2574,6 @@ class _ReportChartPainter
       points.add(
         Offset(x, y),
       );
-    }
-
-    if (points.isEmpty) {
-      return;
     }
 
     final path = Path();
@@ -2627,8 +2594,7 @@ class _ReportChartPainter
       );
     }
 
-    final fillPath =
-        Path.from(path);
+    final fillPath = Path.from(path);
 
     fillPath.lineTo(
       points.last.dx,
@@ -2667,10 +2633,8 @@ class _ReportChartPainter
 
   @override
   bool shouldRepaint(
-    covariant _ReportChartPainter
-        oldDelegate,
+    covariant _ReportChartPainter oldDelegate,
   ) {
-    return oldDelegate.values !=
-        values;
+    return oldDelegate.values != values;
   }
 }

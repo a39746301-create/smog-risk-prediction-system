@@ -119,35 +119,46 @@ class _AlertScreenState extends State<AlertScreen> {
       appBar: AppBar(
         backgroundColor: cardColor,
         elevation: 0,
-        titleSpacing: 20,
+        titleSpacing: 16,
 
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.notifications_active_rounded,
-                color: Colors.redAccent,
-                size: 22,
-              ),
-            ),
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool verySmall = constraints.maxWidth < 260;
 
-            const SizedBox(width: 12),
+            return Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: const Icon(
+                    Icons.notifications_active_rounded,
+                    color: Colors.redAccent,
+                    size: 21,
+                  ),
+                ),
 
-            const Text(
-              "Smog Alerts",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+                if (!verySmall) ...[
+                  const SizedBox(width: 10),
+
+                  const Flexible(
+                    child: Text(
+                      "Smog Alerts",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            );
+          },
         ),
 
         iconTheme: const IconThemeData(
@@ -162,8 +173,6 @@ class _AlertScreenState extends State<AlertScreen> {
               Icons.refresh_rounded,
             ),
           ),
-
-          const SizedBox(width: 5),
 
           PopupMenuButton<String>(
             tooltip: "More options",
@@ -217,39 +226,69 @@ class _AlertScreenState extends State<AlertScreen> {
             ],
           ),
 
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
         ],
       ),
 
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final bool compact = constraints.maxWidth < 850;
+          final double width = constraints.maxWidth;
+
+          final bool mobile = width < 600;
+          final bool tablet = width >= 600 && width < 1000;
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
 
-            padding: EdgeInsets.all(
-              compact ? 18 : 25,
+            padding: EdgeInsets.symmetric(
+              horizontal: mobile
+                  ? 14
+                  : tablet
+                      ? 20
+                      : 25,
+              vertical: mobile
+                  ? 16
+                  : 22,
             ),
 
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                _buildHeader(compact),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1450,
+                ),
 
-                const SizedBox(height: 22),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(
+                      mobile,
+                      tablet,
+                    ),
 
-                _buildStatistics(compact),
+                    const SizedBox(height: 20),
 
-                const SizedBox(height: 22),
+                    _buildStatistics(
+                      mobile,
+                      tablet,
+                    ),
 
-                _buildSearchAndFilter(compact),
+                    const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
+                    _buildSearchAndFilter(
+                      mobile,
+                      tablet,
+                    ),
 
-                _buildAlertsList(),
-              ],
+                    const SizedBox(height: 20),
+
+                    _buildAlertsList(
+                      mobile,
+                      tablet,
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -342,7 +381,9 @@ class _AlertScreenState extends State<AlertScreen> {
               color: color,
               size: 20,
             ),
+
             const SizedBox(width: 10),
+
             Expanded(
               child: Text(
                 message,
@@ -362,12 +403,17 @@ class _AlertScreenState extends State<AlertScreen> {
   // HEADER
   // ============================================================
 
-  Widget _buildHeader(bool compact) {
+  Widget _buildHeader(
+    bool mobile,
+    bool tablet,
+  ) {
+    final bool compact = mobile || tablet;
+
     return Container(
       width: double.infinity,
 
       padding: EdgeInsets.all(
-        compact ? 18 : 22,
+        mobile ? 16 : 21,
       ),
 
       decoration: BoxDecoration(
@@ -380,7 +426,9 @@ class _AlertScreenState extends State<AlertScreen> {
           end: Alignment.bottomRight,
         ),
 
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(
+          mobile ? 17 : 20,
+        ),
 
         border: Border.all(
           color: Colors.white.withOpacity(0.08),
@@ -395,106 +443,133 @@ class _AlertScreenState extends State<AlertScreen> {
         ],
       ),
 
-      child: Row(
-        children: [
-          Container(
-            width: 56,
-            height: 56,
-
-            decoration: BoxDecoration(
-              color:
-                  Colors.redAccent.withOpacity(0.12),
-              borderRadius:
-                  BorderRadius.circular(16),
-            ),
-
-            child: const Icon(
-              Icons.warning_amber_rounded,
-              color: Colors.redAccent,
-              size: 30,
-            ),
-          ),
-
-          const SizedBox(width: 15),
-
-          Expanded(
-            child: Column(
+      child: mobile
+          ? Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Smog Alert Management",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize:
-                        compact ? 21 : 26,
-                    fontWeight:
-                        FontWeight.bold,
+                Row(
+                  children: [
+                    _headerIcon(),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: _headerText(
+                        mobile,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 14),
+
+                _liveAlertsBadge(),
+              ],
+            )
+          : Row(
+              children: [
+                _headerIcon(),
+
+                const SizedBox(width: 15),
+
+                Expanded(
+                  child: _headerText(
+                    compact,
                   ),
                 ),
 
-                const SizedBox(height: 5),
+                const SizedBox(width: 15),
 
-                const Text(
-                  "Monitor, acknowledge and manage air quality alerts",
-                  maxLines: 2,
-                  overflow:
-                      TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                ),
+                _liveAlertsBadge(),
               ],
             ),
+    );
+  }
+
+  Widget _headerIcon() {
+    return Container(
+      width: 54,
+      height: 54,
+
+      decoration: BoxDecoration(
+        color: Colors.redAccent.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(15),
+      ),
+
+      child: const Icon(
+        Icons.warning_amber_rounded,
+        color: Colors.redAccent,
+        size: 29,
+      ),
+    );
+  }
+
+  Widget _headerText(bool compact) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Smog Alert Management",
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: compact ? 21 : 25,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 5),
+
+        const Text(
+          "Monitor, acknowledge and manage air quality alerts",
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _liveAlertsBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 8,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.redAccent.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: Colors.redAccent.withOpacity(0.18),
+        ),
+      ),
+
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.circle,
+            color: Colors.redAccent,
+            size: 8,
           ),
 
-          if (!compact) ...[
-            const SizedBox(width: 15),
+          SizedBox(width: 7),
 
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-
-              decoration: BoxDecoration(
-                color:
-                    Colors.redAccent.withOpacity(
-                  0.12,
-                ),
-                borderRadius:
-                    BorderRadius.circular(20),
-                border: Border.all(
-                  color:
-                      Colors.redAccent.withOpacity(
-                    0.18,
-                  ),
-                ),
-              ),
-
-              child: const Row(
-                children: [
-                  Icon(
-                    Icons.circle,
-                    color: Colors.redAccent,
-                    size: 8,
-                  ),
-                  SizedBox(width: 7),
-                  Text(
-                    "Live Alerts",
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontSize: 11,
-                      fontWeight:
-                          FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+          Text(
+            "Live Alerts",
+            style: TextStyle(
+              color: Colors.redAccent,
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -504,7 +579,10 @@ class _AlertScreenState extends State<AlertScreen> {
   // STATISTICS
   // ============================================================
 
-  Widget _buildStatistics(bool compact) {
+  Widget _buildStatistics(
+    bool mobile,
+    bool tablet,
+  ) {
     final total = alerts.length;
 
     final high = alerts
@@ -518,11 +596,15 @@ class _AlertScreenState extends State<AlertScreen> {
         .length;
 
     final resolved = alerts
-        .where((a) => a["status"] == "Resolved")
+        .where(
+          (a) => a["status"] == "Resolved",
+        )
         .length;
 
     final active = alerts
-        .where((a) => a["status"] == "Active")
+        .where(
+          (a) => a["status"] == "Active",
+        )
         .length;
 
     final stats = [
@@ -558,7 +640,31 @@ class _AlertScreenState extends State<AlertScreen> {
       ),
     ];
 
-    if (compact) {
+    // Very small mobile
+    if (mobile) {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics:
+            const NeverScrollableScrollPhysics(),
+        itemCount: stats.length,
+
+        gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          mainAxisSpacing: 10,
+          childAspectRatio: 3.5,
+        ),
+
+        itemBuilder: (context, index) {
+          return _statCard(
+            stats[index],
+          );
+        },
+      );
+    }
+
+    // Tablet
+    if (tablet) {
       return GridView.builder(
         shrinkWrap: true,
         physics:
@@ -570,15 +676,18 @@ class _AlertScreenState extends State<AlertScreen> {
           crossAxisCount: 2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 2.05,
+          childAspectRatio: 2.5,
         ),
 
         itemBuilder: (context, index) {
-          return _statCard(stats[index]);
+          return _statCard(
+            stats[index],
+          );
         },
       );
     }
 
+    // Desktop
     return Row(
       children: List.generate(
         stats.length,
@@ -591,8 +700,9 @@ class _AlertScreenState extends State<AlertScreen> {
                         ? 0
                         : 12,
               ),
-              child:
-                  _statCard(stats[index]),
+              child: _statCard(
+                stats[index],
+              ),
             ),
           );
         },
@@ -600,7 +710,9 @@ class _AlertScreenState extends State<AlertScreen> {
     );
   }
 
-  Widget _statCard(_AlertStat stat) {
+  Widget _statCard(
+    _AlertStat stat,
+  ) {
     return Container(
       padding: const EdgeInsets.all(15),
 
@@ -611,17 +723,14 @@ class _AlertScreenState extends State<AlertScreen> {
             BorderRadius.circular(18),
 
         border: Border.all(
-          color:
-              Colors.white.withOpacity(0.08),
+          color: Colors.white.withOpacity(0.08),
         ),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(0.10),
+            color: Colors.black.withOpacity(0.10),
             blurRadius: 12,
-            offset:
-                const Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -633,10 +742,7 @@ class _AlertScreenState extends State<AlertScreen> {
             height: 44,
 
             decoration: BoxDecoration(
-              color:
-                  stat.color.withOpacity(
-                0.11,
-              ),
+              color: stat.color.withOpacity(0.11),
               borderRadius:
                   BorderRadius.circular(13),
             ),
@@ -654,14 +760,15 @@ class _AlertScreenState extends State<AlertScreen> {
             child: Column(
               crossAxisAlignment:
                   CrossAxisAlignment.start,
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
               children: [
                 Text(
                   stat.title,
                   maxLines: 1,
                   overflow:
                       TextOverflow.ellipsis,
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 10,
                   ),
@@ -671,12 +778,10 @@ class _AlertScreenState extends State<AlertScreen> {
 
                 Text(
                   stat.value,
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 19,
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
@@ -692,52 +797,67 @@ class _AlertScreenState extends State<AlertScreen> {
   // ============================================================
 
   Widget _buildSearchAndFilter(
-    bool compact,
+    bool mobile,
+    bool tablet,
   ) {
-    if (compact) {
+    if (mobile) {
       return Column(
         children: [
           _searchBox(),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           Row(
             children: [
               _filterButton(),
 
-              const SizedBox(width: 8),
+              if (searchController.text.isNotEmpty) ...[
+                const SizedBox(width: 8),
 
-              if (searchController.text.isNotEmpty)
-                OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      searchController.clear();
-                    });
-                  },
-                  icon: const Icon(
-                    Icons.close_rounded,
-                    size: 15,
-                  ),
-                  label: const Text(
-                    "Clear",
-                  ),
-                  style:
-                      OutlinedButton.styleFrom(
-                    foregroundColor:
-                        Colors.white70,
-                    side: BorderSide(
-                      color: Colors.white
-                          .withOpacity(0.12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        searchController.clear();
+                      });
+                    },
+
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      size: 15,
                     ),
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(
-                        12,
+
+                    label: const Text(
+                      "Clear Search",
+                    ),
+
+                    style:
+                        OutlinedButton.styleFrom(
+                      foregroundColor:
+                          Colors.white70,
+
+                      side: BorderSide(
+                        color: Colors.white
+                            .withOpacity(0.12),
+                      ),
+
+                      minimumSize:
+                          const Size(
+                        0,
+                        48,
+                      ),
+
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(
+                          12,
+                        ),
                       ),
                     ),
                   ),
                 ),
+              ],
             ],
           ),
         ],
@@ -756,6 +876,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
         if (searchController.text.isNotEmpty) ...[
           const SizedBox(width: 8),
+
           IconButton(
             tooltip: "Clear search",
             onPressed: () {
@@ -779,12 +900,12 @@ class _AlertScreenState extends State<AlertScreen> {
 
       decoration: BoxDecoration(
         color: cardColor,
+
         borderRadius:
             BorderRadius.circular(13),
 
         border: Border.all(
-          color:
-              Colors.white.withOpacity(0.08),
+          color: Colors.white.withOpacity(0.08),
         ),
       ),
 
@@ -905,6 +1026,7 @@ class _AlertScreenState extends State<AlertScreen> {
         ),
 
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.filter_list_rounded,
@@ -916,12 +1038,10 @@ class _AlertScreenState extends State<AlertScreen> {
 
             Text(
               selectedFilter,
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 12,
-                fontWeight:
-                    FontWeight.w600,
+                fontWeight: FontWeight.w600,
               ),
             ),
 
@@ -961,7 +1081,10 @@ class _AlertScreenState extends State<AlertScreen> {
   // ALERT LIST
   // ============================================================
 
-  Widget _buildAlertsList() {
+  Widget _buildAlertsList(
+    bool mobile,
+    bool tablet,
+  ) {
     final query =
         searchController.text.trim().toLowerCase();
 
@@ -1001,12 +1124,15 @@ class _AlertScreenState extends State<AlertScreen> {
       children: [
         Row(
           children: [
-            const Text(
-              "Alert Activity",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+            const Flexible(
+              child: Text(
+                "Alert Activity",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
 
@@ -1031,8 +1157,7 @@ class _AlertScreenState extends State<AlertScreen> {
                 style: const TextStyle(
                   color: cyanColor,
                   fontSize: 10,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -1054,7 +1179,10 @@ class _AlertScreenState extends State<AlertScreen> {
         const SizedBox(height: 12),
 
         ...filtered.map(
-          (alert) => _alertCard(alert),
+          (alert) => _alertCard(
+            alert,
+            mobile,
+          ),
         ),
       ],
     );
@@ -1108,6 +1236,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
           Text(
             "Try changing your search or filter.",
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white54,
               fontSize: 12,
@@ -1124,6 +1253,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
   Widget _alertCard(
     Map<String, dynamic> alert,
+    bool mobile,
   ) {
     final String severity =
         alert["severity"].toString();
@@ -1141,7 +1271,9 @@ class _AlertScreenState extends State<AlertScreen> {
       margin:
           const EdgeInsets.only(bottom: 14),
 
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(
+        mobile ? 14 : 18,
+      ),
 
       decoration: BoxDecoration(
         color: cardColor,
@@ -1170,126 +1302,20 @@ class _AlertScreenState extends State<AlertScreen> {
 
       child: Column(
         children: [
-          Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-
-                decoration: BoxDecoration(
-                  color:
-                      severityColor
-                          .withOpacity(0.12),
-                  borderRadius:
-                      BorderRadius.circular(
-                    15,
-                  ),
+          // TOP INFORMATION
+          mobile
+              ? _mobileAlertHeader(
+                  alert,
+                  severity,
+                  severityColor,
+                )
+              : _desktopAlertHeader(
+                  alert,
+                  severity,
+                  severityColor,
                 ),
 
-                child: Icon(
-                  alert["icon"] as IconData,
-                  color: severityColor,
-                  size: 27,
-                ),
-              ),
-
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      alert["title"]
-                          .toString(),
-
-                      maxLines: 2,
-
-                      overflow:
-                          TextOverflow.ellipsis,
-
-                      style:
-                          const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight:
-                            FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons
-                              .location_on_outlined,
-                          color:
-                              Colors.white54,
-                          size: 14,
-                        ),
-
-                        const SizedBox(
-                          width: 4,
-                        ),
-
-                        Flexible(
-                          child: Text(
-                            alert["location"]
-                                .toString(),
-
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
-
-                            style:
-                                const TextStyle(
-                              color:
-                                  Colors.white70,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.end,
-
-                children: [
-                  _severityBadge(
-                    severity,
-                    severityColor,
-                  ),
-
-                  const SizedBox(height: 7),
-
-                  Text(
-                    alert["time"]
-                        .toString(),
-
-                    style:
-                        const TextStyle(
-                      color: Colors.white38,
-                      fontSize: 9,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
+          const SizedBox(height: 15),
 
           Divider(
             color:
@@ -1299,150 +1325,611 @@ class _AlertScreenState extends State<AlertScreen> {
 
           const SizedBox(height: 14),
 
-          Row(
-            children: [
-              _alertInfo(
+          // INFORMATION
+          mobile
+              ? _mobileAlertInfo(
+                  alert,
+                  status,
+                  severityColor,
+                )
+              : _desktopAlertInfo(
+                  alert,
+                  status,
+                  severityColor,
+                ),
+
+          const SizedBox(height: 15),
+
+          // BUTTONS
+          mobile
+              ? _mobileAlertActions(
+                  alert,
+                  status,
+                  resolved,
+                )
+              : _desktopAlertActions(
+                  alert,
+                  status,
+                  resolved,
+                ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // DESKTOP ALERT HEADER
+  // ============================================================
+
+  Widget _desktopAlertHeader(
+    Map<String, dynamic> alert,
+    String severity,
+    Color severityColor,
+  ) {
+    return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        _alertIcon(
+          alert,
+          severityColor,
+        ),
+
+        const SizedBox(width: 14),
+
+        Expanded(
+          child: _alertTitleLocation(
+            alert,
+          ),
+        ),
+
+        const SizedBox(width: 10),
+
+        Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.end,
+          children: [
+            _severityBadge(
+              severity,
+              severityColor,
+            ),
+
+            const SizedBox(height: 7),
+
+            Text(
+              alert["time"].toString(),
+              style: const TextStyle(
+                color: Colors.white38,
+                fontSize: 9,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // MOBILE ALERT HEADER
+  // ============================================================
+
+  Widget _mobileAlertHeader(
+    Map<String, dynamic> alert,
+    String severity,
+    Color severityColor,
+  ) {
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
+          children: [
+            _alertIcon(
+              alert,
+              severityColor,
+            ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: _alertTitleLocation(
+                alert,
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        Row(
+          children: [
+            _severityBadge(
+              severity,
+              severityColor,
+            ),
+
+            const Spacer(),
+
+            Text(
+              alert["time"].toString(),
+              style: const TextStyle(
+                color: Colors.white38,
+                fontSize: 9,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _alertIcon(
+    Map<String, dynamic> alert,
+    Color color,
+  ) {
+    return Container(
+      width: 52,
+      height: 52,
+
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius:
+            BorderRadius.circular(15),
+      ),
+
+      child: Icon(
+        alert["icon"] as IconData,
+        color: color,
+        size: 26,
+      ),
+    );
+  }
+
+  Widget _alertTitleLocation(
+    Map<String, dynamic> alert,
+  ) {
+    return Column(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
+      children: [
+        Text(
+          alert["title"].toString(),
+
+          maxLines: 2,
+
+          overflow:
+              TextOverflow.ellipsis,
+
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        const SizedBox(height: 6),
+
+        Row(
+          children: [
+            const Icon(
+              Icons.location_on_outlined,
+              color: Colors.white54,
+              size: 14,
+            ),
+
+            const SizedBox(width: 4),
+
+            Expanded(
+              child: Text(
+                alert["location"].toString(),
+                overflow:
+                    TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // DESKTOP INFO
+  // ============================================================
+
+  Widget _desktopAlertInfo(
+    Map<String, dynamic> alert,
+    String status,
+    Color severityColor,
+  ) {
+    return Row(
+      children: [
+        _alertInfo(
+          Icons.speed_rounded,
+          "AQI",
+          "${alert["aqi"]}",
+          severityColor,
+        ),
+
+        _alertInfo(
+          Icons.access_time_rounded,
+          "Detected",
+          alert["time"].toString(),
+          Colors.white,
+        ),
+
+        _alertInfo(
+          Icons.info_outline_rounded,
+          "Status",
+          status,
+          _statusColor(status),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // MOBILE INFO
+  // ============================================================
+
+  Widget _mobileAlertInfo(
+    Map<String, dynamic> alert,
+    String status,
+    Color severityColor,
+  ) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _mobileInfoBox(
                 Icons.speed_rounded,
                 "AQI",
                 "${alert["aqi"]}",
                 severityColor,
               ),
+            ),
 
-              _alertInfo(
+            const SizedBox(width: 8),
+
+            Expanded(
+              child: _mobileInfoBox(
                 Icons.access_time_rounded,
                 "Detected",
                 alert["time"].toString(),
                 Colors.white,
               ),
+            ),
+          ],
+        ),
 
-              _alertInfo(
-                Icons.info_outline_rounded,
-                "Status",
-                status,
-                _statusColor(status),
-              ),
-            ],
+        const SizedBox(height: 8),
+
+        SizedBox(
+          width: double.infinity,
+          child: _mobileInfoBox(
+            Icons.info_outline_rounded,
+            "Status",
+            status,
+            _statusColor(status),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _mobileInfoBox(
+    IconData icon,
+    String title,
+    String value,
+    Color color,
+  ) {
+    return Container(
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 10,
+      ),
+
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.035),
+        borderRadius:
+            BorderRadius.circular(11),
+      ),
+
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 16,
           ),
 
-          const SizedBox(height: 15),
+          const SizedBox(width: 7),
 
-          Row(
-            mainAxisAlignment:
-                MainAxisAlignment.end,
-
-            children: [
-              OutlinedButton.icon(
-                onPressed: () {
-                  _showDetails(alert);
-                },
-
-                icon: const Icon(
-                  Icons.visibility_outlined,
-                  size: 15,
-                ),
-
-                label:
-                    const Text("Details"),
-
-                style:
-                    OutlinedButton.styleFrom(
-                  foregroundColor:
-                      cyanColor,
-
-                  side: BorderSide(
-                    color:
-                        cyanColor.withOpacity(
-                      0.45,
-                    ),
-                  ),
-
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      10,
-                    ),
-                  ),
-
-                  padding:
-                      const EdgeInsets
-                          .symmetric(
-                    horizontal: 13,
-                    vertical: 10,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 8),
-
-              if (!resolved)
-                ElevatedButton.icon(
-                  onPressed: () {
-                    _updateAlertStatus(
-                      alert,
-                    );
-                  },
-
-                  icon: Icon(
-                    status == "Active"
-                        ? Icons.done_rounded
-                        : Icons
-                            .check_circle_outline,
-                    size: 15,
-                  ),
-
-                  label: Text(
-                    status == "Active"
-                        ? "Acknowledge"
-                        : "Resolve",
-                  ),
-
-                  style:
-                      ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Colors.green
-                            .withOpacity(
-                      0.85,
-                    ),
-
-                    foregroundColor:
-                        Colors.white,
-
-                    elevation: 0,
-
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(
-                        10,
-                      ),
-                    ),
-
-                    padding:
-                        const EdgeInsets
-                            .symmetric(
-                      horizontal: 13,
-                      vertical: 10,
-                    ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white38,
+                    fontSize: 9,
                   ),
                 ),
 
-              const SizedBox(width: 8),
+                const SizedBox(height: 2),
 
-              IconButton(
-                tooltip: "Delete alert",
-                onPressed: () {
-                  _confirmDelete(alert);
-                },
-                icon: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.redAccent,
-                  size: 20,
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 10,
+                    fontWeight:
+                        FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // DESKTOP ACTIONS
+  // ============================================================
+
+  Widget _desktopAlertActions(
+    Map<String, dynamic> alert,
+    String status,
+    bool resolved,
+  ) {
+    return Row(
+      mainAxisAlignment:
+          MainAxisAlignment.end,
+      children: [
+        _detailsButton(
+          alert,
+        ),
+
+        const SizedBox(width: 8),
+
+        if (!resolved)
+          _statusButton(
+            alert,
+            status,
+          ),
+
+        const SizedBox(width: 8),
+
+        _deleteButton(
+          alert,
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // MOBILE ACTIONS
+  // ============================================================
+
+  Widget _mobileAlertActions(
+    Map<String, dynamic> alert,
+    String status,
+    bool resolved,
+  ) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _detailsButton(
+                alert,
+                fullWidth: true,
+              ),
+            ),
+
+            const SizedBox(width: 8),
+
+            if (!resolved)
+              Expanded(
+                child: _statusButton(
+                  alert,
+                  status,
+                  fullWidth: true,
+                ),
+              ),
+          ],
+        ),
+
+        const SizedBox(height: 8),
+
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              _confirmDelete(alert);
+            },
+
+            icon: const Icon(
+              Icons.delete_outline_rounded,
+              size: 17,
+            ),
+
+            label: const Text(
+              "Delete Alert",
+            ),
+
+            style:
+                OutlinedButton.styleFrom(
+              foregroundColor:
+                  Colors.redAccent,
+
+              side: BorderSide(
+                color: Colors.redAccent
+                    .withOpacity(0.35),
+              ),
+
+              minimumSize:
+                  const Size(
+                0,
+                42,
+              ),
+
+              shape:
+                  RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(
+                  10,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================================
+  // DETAILS BUTTON
+  // ============================================================
+
+  Widget _detailsButton(
+    Map<String, dynamic> alert, {
+    bool fullWidth = false,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: () {
+        _showDetails(alert);
+      },
+
+      icon: const Icon(
+        Icons.visibility_outlined,
+        size: 15,
+      ),
+
+      label: const Text(
+        "Details",
+      ),
+
+      style:
+          OutlinedButton.styleFrom(
+        foregroundColor:
+            cyanColor,
+
+        side: BorderSide(
+          color:
+              cyanColor.withOpacity(0.45),
+        ),
+
+        minimumSize: fullWidth
+            ? const Size(0, 42)
+            : null,
+
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
+            10,
+          ),
+        ),
+
+        padding:
+            const EdgeInsets.symmetric(
+          horizontal: 13,
+          vertical: 10,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // STATUS BUTTON
+  // ============================================================
+
+  Widget _statusButton(
+    Map<String, dynamic> alert,
+    String status, {
+    bool fullWidth = false,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        _updateAlertStatus(alert);
+      },
+
+      icon: Icon(
+        status == "Active"
+            ? Icons.done_rounded
+            : Icons.check_circle_outline,
+        size: 15,
+      ),
+
+      label: Text(
+        status == "Active"
+            ? "Acknowledge"
+            : "Resolve",
+      ),
+
+      style:
+          ElevatedButton.styleFrom(
+        backgroundColor:
+            Colors.green.withOpacity(0.85),
+
+        foregroundColor:
+            Colors.white,
+
+        elevation: 0,
+
+        minimumSize: fullWidth
+            ? const Size(0, 42)
+            : null,
+
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
+            10,
+          ),
+        ),
+
+        padding:
+            const EdgeInsets.symmetric(
+          horizontal: 13,
+          vertical: 10,
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // DELETE BUTTON
+  // ============================================================
+
+  Widget _deleteButton(
+    Map<String, dynamic> alert,
+  ) {
+    return IconButton(
+      tooltip: "Delete alert",
+      onPressed: () {
+        _confirmDelete(alert);
+      },
+      icon: const Icon(
+        Icons.delete_outline_rounded,
+        color: Colors.redAccent,
+        size: 20,
       ),
     );
   }
@@ -1579,6 +2066,12 @@ class _AlertScreenState extends State<AlertScreen> {
         return AlertDialog(
           backgroundColor: cardColor,
 
+          insetPadding:
+              const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+
           shape:
               RoundedRectangleBorder(
             borderRadius:
@@ -1594,23 +2087,27 @@ class _AlertScreenState extends State<AlertScreen> {
 
               SizedBox(width: 10),
 
-              Text(
-                "Delete Alert",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight:
-                      FontWeight.bold,
+              Expanded(
+                child: Text(
+                  "Delete Alert",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
 
-          content: Text(
-            "Are you sure you want to delete \"${alert["title"]}\"?\n\nThis action cannot be undone.",
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-              height: 1.5,
+          content: SingleChildScrollView(
+            child: Text(
+              "Are you sure you want to delete \"${alert["title"]}\"?\n\nThis action cannot be undone.",
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 13,
+                height: 1.5,
+              ),
             ),
           ),
 
@@ -1621,6 +2118,7 @@ class _AlertScreenState extends State<AlertScreen> {
                   dialogContext,
                 );
               },
+
               child: const Text(
                 "Cancel",
                 style: TextStyle(
@@ -1697,191 +2195,300 @@ class _AlertScreenState extends State<AlertScreen> {
       context: context,
 
       builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: cardColor,
+        return Dialog(
+          backgroundColor: Colors.transparent,
 
-          shape:
-              RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20),
+          insetPadding:
+              const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 24,
           ),
 
-          title: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 520,
+              maxHeight: 650,
+            ),
 
-                decoration: BoxDecoration(
-                  color:
-                      severityColor
-                          .withOpacity(0.12),
-                  borderRadius:
-                      BorderRadius.circular(
-                    12,
-                  ),
-                ),
-
-                child: Icon(
-                  alert["icon"] as IconData,
-                  color: severityColor,
-                  size: 22,
-                ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius:
+                    BorderRadius.circular(20),
               ),
 
-              const SizedBox(width: 10),
+              child: Column(
+                mainAxisSize:
+                    MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.fromLTRB(
+                      20,
+                      20,
+                      12,
+                      14,
+                    ),
 
-              const Expanded(
-                child: Text(
-                  "Alert Details",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
 
-          content:
-              SingleChildScrollView(
-            child: Column(
-              mainAxisSize:
-                  MainAxisSize.min,
+                          decoration:
+                              BoxDecoration(
+                            color:
+                                severityColor
+                                    .withOpacity(
+                              0.12,
+                            ),
+                            borderRadius:
+                                BorderRadius
+                                    .circular(
+                              12,
+                            ),
+                          ),
 
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                          child: Icon(
+                            alert["icon"]
+                                as IconData,
+                            color:
+                                severityColor,
+                            size: 22,
+                          ),
+                        ),
 
-              children: [
-                _dialogRow(
-                  "Alert",
-                  alert["title"].toString(),
-                ),
+                        const SizedBox(
+                          width: 10,
+                        ),
 
-                _dialogRow(
-                  "Location",
-                  alert["location"]
-                      .toString(),
-                ),
+                        const Expanded(
+                          child: Text(
+                            "Alert Details",
+                            style: TextStyle(
+                              color:
+                                  Colors.white,
+                              fontWeight:
+                                  FontWeight
+                                      .bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
 
-                _dialogRow(
-                  "AQI",
-                  "${alert["aqi"]}",
-                ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(
+                              dialogContext,
+                            );
+                          },
 
-                _dialogRow(
-                  "Severity",
-                  alert["severity"]
-                      .toString(),
-                ),
-
-                _dialogRow(
-                  "Status",
-                  alert["status"]
-                      .toString(),
-                ),
-
-                _dialogRow(
-                  "Detected",
-                  alert["time"].toString(),
-                ),
-
-                const SizedBox(height: 8),
-
-                const Text(
-                  "Description",
-                  style: TextStyle(
-                    color: Colors.white54,
-                    fontSize: 11,
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                Container(
-                  width:
-                      double.infinity,
-
-                  padding:
-                      const EdgeInsets.all(
-                    12,
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color:
+                                Colors.white54,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
 
-                  decoration:
-                      BoxDecoration(
-                    color: Colors.white
-                        .withOpacity(0.04),
+                  Divider(
+                    color:
+                        Colors.white.withOpacity(
+                      0.07,
+                    ),
+                    height: 1,
+                  ),
 
-                    borderRadius:
-                        BorderRadius.circular(
+                  Flexible(
+                    child:
+                        SingleChildScrollView(
+                      padding:
+                          const EdgeInsets.all(
+                        20,
+                      ),
+
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start,
+                        children: [
+                          _dialogRow(
+                            "Alert",
+                            alert["title"]
+                                .toString(),
+                          ),
+
+                          _dialogRow(
+                            "Location",
+                            alert["location"]
+                                .toString(),
+                          ),
+
+                          _dialogRow(
+                            "AQI",
+                            "${alert["aqi"]}",
+                          ),
+
+                          _dialogRow(
+                            "Severity",
+                            alert["severity"]
+                                .toString(),
+                          ),
+
+                          _dialogRow(
+                            "Status",
+                            alert["status"]
+                                .toString(),
+                          ),
+
+                          _dialogRow(
+                            "Detected",
+                            alert["time"]
+                                .toString(),
+                          ),
+
+                          const SizedBox(
+                            height: 8,
+                          ),
+
+                          const Text(
+                            "Description",
+                            style: TextStyle(
+                              color:
+                                  Colors.white54,
+                              fontSize: 11,
+                            ),
+                          ),
+
+                          const SizedBox(
+                            height: 6,
+                          ),
+
+                          Container(
+                            width:
+                                double.infinity,
+
+                            padding:
+                                const EdgeInsets
+                                    .all(
+                              12,
+                            ),
+
+                            decoration:
+                                BoxDecoration(
+                              color: Colors.white
+                                  .withOpacity(
+                                0.04,
+                              ),
+
+                              borderRadius:
+                                  BorderRadius
+                                      .circular(
+                                12,
+                              ),
+                            ),
+
+                            child: Text(
+                              alert["description"]
+                                  .toString(),
+
+                              style:
+                                  const TextStyle(
+                                color:
+                                    Colors.white70,
+                                fontSize: 12,
+                                height: 1.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  Divider(
+                    color:
+                        Colors.white.withOpacity(
+                      0.07,
+                    ),
+                    height: 1,
+                  ),
+
+                  Padding(
+                    padding:
+                        const EdgeInsets.fromLTRB(
+                      12,
+                      8,
+                      12,
                       12,
                     ),
-                  ),
 
-                  child: Text(
-                    alert["description"]
-                        .toString(),
+                    child: Row(
+                      mainAxisAlignment:
+                          MainAxisAlignment.end,
+                      children: [
+                        if (alert["status"] !=
+                            "Resolved")
+                          TextButton.icon(
+                            onPressed: () {
+                              Navigator.pop(
+                                dialogContext,
+                              );
 
-                    style:
-                        const TextStyle(
-                      color:
-                          Colors.white70,
-                      fontSize: 12,
-                      height: 1.5,
+                              _updateAlertStatus(
+                                alert,
+                              );
+                            },
+
+                            icon: const Icon(
+                              Icons
+                                  .check_circle_outline,
+                              size: 16,
+                            ),
+
+                            label: Text(
+                              alert["status"] ==
+                                      "Active"
+                                  ? "Acknowledge"
+                                  : "Resolve",
+                            ),
+
+                            style:
+                                TextButton
+                                    .styleFrom(
+                              foregroundColor:
+                                  Colors
+                                      .greenAccent,
+                            ),
+                          ),
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(
+                              dialogContext,
+                            );
+                          },
+
+                          child: const Text(
+                            "Close",
+                            style: TextStyle(
+                              color:
+                                  cyanColor,
+                              fontWeight:
+                                  FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-
-          actions: [
-            if (alert["status"] !=
-                "Resolved")
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.pop(
-                    dialogContext,
-                  );
-                  _updateAlertStatus(
-                    alert,
-                  );
-                },
-                icon: const Icon(
-                  Icons.check_circle_outline,
-                  size: 16,
-                ),
-                label: Text(
-                  alert["status"] ==
-                          "Active"
-                      ? "Acknowledge"
-                      : "Resolve",
-                ),
-                style:
-                    TextButton.styleFrom(
-                  foregroundColor:
-                      Colors.greenAccent,
-                ),
-              ),
-
-            TextButton(
-              onPressed: () {
-                Navigator.pop(
-                  dialogContext,
-                );
-              },
-
-              child: const Text(
-                "Close",
-                style: TextStyle(
-                  color: cyanColor,
-                  fontWeight:
-                      FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
         );
       },
     );

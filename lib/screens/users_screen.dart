@@ -21,8 +21,7 @@ class _UsersScreenState extends State<UsersScreen> {
   static const Color whiteColor = Colors.white;
   static const Color secondaryColor = Colors.white70;
 
-  final TextEditingController searchController =
-      TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   // ============================================================
   // USERS DATA
@@ -75,35 +74,44 @@ class _UsersScreenState extends State<UsersScreen> {
         backgroundColor: sidebarColor,
         elevation: 0,
         automaticallyImplyLeading: true,
-        titleSpacing: 20,
+        titleSpacing: 16,
 
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: cyanColor.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.people_alt_rounded,
-                color: cyanColor,
-                size: 21,
-              ),
-            ),
+        title: LayoutBuilder(
+          builder: (context, constraints) {
+            final bool mobile = constraints.maxWidth < 450;
 
-            const SizedBox(width: 12),
+            return Row(
+              children: [
+                Container(
+                  width: mobile ? 36 : 40,
+                  height: mobile ? 36 : 40,
+                  decoration: BoxDecoration(
+                    color: cyanColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.people_alt_rounded,
+                    color: cyanColor,
+                    size: mobile ? 19 : 21,
+                  ),
+                ),
 
-            const Text(
-              "Users Management",
-              style: TextStyle(
-                color: whiteColor,
-                fontSize: 19,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+                const SizedBox(width: 10),
+
+                Flexible(
+                  child: Text(
+                    "Users Management",
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: whiteColor,
+                      fontSize: mobile ? 16 : 19,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
 
         iconTheme: const IconThemeData(
@@ -111,46 +119,65 @@ class _UsersScreenState extends State<UsersScreen> {
         ),
 
         actions: [
-          Container(
-            margin: const EdgeInsets.only(
-              right: 18,
-              top: 8,
-              bottom: 8,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.06),
-              ),
-            ),
-            child: const Row(
-              children: [
-                CircleAvatar(
-                  radius: 15,
-                  backgroundColor: cyanColor,
-                  child: Icon(
-                    Icons.person,
-                    color: backgroundColor,
-                    size: 17,
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final bool mobile = MediaQuery.of(context).size.width < 500;
+
+              if (mobile) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: CircleAvatar(
+                    radius: 15,
+                    backgroundColor: cyanColor,
+                    child: Icon(
+                      Icons.person,
+                      color: backgroundColor,
+                      size: 17,
+                    ),
+                  ),
+                );
+              }
+
+              return Container(
+                margin: const EdgeInsets.only(
+                  right: 18,
+                  top: 8,
+                  bottom: 8,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.06),
                   ),
                 ),
-
-                SizedBox(width: 7),
-
-                Text(
-                  "Admin",
-                  style: TextStyle(
-                    color: whiteColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
+                child: const Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 15,
+                      backgroundColor: cyanColor,
+                      child: Icon(
+                        Icons.person,
+                        color: backgroundColor,
+                        size: 17,
+                      ),
+                    ),
+                    SizedBox(width: 7),
+                    Text(
+                      "Admin",
+                      style: TextStyle(
+                        color: whiteColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ],
       ),
@@ -161,41 +188,55 @@ class _UsersScreenState extends State<UsersScreen> {
 
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final bool compact = constraints.maxWidth < 800;
+          final double width = constraints.maxWidth;
+
+          final bool mobile = width < 600;
+          final bool tablet = width >= 600 && width < 1000;
+
+          final double horizontalPadding =
+              mobile ? 14 : tablet ? 20 : 25;
 
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
 
-            padding: EdgeInsets.all(
-              compact ? 16 : 25,
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: mobile ? 16 : 25,
             ),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // PAGE HEADER
-                _buildPageHeader(compact),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 1400,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // PAGE HEADER
+                    _buildPageHeader(mobile),
 
-                const SizedBox(height: 24),
+                    const SizedBox(height: 22),
 
-                // STATISTICS
-                _buildStatistics(compact),
+                    // STATISTICS
+                    _buildStatistics(mobile, tablet),
 
-                const SizedBox(height: 25),
+                    const SizedBox(height: 22),
 
-                // SEARCH + ADD BUTTON
-                _buildSearchSection(compact),
+                    // SEARCH + ADD BUTTON
+                    _buildSearchSection(mobile, tablet),
 
-                const SizedBox(height: 22),
+                    const SizedBox(height: 22),
 
-                // USERS TITLE
-                _buildUsersTitle(),
+                    // USERS TITLE
+                    _buildUsersTitle(),
 
-                const SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
-                // USER LIST
-                _buildUserList(),
-              ],
+                    // USER LIST
+                    _buildUserList(),
+                  ],
+                ),
+              ),
             ),
           );
         },
@@ -207,11 +248,11 @@ class _UsersScreenState extends State<UsersScreen> {
   // PAGE HEADER
   // ============================================================
 
-  Widget _buildPageHeader(bool compact) {
+  Widget _buildPageHeader(bool mobile) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(
-        compact ? 18 : 22,
+        mobile ? 16 : 22,
       ),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -234,13 +275,11 @@ class _UsersScreenState extends State<UsersScreen> {
           ),
         ],
       ),
-
       child: Row(
         children: [
-          // ICON
           Container(
-            width: compact ? 50 : 58,
-            height: compact ? 50 : 58,
+            width: mobile ? 48 : 58,
+            height: mobile ? 48 : 58,
             decoration: BoxDecoration(
               color: cyanColor.withOpacity(0.12),
               borderRadius: BorderRadius.circular(16),
@@ -248,22 +287,22 @@ class _UsersScreenState extends State<UsersScreen> {
             child: Icon(
               Icons.manage_accounts_rounded,
               color: cyanColor,
-              size: compact ? 26 : 30,
+              size: mobile ? 25 : 30,
             ),
           ),
 
-          const SizedBox(width: 15),
+          SizedBox(width: mobile ? 12 : 15),
 
-          // TEXT
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Registered Users",
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: whiteColor,
-                    fontSize: compact ? 20 : 26,
+                    fontSize: mobile ? 19 : 26,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -272,9 +311,11 @@ class _UsersScreenState extends State<UsersScreen> {
 
                 Text(
                   "Manage system users and their information",
+                  maxLines: mobile ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: secondaryColor,
-                    fontSize: compact ? 12 : 13,
+                    fontSize: mobile ? 11.5 : 13,
                   ),
                 ),
               ],
@@ -289,7 +330,10 @@ class _UsersScreenState extends State<UsersScreen> {
   // STATISTICS
   // ============================================================
 
-  Widget _buildStatistics(bool compact) {
+  Widget _buildStatistics(
+    bool mobile,
+    bool tablet,
+  ) {
     final int totalUsers = users.length;
 
     final int activeUsers = users.where(
@@ -321,7 +365,23 @@ class _UsersScreenState extends State<UsersScreen> {
       ),
     ];
 
-    if (compact) {
+    // MOBILE
+    if (mobile) {
+      return Column(
+        children: stats.map((stat) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _statCard(
+              stat,
+              compact: true,
+            ),
+          );
+        }).toList(),
+      );
+    }
+
+    // TABLET
+    if (tablet) {
       return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -329,16 +389,20 @@ class _UsersScreenState extends State<UsersScreen> {
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.85,
+          crossAxisSpacing: 14,
+          mainAxisSpacing: 14,
+          childAspectRatio: 2.8,
         ),
         itemBuilder: (context, index) {
-          return _statCard(stats[index]);
+          return _statCard(
+            stats[index],
+            compact: true,
+          );
         },
       );
     }
 
+    // DESKTOP
     return Row(
       children: List.generate(
         stats.length,
@@ -348,7 +412,10 @@ class _UsersScreenState extends State<UsersScreen> {
               padding: EdgeInsets.only(
                 right: index == stats.length - 1 ? 0 : 14,
               ),
-              child: _statCard(stats[index]),
+              child: _statCard(
+                stats[index],
+                compact: false,
+              ),
             ),
           );
         },
@@ -360,9 +427,15 @@ class _UsersScreenState extends State<UsersScreen> {
   // STAT CARD
   // ============================================================
 
-  Widget _statCard(_Stat stat) {
+  Widget _statCard(
+    _Stat stat, {
+    required bool compact,
+  }) {
     return Container(
-      padding: const EdgeInsets.all(17),
+      width: double.infinity,
+      padding: EdgeInsets.all(
+        compact ? 15 : 17,
+      ),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(18),
@@ -377,12 +450,11 @@ class _UsersScreenState extends State<UsersScreen> {
           ),
         ],
       ),
-
       child: Row(
         children: [
           Container(
-            width: 45,
-            height: 45,
+            width: compact ? 42 : 45,
+            height: compact ? 42 : 45,
             decoration: BoxDecoration(
               color: stat.color.withOpacity(0.11),
               borderRadius: BorderRadius.circular(13),
@@ -390,7 +462,7 @@ class _UsersScreenState extends State<UsersScreen> {
             child: Icon(
               stat.icon,
               color: stat.color,
-              size: 23,
+              size: compact ? 21 : 23,
             ),
           ),
 
@@ -413,9 +485,9 @@ class _UsersScreenState extends State<UsersScreen> {
 
                 Text(
                   stat.value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: whiteColor,
-                    fontSize: 20,
+                    fontSize: compact ? 19 : 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -431,8 +503,11 @@ class _UsersScreenState extends State<UsersScreen> {
   // SEARCH SECTION
   // ============================================================
 
-  Widget _buildSearchSection(bool compact) {
-    if (compact) {
+  Widget _buildSearchSection(
+    bool mobile,
+    bool tablet,
+  ) {
+    if (mobile) {
       return Column(
         children: [
           _buildSearchField(),
@@ -441,6 +516,21 @@ class _UsersScreenState extends State<UsersScreen> {
 
           SizedBox(
             width: double.infinity,
+            child: _buildAddButton(),
+          ),
+        ],
+      );
+    }
+
+    if (tablet) {
+      return Column(
+        children: [
+          _buildSearchField(),
+
+          const SizedBox(height: 12),
+
+          Align(
+            alignment: Alignment.centerRight,
             child: _buildAddButton(),
           ),
         ],
@@ -474,7 +564,6 @@ class _UsersScreenState extends State<UsersScreen> {
           color: Colors.white.withOpacity(0.08),
         ),
       ),
-
       child: TextField(
         controller: searchController,
 
@@ -488,11 +577,11 @@ class _UsersScreenState extends State<UsersScreen> {
         },
 
         decoration: InputDecoration(
-          hintText: "Search users by name or location...",
+          hintText: "Search users by name, email or location...",
 
           hintStyle: const TextStyle(
             color: Colors.white54,
-            fontSize: 13,
+            fontSize: 12.5,
           ),
 
           prefixIcon: const Icon(
@@ -501,21 +590,20 @@ class _UsersScreenState extends State<UsersScreen> {
             size: 21,
           ),
 
-          suffixIcon:
-              searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(
-                        Icons.clear_rounded,
-                        color: Colors.white54,
-                        size: 19,
-                      ),
-                      onPressed: () {
-                        searchController.clear();
+          suffixIcon: searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(
+                    Icons.clear_rounded,
+                    color: Colors.white54,
+                    size: 19,
+                  ),
+                  onPressed: () {
+                    searchController.clear();
 
-                        setState(() {});
-                      },
-                    )
-                  : null,
+                    setState(() {});
+                  },
+                )
+              : null,
 
           border: InputBorder.none,
 
@@ -665,7 +753,7 @@ class _UsersScreenState extends State<UsersScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 13),
 
-      padding: const EdgeInsets.all(17),
+      padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
         color: cardColor,
@@ -687,7 +775,7 @@ class _UsersScreenState extends State<UsersScreen> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final bool small =
-              constraints.maxWidth < 600;
+              constraints.maxWidth < 620;
 
           if (small) {
             return _smallUserCard(user, active);
@@ -740,6 +828,7 @@ class _UsersScreenState extends State<UsersScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildAvatar(user),
 
@@ -749,6 +838,8 @@ class _UsersScreenState extends State<UsersScreen> {
               child: _buildUserInformation(user),
             ),
 
+            const SizedBox(width: 4),
+
             _buildMenu(user),
           ],
         ),
@@ -756,10 +847,8 @@ class _UsersScreenState extends State<UsersScreen> {
         const SizedBox(height: 13),
 
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const SizedBox(width: 1),
-
             _buildStatus(user, active),
           ],
         ),
@@ -1112,6 +1201,11 @@ class _UsersScreenState extends State<UsersScreen> {
         return AlertDialog(
           backgroundColor: sidebarColor,
 
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -1136,47 +1230,52 @@ class _UsersScreenState extends State<UsersScreen> {
 
               const SizedBox(width: 10),
 
-              const Text(
-                "User Details",
-                style: TextStyle(
-                  color: whiteColor,
-                  fontWeight: FontWeight.bold,
+              const Expanded(
+                child: Text(
+                  "User Details",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: whiteColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
 
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            children: [
-              const Divider(
-                color: Colors.white12,
-              ),
+              children: [
+                const Divider(
+                  color: Colors.white12,
+                ),
 
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
 
-              _detailRow(
-                "Name",
-                user["name"].toString(),
-              ),
+                _detailRow(
+                  "Name",
+                  user["name"].toString(),
+                ),
 
-              _detailRow(
-                "Location",
-                user["location"].toString(),
-              ),
+                _detailRow(
+                  "Location",
+                  user["location"].toString(),
+                ),
 
-              _detailRow(
-                "Email",
-                user["email"].toString(),
-              ),
+                _detailRow(
+                  "Email",
+                  user["email"].toString(),
+                ),
 
-              _detailRow(
-                "Status",
-                user["status"].toString(),
-              ),
-            ],
+                _detailRow(
+                  "Status",
+                  user["status"].toString(),
+                ),
+              ],
+            ),
           ),
 
           actions: [
@@ -1251,14 +1350,11 @@ class _UsersScreenState extends State<UsersScreen> {
   // ============================================================
 
   void _showAddUserDialog() {
-    final nameController =
-        TextEditingController();
+    final nameController = TextEditingController();
 
-    final locationController =
-        TextEditingController();
+    final locationController = TextEditingController();
 
-    final emailController =
-        TextEditingController();
+    final emailController = TextEditingController();
 
     showDialog(
       context: context,
@@ -1266,6 +1362,11 @@ class _UsersScreenState extends State<UsersScreen> {
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: sidebarColor,
+
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
 
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -1422,6 +1523,11 @@ class _UsersScreenState extends State<UsersScreen> {
         return AlertDialog(
           backgroundColor: sidebarColor,
 
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -1491,6 +1597,15 @@ class _UsersScreenState extends State<UsersScreen> {
                 if (name.isEmpty ||
                     location.isEmpty ||
                     email.isEmpty) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Please fill all fields.",
+                      ),
+                    ),
+                  );
+
                   return;
                 }
 
@@ -1549,6 +1664,11 @@ class _UsersScreenState extends State<UsersScreen> {
         return AlertDialog(
           backgroundColor: sidebarColor,
 
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -1573,22 +1693,27 @@ class _UsersScreenState extends State<UsersScreen> {
 
               const SizedBox(width: 10),
 
-              const Text(
-                "Delete User?",
-                style: TextStyle(
-                  color: whiteColor,
-                  fontWeight: FontWeight.bold,
+              const Expanded(
+                child: Text(
+                  "Delete User?",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: whiteColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
 
-          content: Text(
-            "Are you sure you want to delete ${user["name"]}?\n\nThis action cannot be undone.",
-            style: const TextStyle(
-              color: secondaryColor,
-              fontSize: 13,
-              height: 1.5,
+          content: SingleChildScrollView(
+            child: Text(
+              "Are you sure you want to delete ${user["name"]}?\n\nThis action cannot be undone.",
+              style: const TextStyle(
+                color: secondaryColor,
+                fontSize: 13,
+                height: 1.5,
+              ),
             ),
           ),
 
