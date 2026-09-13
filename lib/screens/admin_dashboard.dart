@@ -38,15 +38,10 @@ class AdminDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double width = constraints.maxWidth;
+        final width = constraints.maxWidth;
 
-        // ========================================================
-        // RESPONSIVE BREAKPOINTS
-        // ========================================================
-
-        final bool isMobile = width < 700;
-        final bool isTablet = width >= 700 && width < 1100;
-        final bool isDesktop = width >= 1100;
+        final isMobile = width < 700;
+        final isTablet = width >= 700 && width < 1100;
 
         return Scaffold(
           backgroundColor: backgroundColor,
@@ -57,15 +52,11 @@ class AdminDashboard extends StatelessWidget {
 
           drawer: isMobile
               ? Drawer(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
+                  backgroundColor: sidebarColor,
                   child: SafeArea(
-                    child: SizedBox(
-                      width: 285,
-                      child: _buildSidebar(
-                        context,
-                        false,
-                      ),
+                    child: _buildSidebar(
+                      context,
+                      false,
                     ),
                   ),
                 )
@@ -75,36 +66,38 @@ class AdminDashboard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ==================================================
-                // DESKTOP SIDEBAR
-                // ==================================================
-
                 if (!isMobile)
                   _buildSidebar(
                     context,
                     isTablet,
                   ),
 
-                // ==================================================
-                // MAIN CONTENT
-                // ==================================================
-
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.fromLTRB(
-                      isMobile ? 14 : isTablet ? 20 : 28,
-                      isMobile ? 14 : isTablet ? 20 : 24,
-                      isMobile ? 14 : isTablet ? 20 : 28,
+                      isMobile
+                          ? 14
+                          : isTablet
+                              ? 20
+                              : 28,
+                      isMobile
+                          ? 14
+                          : isTablet
+                              ? 20
+                              : 24,
+                      isMobile
+                          ? 14
+                          : isTablet
+                              ? 20
+                              : 28,
                       35,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
-                        // ==================================================
                         // HEADER
-                        // ==================================================
-
                         _buildHeader(
                           context,
                           isMobile,
@@ -112,27 +105,19 @@ class AdminDashboard extends StatelessWidget {
                         ),
 
                         SizedBox(
-                          height: isMobile ? 18 : 24,
+                          height: isMobile ? 18 : 25,
                         ),
 
-                        // ==================================================
                         // OVERVIEW
-                        // ==================================================
-
                         _buildSectionHeading(
                           "Dashboard Overview",
                           "Real-time system performance at a glance",
                           isMobile: isMobile,
                         ),
 
-                        SizedBox(
-                          height: isMobile ? 12 : 15,
-                        ),
+                        const SizedBox(height: 15),
 
-                        // ==================================================
-                        // DASHBOARD CARDS
-                        // ==================================================
-
+                        // CARDS
                         _buildDashboardCards(
                           context,
                           isMobile,
@@ -140,13 +125,10 @@ class AdminDashboard extends StatelessWidget {
                         ),
 
                         SizedBox(
-                          height: isMobile ? 20 : 27,
+                          height: isMobile ? 20 : 28,
                         ),
 
-                        // ==================================================
                         // LIVE STATUS
-                        // ==================================================
-
                         _buildLiveStatusPanel(
                           isMobile || isTablet,
                         ),
@@ -155,19 +137,14 @@ class AdminDashboard extends StatelessWidget {
                           height: isMobile ? 20 : 28,
                         ),
 
-                        // ==================================================
                         // ANALYTICS
-                        // ==================================================
-
                         _buildSectionHeading(
                           "Air Quality Analytics",
                           "AQI trends and smog risk distribution",
                           isMobile: isMobile,
                         ),
 
-                        SizedBox(
-                          height: isMobile ? 12 : 15,
-                        ),
+                        const SizedBox(height: 15),
 
                         _buildCharts(
                           context,
@@ -179,10 +156,7 @@ class AdminDashboard extends StatelessWidget {
                           height: isMobile ? 20 : 28,
                         ),
 
-                        // ==================================================
-                        // RECENT SMOG ALERTS
-                        // ==================================================
-
+                        // RECENT ALERTS
                         _buildDashboardSection(
                           title: "Recent Smog Alerts",
                           subtitle:
@@ -207,10 +181,7 @@ class AdminDashboard extends StatelessWidget {
                           height: isMobile ? 20 : 28,
                         ),
 
-                        // ==================================================
-                        // MOTORWAY MONITORING
-                        // ==================================================
-
+                        // MOTORWAY
                         _buildDashboardSection(
                           title: "Motorway Monitoring",
                           subtitle:
@@ -235,10 +206,7 @@ class AdminDashboard extends StatelessWidget {
                           height: isMobile ? 20 : 28,
                         ),
 
-                        // ==================================================
-                        // AI RISK PREDICTION
-                        // ==================================================
-
+                        // AI PREDICTION
                         _buildDashboardSection(
                           title: "AI Risk Prediction",
                           subtitle:
@@ -290,11 +258,11 @@ class AdminDashboard extends StatelessWidget {
           bottomRight: Radius.circular(30),
         ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.22),
+            color: Colors.black.withValues(alpha: 0.22),
             blurRadius: 25,
             offset: const Offset(5, 0),
           ),
@@ -305,18 +273,14 @@ class AdminDashboard extends StatelessWidget {
           children: [
             const SizedBox(height: 28),
 
-            // ========================================================
-            // LOGO
-            // ========================================================
-
             Container(
               width: 58,
               height: 58,
               decoration: BoxDecoration(
-                color: cyanColor.withOpacity(0.12),
+                color: cyanColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(17),
                 border: Border.all(
-                  color: cyanColor.withOpacity(0.25),
+                  color: cyanColor.withValues(alpha: 0.25),
                 ),
               ),
               child: const Icon(
@@ -353,11 +317,7 @@ class AdminDashboard extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            Container(
-              height: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              color: Colors.white.withOpacity(0.08),
-            ),
+            _divider(),
 
             const SizedBox(height: 18),
 
@@ -412,11 +372,7 @@ class AdminDashboard extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            Container(
-              height: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              color: Colors.white.withOpacity(0.08),
-            ),
+            _divider(),
 
             const SizedBox(height: 15),
 
@@ -431,6 +387,14 @@ class AdminDashboard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      height: 1,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      color: Colors.white.withValues(alpha: 0.08),
     );
   }
 
@@ -455,41 +419,31 @@ class AdminDashboard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          hoverColor: Colors.white.withOpacity(0.05),
-          splashColor: cyanColor.withOpacity(0.08),
           onTap: () {
-            // Mobile drawer close
             if (MediaQuery.of(context).size.width < 700) {
               Navigator.pop(context);
             }
 
-            _navigate(
-              context,
-              title,
-            );
+            _navigate(context, title);
           },
           child: AnimatedContainer(
-            duration: const Duration(
-              milliseconds: 180,
-            ),
+            duration: const Duration(milliseconds: 180),
             padding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 10,
             ),
             decoration: BoxDecoration(
               color: active
-                  ? cyanColor.withOpacity(0.13)
+                  ? cyanColor.withValues(alpha: 0.13)
                   : logout
-                      ? redColor.withOpacity(0.04)
+                      ? redColor.withValues(alpha: 0.04)
                       : Colors.transparent,
               borderRadius: BorderRadius.circular(16),
-              border: active
-                  ? Border.all(
-                      color: cyanColor.withOpacity(0.18),
-                    )
-                  : Border.all(
-                      color: Colors.transparent,
-                    ),
+              border: Border.all(
+                color: active
+                    ? cyanColor.withValues(alpha: 0.18)
+                    : Colors.transparent,
+              ),
             ),
             child: Row(
               children: [
@@ -498,10 +452,10 @@ class AdminDashboard extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: active
-                        ? cyanColor.withOpacity(0.13)
+                        ? cyanColor.withValues(alpha: 0.13)
                         : logout
-                            ? redColor.withOpacity(0.08)
-                            : Colors.white.withOpacity(0.045),
+                            ? redColor.withValues(alpha: 0.08)
+                            : Colors.white.withValues(alpha: 0.045),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -528,10 +482,9 @@ class AdminDashboard extends StatelessWidget {
                               ? redColor
                               : whiteColor,
                       fontSize: 14,
-                      fontWeight:
-                          active
-                              ? FontWeight.bold
-                              : FontWeight.w500,
+                      fontWeight: active
+                          ? FontWeight.bold
+                          : FontWeight.w500,
                     ),
                   ),
                 ),
@@ -540,8 +493,7 @@ class AdminDashboard extends StatelessWidget {
                   Container(
                     width: 5,
                     height: 5,
-                    decoration:
-                        const BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: cyanColor,
                       shape: BoxShape.circle,
                     ),
@@ -564,14 +516,13 @@ class AdminDashboard extends StatelessWidget {
   ) {
     switch (title) {
       case "Dashboard":
-        return;
+        break;
 
       case "Users":
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                const UsersScreen(),
+            builder: (_) => const UsersScreen(),
           ),
         );
         break;
@@ -580,8 +531,7 @@ class AdminDashboard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                const NHMPScreen(),
+            builder: (_) => const NHMPScreen(),
           ),
         );
         break;
@@ -590,8 +540,7 @@ class AdminDashboard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                const AirQualityScreen(),
+            builder: (_) => const AirQualityScreen(),
           ),
         );
         break;
@@ -600,8 +549,7 @@ class AdminDashboard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                const AlertScreen(),
+            builder: (_) => const AlertScreen(),
           ),
         );
         break;
@@ -610,8 +558,7 @@ class AdminDashboard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                const ReportsScreen(),
+            builder: (_) => const ReportsScreen(),
           ),
         );
         break;
@@ -620,8 +567,7 @@ class AdminDashboard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                const SettingsScreen(),
+            builder: (_) => const SettingsScreen(),
           ),
         );
         break;
@@ -630,8 +576,7 @@ class AdminDashboard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                const ProfileScreen(),
+            builder: (_) => const ProfileScreen(),
           ),
         );
         break;
@@ -651,42 +596,25 @@ class AdminDashboard extends StatelessWidget {
   ) {
     showDialog(
       context: context,
-      barrierColor:
-          Colors.black.withOpacity(0.65),
+      barrierColor: Colors.black.withValues(alpha: 0.65),
       builder: (dialogContext) {
         return AlertDialog(
           backgroundColor: sidebarColor,
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20),
           ),
-          title: Row(
+          title: const Row(
             children: [
-              Container(
-                width: 45,
-                height: 45,
-                decoration: BoxDecoration(
-                  color:
-                      redColor.withOpacity(0.10),
-                  borderRadius:
-                      BorderRadius.circular(13),
-                ),
-                child: const Icon(
-                  Icons.logout_rounded,
-                  color: redColor,
-                ),
+              Icon(
+                Icons.logout_rounded,
+                color: redColor,
               ),
-
-              const SizedBox(width: 12),
-
-              const Expanded(
-                child: Text(
-                  "Logout",
-                  style: TextStyle(
-                    color: whiteColor,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
+              SizedBox(width: 12),
+              Text(
+                "Logout",
+                style: TextStyle(
+                  color: whiteColor,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -701,9 +629,7 @@ class AdminDashboard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(
-                  dialogContext,
-                );
+                Navigator.pop(dialogContext);
               },
               child: const Text(
                 "Cancel",
@@ -712,37 +638,26 @@ class AdminDashboard extends StatelessWidget {
                 ),
               ),
             ),
-
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(
-                  dialogContext,
-                );
+                Navigator.pop(dialogContext);
 
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        const LoginPage(),
+                    builder: (_) => const LoginPage(),
                   ),
                   (route) => false,
                 );
               },
-              style:
-                  ElevatedButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 backgroundColor: redColor,
                 foregroundColor: whiteColor,
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(10),
-                ),
               ),
               child: const Text(
                 "Logout",
                 style: TextStyle(
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -773,81 +688,42 @@ class AdminDashboard extends StatelessWidget {
             Color(0xff163B5C),
           ],
         ),
-        borderRadius:
-            BorderRadius.circular(
+        borderRadius: BorderRadius.circular(
           isMobile ? 18 : 24,
         ),
         border: Border.all(
-          color:
-              Colors.white.withOpacity(0.09),
+          color: Colors.white.withValues(alpha: 0.09),
         ),
-        boxShadow: [
-          BoxShadow(
-            color:
-                Colors.black.withOpacity(0.18),
-            blurRadius: 25,
-            offset:
-                const Offset(0, 8),
-          ),
-        ],
       ),
       child: Row(
         children: [
-          // ======================================================
-          // MOBILE MENU BUTTON
-          // ======================================================
-
+          // MOBILE MENU
           if (isMobile) ...[
             Builder(
               builder: (drawerContext) {
                 return GestureDetector(
                   onTap: () {
-                    Scaffold.of(
-                      drawerContext,
-                    ).openDrawer();
+                    Scaffold.of(drawerContext).openDrawer();
                   },
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          Colors.white.withOpacity(
-                        0.07,
-                      ),
-                      borderRadius:
-                          BorderRadius.circular(
-                        13,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.menu_rounded,
-                      color: whiteColor,
-                      size: 24,
-                    ),
+                  child: _headerButton(
+                    icon: Icons.menu_rounded,
+                    small: true,
                   ),
                 );
               },
             ),
-
             const SizedBox(width: 10),
           ],
 
-          // ======================================================
           // ADMIN ICON
-          // ======================================================
-
           Container(
             width: isMobile ? 46 : 56,
             height: isMobile ? 46 : 56,
             decoration: BoxDecoration(
-              color:
-                  cyanColor.withOpacity(0.13),
-              borderRadius:
-                  BorderRadius.circular(17),
+              color: cyanColor.withValues(alpha: 0.13),
+              borderRadius: BorderRadius.circular(17),
               border: Border.all(
-                color:
-                    cyanColor.withOpacity(0.20),
+                color: cyanColor.withValues(alpha: 0.20),
               ),
             ),
             child: Icon(
@@ -861,42 +737,31 @@ class AdminDashboard extends StatelessWidget {
             width: isMobile ? 10 : 15,
           ),
 
-          // ======================================================
-          // WELCOME TEXT
-          // ======================================================
-
+          // WELCOME
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   isMobile
                       ? "Welcome, Admin 👋"
                       : "Welcome back, Admin 👋",
                   maxLines: 1,
-                  overflow:
-                      TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: whiteColor,
-                    fontSize:
-                        isMobile ? 16 : 25,
-                    fontWeight:
-                        FontWeight.bold,
+                    fontSize: isMobile ? 16 : 25,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 if (!isMobile) ...[
                   const SizedBox(height: 5),
-
                   const Text(
                     "Monitor air quality, predictions and alerts",
                     maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color:
-                          secondaryColor,
+                      color: secondaryColor,
                       fontSize: 13,
                     ),
                   ),
@@ -905,10 +770,7 @@ class AdminDashboard extends StatelessWidget {
             ),
           ),
 
-          // ======================================================
-          // NOTIFICATION
-          // ======================================================
-
+          // NOTIFICATIONS
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -920,75 +782,178 @@ class AdminDashboard extends StatelessWidget {
               );
             },
             child: _headerButton(
-              icon:
-                  Icons.notifications_none_rounded,
+              icon: Icons.notifications_none_rounded,
               badge: "3",
               small: isMobile,
             ),
           ),
 
-          // ======================================================
-          // PROFILE
-          // ======================================================
-
+          // ADMIN DROPDOWN
           if (!isMobile) ...[
             const SizedBox(width: 10),
 
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 7,
+            PopupMenuButton<String>(
+              tooltip: "Admin menu",
+              color: sidebarColor,
+              offset: const Offset(0, 55),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              decoration: BoxDecoration(
-                color:
-                    Colors.white.withOpacity(
-                  0.06,
+              onSelected: (value) {
+                switch (value) {
+                  case "profile":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const ProfileScreen(),
+                      ),
+                    );
+                    break;
+
+                  case "notifications":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const NotificationsScreen(),
+                      ),
+                    );
+                    break;
+
+                  case "settings":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const SettingsScreen(),
+                      ),
+                    );
+                    break;
+
+                  case "logout":
+                    _showLogoutDialog(context);
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem<String>(
+                  value: "profile",
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.person_rounded,
+                        color: cyanColor,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        "Profile",
+                        style: TextStyle(
+                          color: whiteColor,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                borderRadius:
-                    BorderRadius.circular(14),
-                border: Border.all(
+                const PopupMenuItem<String>(
+                  value: "notifications",
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.notifications_rounded,
+                        color: cyanColor,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        "Notifications",
+                        style: TextStyle(
+                          color: whiteColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem<String>(
+                  value: "settings",
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.settings_rounded,
+                        color: cyanColor,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        "Settings",
+                        style: TextStyle(
+                          color: whiteColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                const PopupMenuItem<String>(
+                  value: "logout",
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout_rounded,
+                        color: redColor,
+                      ),
+                      SizedBox(width: 12),
+                      Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: redColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
                   color:
-                      Colors.white.withOpacity(
-                    0.06,
+                      Colors.white.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color:
+                        Colors.white.withValues(alpha: 0.06),
                   ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 19,
-                    backgroundColor:
-                        cyanColor,
-                    child: Icon(
-                      Icons.person,
-                      color:
-                          backgroundColor,
-                      size: 21,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 19,
+                      backgroundColor: cyanColor,
+                      child: Icon(
+                        Icons.person,
+                        color: backgroundColor,
+                        size: 21,
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(width: 8),
-
-                  const Text(
-                    "Admin",
-                    style: TextStyle(
-                      color: whiteColor,
-                      fontWeight:
-                          FontWeight.bold,
-                      fontSize: 13,
+                    SizedBox(width: 8),
+                    Text(
+                      "Admin",
+                      style: TextStyle(
+                        color: whiteColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(width: 4),
-
-                  const Icon(
-                    Icons
-                        .keyboard_arrow_down_rounded,
-                    color: Colors.white60,
-                    size: 18,
-                  ),
-                ],
+                    SizedBox(width: 4),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.white60,
+                      size: 18,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -1010,13 +975,10 @@ class AdminDashboard extends StatelessWidget {
       width: small ? 42 : 45,
       height: small ? 42 : 45,
       decoration: BoxDecoration(
-        color:
-            Colors.white.withOpacity(0.07),
-        borderRadius:
-            BorderRadius.circular(14),
+        color: Colors.white.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color:
-              Colors.white.withOpacity(0.07),
+          color: Colors.white.withValues(alpha: 0.07),
         ),
       ),
       child: Stack(
@@ -1028,7 +990,6 @@ class AdminDashboard extends StatelessWidget {
               size: small ? 21 : 23,
             ),
           ),
-
           if (badge != null)
             Positioned(
               right: 6,
@@ -1036,21 +997,17 @@ class AdminDashboard extends StatelessWidget {
               child: Container(
                 width: 14,
                 height: 14,
-                decoration:
-                    const BoxDecoration(
+                decoration: const BoxDecoration(
                   color: redColor,
                   shape: BoxShape.circle,
                 ),
-                alignment:
-                    Alignment.center,
+                alignment: Alignment.center,
                 child: Text(
                   badge,
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: whiteColor,
                     fontSize: 8,
-                    fontWeight:
-                        FontWeight.bold,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -1067,26 +1024,20 @@ class AdminDashboard extends StatelessWidget {
   Widget _buildSectionHeading(
     String title,
     String subtitle, {
-    String? buttonText,
-    VoidCallback? onPressed,
     bool isMobile = false,
   }) {
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           width: 4,
           height: 34,
           decoration: BoxDecoration(
             color: cyanColor,
-            borderRadius:
-                BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
-
         const SizedBox(width: 11),
-
         Expanded(
           child: Column(
             crossAxisAlignment:
@@ -1096,20 +1047,15 @@ class AdminDashboard extends StatelessWidget {
                 title,
                 style: TextStyle(
                   color: whiteColor,
-                  fontSize:
-                      isMobile ? 16 : 18,
-                  fontWeight:
-                      FontWeight.bold,
+                  fontSize: isMobile ? 16 : 18,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 4),
-
               Text(
                 subtitle,
                 maxLines: isMobile ? 2 : 1,
-                overflow:
-                    TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: secondaryColor,
                   fontSize: 12,
@@ -1118,56 +1064,7 @@ class AdminDashboard extends StatelessWidget {
             ],
           ),
         ),
-
-        if (!isMobile &&
-            buttonText != null &&
-            onPressed != null)
-          _actionButton(
-            text: buttonText,
-            onPressed: onPressed,
-          ),
       ],
-    );
-  }
-
-  // ============================================================
-  // ACTION BUTTON
-  // ============================================================
-
-  Widget _actionButton({
-    required String text,
-    required VoidCallback onPressed,
-  }) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: const Icon(
-        Icons.arrow_forward_rounded,
-        size: 15,
-      ),
-      label: Text(text),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: cyanColor,
-        side: BorderSide(
-          color:
-              cyanColor.withOpacity(0.30),
-        ),
-        backgroundColor:
-            cyanColor.withOpacity(0.05),
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 13,
-          vertical: 10,
-        ),
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10),
-        ),
-        textStyle: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
     );
   }
 
@@ -1215,16 +1112,10 @@ class AdminDashboard extends StatelessWidget {
       ),
     ];
 
-    // ==========================================================
-    // MOBILE
-    // ==========================================================
-
     if (isMobile) {
       return Column(
         children: [
-          for (int i = 0;
-              i < cards.length;
-              i++) ...[
+          for (int i = 0; i < cards.length; i++) ...[
             _dashboardCard(
               context,
               cards[i],
@@ -1235,10 +1126,6 @@ class AdminDashboard extends StatelessWidget {
         ],
       );
     }
-
-    // ==========================================================
-    // TABLET
-    // ==========================================================
 
     if (isTablet) {
       return GridView.builder(
@@ -1251,10 +1138,9 @@ class AdminDashboard extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 14,
           mainAxisSpacing: 14,
-          childAspectRatio: 2.0,
+          mainAxisExtent: 190,
         ),
-        itemBuilder:
-            (context, index) {
+        itemBuilder: (context, index) {
           return _dashboardCard(
             context,
             cards[index],
@@ -1263,11 +1149,9 @@ class AdminDashboard extends StatelessWidget {
       );
     }
 
-    // ==========================================================
-    // DESKTOP
-    // ==========================================================
-
     return Row(
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: List.generate(
         cards.length,
         (index) {
@@ -1275,8 +1159,7 @@ class AdminDashboard extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(
                 right:
-                    index ==
-                            cards.length - 1
+                    index == cards.length - 1
                         ? 0
                         : 14,
               ),
@@ -1292,7 +1175,7 @@ class AdminDashboard extends StatelessWidget {
   }
 
   // ============================================================
-  // DASHBOARD CARD
+  // SINGLE DASHBOARD CARD
   // ============================================================
 
   Widget _dashboardCard(
@@ -1301,13 +1184,9 @@ class AdminDashboard extends StatelessWidget {
   ) {
     return Material(
       color: Colors.transparent,
-      borderRadius:
-          BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
-        borderRadius:
-            BorderRadius.circular(20),
-        hoverColor:
-            Colors.white.withOpacity(0.025),
+        borderRadius: BorderRadius.circular(20),
         onTap: () {
           Navigator.push(
             context,
@@ -1318,64 +1197,46 @@ class AdminDashboard extends StatelessWidget {
         },
         child: Container(
           width: double.infinity,
-          padding:
-              const EdgeInsets.all(18),
+          constraints: const BoxConstraints(
+            minHeight: 175,
+          ),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            gradient:
-                LinearGradient(
+            gradient: LinearGradient(
               colors: [
-                Colors.white
-                    .withOpacity(0.09),
-                Colors.white
-                    .withOpacity(0.035),
+                Colors.white.withValues(alpha: 0.09),
+                Colors.white.withValues(alpha: 0.035),
               ],
-              begin:
-                  Alignment.topLeft,
-              end:
-                  Alignment.bottomRight,
             ),
-            borderRadius:
-                BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color:
-                  Colors.white.withOpacity(
-                0.09,
-              ),
+                  Colors.white.withValues(alpha: 0.09),
             ),
             boxShadow: [
               BoxShadow(
                 color:
-                    Colors.black.withOpacity(
-                  0.12,
-                ),
+                    Colors.black.withValues(alpha: 0.12),
                 blurRadius: 18,
-                offset:
-                    const Offset(0, 7),
+                offset: const Offset(0, 7),
               ),
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment:
-                    MainAxisAlignment
-                        .spaceBetween,
                 children: [
                   Container(
                     width: 47,
                     height: 47,
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          data.color.withOpacity(
-                        0.12,
-                      ),
+                    decoration: BoxDecoration(
+                      color: data.color
+                          .withValues(alpha: 0.12),
                       borderRadius:
-                          BorderRadius.circular(
-                        14,
-                      ),
+                          BorderRadius.circular(14),
                     ),
                     child: Icon(
                       data.icon,
@@ -1384,26 +1245,29 @@ class AdminDashboard extends StatelessWidget {
                     ),
                   ),
 
+                  const Spacer(),
+
                   Container(
+                    constraints:
+                        const BoxConstraints(
+                      maxWidth: 70,
+                    ),
                     padding:
-                        const EdgeInsets
-                            .symmetric(
+                        const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 5,
                     ),
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          data.color.withOpacity(
-                        0.08,
-                      ),
+                    decoration: BoxDecoration(
+                      color: data.color
+                          .withValues(alpha: 0.08),
                       borderRadius:
-                          BorderRadius.circular(
-                        8,
-                      ),
+                          BorderRadius.circular(8),
                     ),
                     child: Text(
                       data.status,
+                      maxLines: 1,
+                      overflow:
+                          TextOverflow.ellipsis,
                       style: TextStyle(
                         color: data.color,
                         fontSize: 9,
@@ -1419,37 +1283,33 @@ class AdminDashboard extends StatelessWidget {
 
               Text(
                 data.title,
-                style:
-                    const TextStyle(
+                maxLines: 1,
+                overflow:
+                    TextOverflow.ellipsis,
+                style: const TextStyle(
                   color: secondaryColor,
                   fontSize: 13,
                 ),
               ),
 
-              const SizedBox(height: 4),
+              const SizedBox(height: 5),
 
               Row(
                 children: [
                   Text(
                     data.value,
-                    style:
-                        const TextStyle(
+                    style: const TextStyle(
                       color: whiteColor,
                       fontSize: 23,
                       fontWeight:
                           FontWeight.bold,
                     ),
                   ),
-
                   const Spacer(),
-
                   Icon(
-                    Icons
-                        .arrow_forward_rounded,
-                    color:
-                        data.color.withOpacity(
-                      0.65,
-                    ),
+                    Icons.arrow_forward_rounded,
+                    color: data.color
+                        .withValues(alpha: 0.65),
                     size: 18,
                   ),
                 ],
@@ -1507,21 +1367,17 @@ class AdminDashboard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(19),
+      padding: const EdgeInsets.all(19),
       decoration: BoxDecoration(
-        gradient:
-            const LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             Color(0xff0D2139),
             Color(0xff102A43),
           ],
         ),
-        borderRadius:
-            BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color:
-              Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: Column(
@@ -1535,20 +1391,14 @@ class AdminDashboard extends StatelessWidget {
               Container(
                 width: 36,
                 height: 36,
-                decoration:
-                    BoxDecoration(
+                decoration: BoxDecoration(
                   color:
-                      cyanColor.withOpacity(
-                    0.10,
-                  ),
+                      cyanColor.withValues(alpha: 0.10),
                   borderRadius:
-                      BorderRadius.circular(
-                    10,
-                  ),
+                      BorderRadius.circular(10),
                 ),
                 child: const Icon(
-                  Icons
-                      .monitor_heart_rounded,
+                  Icons.monitor_heart_rounded,
                   color: cyanColor,
                   size: 20,
                 ),
@@ -1574,8 +1424,7 @@ class AdminDashboard extends StatelessWidget {
                     Text(
                       "Current platform health",
                       style: TextStyle(
-                        color:
-                            secondaryColor,
+                        color: secondaryColor,
                         fontSize: 10,
                       ),
                     ),
@@ -1584,64 +1433,19 @@ class AdminDashboard extends StatelessWidget {
               ),
 
               if (!isSmall)
-                Container(
-                  padding:
-                      const EdgeInsets
-                          .symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration:
-                      BoxDecoration(
-                    color: Colors
-                        .greenAccent
-                        .withOpacity(0.08),
-                    borderRadius:
-                        BorderRadius.circular(
-                      20,
-                    ),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Icons.circle,
-                        color:
-                            Colors.greenAccent,
-                        size: 7,
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        "All Systems Normal",
-                        style: TextStyle(
-                          color:
-                              Colors.greenAccent,
-                          fontSize: 9,
-                          fontWeight:
-                              FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _statusBadge(),
             ],
           ),
 
           if (isSmall)
             const Padding(
-              padding:
-                  EdgeInsets.only(top: 12),
-              child: Align(
-                alignment:
-                    Alignment.centerLeft,
-                child: Text(
-                  "●  All Systems Normal",
-                  style: TextStyle(
-                    color:
-                        Colors.greenAccent,
-                    fontSize: 10,
-                    fontWeight:
-                        FontWeight.bold,
-                  ),
+              padding: EdgeInsets.only(top: 12),
+              child: Text(
+                "●  All Systems Normal",
+                style: TextStyle(
+                  color: Colors.greenAccent,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -1655,11 +1459,8 @@ class AdminDashboard extends StatelessWidget {
                     i < content.length;
                     i++) ...[
                   content[i],
-                  if (i !=
-                      content.length - 1)
-                    const SizedBox(
-                      height: 10,
-                    ),
+                  if (i != content.length - 1)
+                    const SizedBox(height: 10),
                 ],
               ],
             )
@@ -1671,21 +1472,49 @@ class AdminDashboard extends StatelessWidget {
                     i++)
                   Expanded(
                     child: Padding(
-                      padding:
-                          EdgeInsets.only(
+                      padding: EdgeInsets.only(
                         right:
-                            i ==
-                                    content.length -
-                                        1
+                            i == content.length - 1
                                 ? 0
                                 : 10,
                       ),
-                      child:
-                          content[i],
+                      child: content[i],
                     ),
                   ),
               ],
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statusBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.greenAccent
+            .withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: const Row(
+        children: [
+          Icon(
+            Icons.circle,
+            color: Colors.greenAccent,
+            size: 7,
+          ),
+          SizedBox(width: 6),
+          Text(
+            "All Systems Normal",
+            style: TextStyle(
+              color: Colors.greenAccent,
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -1698,16 +1527,14 @@ class AdminDashboard extends StatelessWidget {
     Color color,
   ) {
     return Container(
-      padding:
-          const EdgeInsets.all(13),
+      padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color:
-            Colors.white.withOpacity(0.035),
-        borderRadius:
-            BorderRadius.circular(14),
+            Colors.white.withValues(alpha: 0.035),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color:
-              Colors.white.withOpacity(0.06),
+              Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
@@ -1715,10 +1542,9 @@ class AdminDashboard extends StatelessWidget {
           Container(
             width: 35,
             height: 35,
-            decoration:
-                BoxDecoration(
+            decoration: BoxDecoration(
               color:
-                  color.withOpacity(0.10),
+                  color.withValues(alpha: 0.10),
               borderRadius:
                   BorderRadius.circular(10),
             ),
@@ -1740,17 +1566,14 @@ class AdminDashboard extends StatelessWidget {
                   title,
                   overflow:
                       TextOverflow.ellipsis,
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 10,
                     fontWeight:
                         FontWeight.w600,
                   ),
                 ),
-
                 const SizedBox(height: 4),
-
                 Row(
                   children: [
                     Icon(
@@ -1758,9 +1581,7 @@ class AdminDashboard extends StatelessWidget {
                       color: color,
                       size: 6,
                     ),
-
                     const SizedBox(width: 5),
-
                     Expanded(
                       child: Text(
                         value,
@@ -1800,9 +1621,7 @@ class AdminDashboard extends StatelessWidget {
             const AQIChart(),
             290,
           ),
-
           const SizedBox(height: 16),
-
           _chartContainer(
             const RiskChart(),
             290,
@@ -1818,9 +1637,7 @@ class AdminDashboard extends StatelessWidget {
             const AQIChart(),
             320,
           ),
-
           const SizedBox(height: 18),
-
           _chartContainer(
             const RiskChart(),
             320,
@@ -1840,9 +1657,7 @@ class AdminDashboard extends StatelessWidget {
             350,
           ),
         ),
-
         const SizedBox(width: 20),
-
         Expanded(
           flex: 2,
           child: _chartContainer(
@@ -1861,37 +1676,25 @@ class AdminDashboard extends StatelessWidget {
     return Container(
       height: height,
       width: double.infinity,
-      padding:
-          const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color:
-            Colors.white.withOpacity(0.035),
-        borderRadius:
-            BorderRadius.circular(20),
+            Colors.white.withValues(alpha: 0.035),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color:
-              Colors.white.withOpacity(0.08),
+              Colors.white.withValues(alpha: 0.08),
         ),
-        boxShadow: [
-          BoxShadow(
-            color:
-                Colors.black.withOpacity(0.12),
-            blurRadius: 18,
-            offset:
-                const Offset(0, 7),
-          ),
-        ],
       ),
       child: ClipRRect(
-        borderRadius:
-            BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14),
         child: child,
       ),
     );
   }
 
   // ============================================================
-  // PROFESSIONAL DASHBOARD SECTION
+  // DASHBOARD SECTION
   // ============================================================
 
   Widget _buildDashboardSection({
@@ -1908,19 +1711,17 @@ class AdminDashboard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius:
-            BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color:
-              Colors.white.withOpacity(0.08),
+              Colors.white.withValues(alpha: 0.08),
         ),
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(0.18),
+                Colors.black.withValues(alpha: 0.18),
             blurRadius: 20,
-            offset:
-                const Offset(0, 8),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -1928,13 +1729,8 @@ class AdminDashboard extends StatelessWidget {
         crossAxisAlignment:
             CrossAxisAlignment.start,
         children: [
-          // ======================================================
-          // HEADER
-          // ======================================================
-
           Padding(
-            padding:
-                const EdgeInsets.fromLTRB(
+            padding: const EdgeInsets.fromLTRB(
               16,
               16,
               16,
@@ -1952,15 +1748,12 @@ class AdminDashboard extends StatelessWidget {
                           Container(
                             width: 42,
                             height: 42,
-                            decoration:
-                                BoxDecoration(
-                              color: color
-                                  .withOpacity(
-                                0.12,
+                            decoration: BoxDecoration(
+                              color: color.withValues(
+                                alpha: 0.12,
                               ),
                               borderRadius:
-                                  BorderRadius
-                                      .circular(
+                                  BorderRadius.circular(
                                 13,
                               ),
                             ),
@@ -1970,16 +1763,11 @@ class AdminDashboard extends StatelessWidget {
                               size: 21,
                             ),
                           ),
-
-                          const SizedBox(
-                            width: 11,
-                          ),
-
+                          const SizedBox(width: 11),
                           Expanded(
                             child: Column(
                               crossAxisAlignment:
-                                  CrossAxisAlignment
-                                      .start,
+                                  CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   title,
@@ -1987,18 +1775,13 @@ class AdminDashboard extends StatelessWidget {
                                       const TextStyle(
                                     color:
                                         whiteColor,
-                                    fontSize:
-                                        15,
+                                    fontSize: 15,
                                     fontWeight:
-                                        FontWeight
-                                            .bold,
+                                        FontWeight.bold,
                                   ),
                                 ),
-
                                 const SizedBox(
-                                  height: 4,
-                                ),
-
+                                    height: 4),
                                 Text(
                                   subtitle,
                                   maxLines: 3,
@@ -2009,8 +1792,7 @@ class AdminDashboard extends StatelessWidget {
                                       const TextStyle(
                                     color:
                                         secondaryColor,
-                                    fontSize:
-                                        10,
+                                    fontSize: 10,
                                   ),
                                 ),
                               ],
@@ -2018,72 +1800,35 @@ class AdminDashboard extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      if (buttonText !=
-                              null &&
+                      if (buttonText != null &&
                           onPressed != null)
                         Padding(
                           padding:
-                              const EdgeInsets
-                                  .only(
+                              const EdgeInsets.only(
                             top: 12,
                           ),
-                          child:
-                              SizedBox(
-                            width:
-                                double.infinity,
+                          child: SizedBox(
+                            width: double.infinity,
                             child:
                                 OutlinedButton.icon(
-                              onPressed:
-                                  onPressed,
-                              icon:
-                                  const Icon(
+                              onPressed: onPressed,
+                              icon: const Icon(
                                 Icons
                                     .arrow_forward_rounded,
                                 size: 14,
                               ),
                               label:
-                                  Text(
-                                buttonText,
-                              ),
+                                  Text(buttonText),
                               style:
                                   OutlinedButton
                                       .styleFrom(
                                 foregroundColor:
                                     color,
-                                side:
-                                    BorderSide(
+                                side: BorderSide(
                                   color: color
-                                      .withOpacity(
-                                    0.30,
+                                      .withValues(
+                                    alpha: 0.30,
                                   ),
-                                ),
-                                backgroundColor:
-                                    color
-                                        .withOpacity(
-                                  0.06,
-                                ),
-                                padding:
-                                    const EdgeInsets
-                                        .symmetric(
-                                  vertical:
-                                      10,
-                                ),
-                                shape:
-                                    RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius
-                                          .circular(
-                                    10,
-                                  ),
-                                ),
-                                textStyle:
-                                    const TextStyle(
-                                  fontSize:
-                                      10,
-                                  fontWeight:
-                                      FontWeight
-                                          .bold,
                                 ),
                               ),
                             ),
@@ -2096,15 +1841,12 @@ class AdminDashboard extends StatelessWidget {
                       Container(
                         width: 44,
                         height: 44,
-                        decoration:
-                            BoxDecoration(
-                          color: color
-                              .withOpacity(
-                            0.12,
+                        decoration: BoxDecoration(
+                          color: color.withValues(
+                            alpha: 0.12,
                           ),
                           borderRadius:
-                              BorderRadius
-                                  .circular(
+                              BorderRadius.circular(
                             13,
                           ),
                         ),
@@ -2114,109 +1856,56 @@ class AdminDashboard extends StatelessWidget {
                           size: 22,
                         ),
                       ),
-
-                      const SizedBox(
-                        width: 13,
-                      ),
-
+                      const SizedBox(width: 13),
                       Expanded(
                         child: Column(
                           crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
+                              CrossAxisAlignment.start,
                           children: [
                             Text(
                               title,
                               style:
                                   const TextStyle(
-                                color:
-                                    whiteColor,
-                                fontSize:
-                                    16,
+                                color: whiteColor,
+                                fontSize: 16,
                                 fontWeight:
-                                    FontWeight
-                                        .bold,
+                                    FontWeight.bold,
                               ),
                             ),
-
-                            const SizedBox(
-                              height: 4,
-                            ),
-
+                            const SizedBox(height: 4),
                             Text(
                               subtitle,
                               maxLines: 2,
                               overflow:
-                                  TextOverflow
-                                      .ellipsis,
+                                  TextOverflow.ellipsis,
                               style:
                                   const TextStyle(
                                 color:
                                     secondaryColor,
-                                fontSize:
-                                    11,
+                                fontSize: 11,
                               ),
                             ),
                           ],
                         ),
                       ),
-
-                      if (buttonText !=
-                              null &&
+                      if (buttonText != null &&
                           onPressed != null)
                         OutlinedButton.icon(
-                          onPressed:
-                              onPressed,
-                          icon:
-                              const Icon(
+                          onPressed: onPressed,
+                          icon: const Icon(
                             Icons
                                 .arrow_forward_rounded,
                             size: 14,
                           ),
-                          label:
-                              Text(
-                            buttonText,
-                          ),
+                          label: Text(buttonText),
                           style:
-                              OutlinedButton
-                                  .styleFrom(
-                            foregroundColor:
-                                color,
-                            side:
-                                BorderSide(
+                              OutlinedButton.styleFrom(
+                            foregroundColor: color,
+                            side: BorderSide(
                               color: color
-                                  .withOpacity(
-                                0.30,
+                                  .withValues(
+                                alpha: 0.30,
                               ),
-                            ),
-                            backgroundColor:
-                                color
-                                    .withOpacity(
-                              0.06,
-                            ),
-                            padding:
-                                const EdgeInsets
-                                    .symmetric(
-                              horizontal:
-                                  12,
-                              vertical:
-                                  9,
-                            ),
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                10,
-                              ),
-                            ),
-                            textStyle:
-                                const TextStyle(
-                              fontSize:
-                                  10,
-                              fontWeight:
-                                  FontWeight
-                                      .bold,
                             ),
                           ),
                         ),
@@ -2224,25 +1913,14 @@ class AdminDashboard extends StatelessWidget {
                   ),
           ),
 
-          // ======================================================
-          // DIVIDER
-          // ======================================================
-
           Container(
             height: 1,
             color:
-                Colors.white.withOpacity(
-              0.06,
-            ),
+                Colors.white.withValues(alpha: 0.06),
           ),
 
-          // ======================================================
-          // CHILD WIDGET
-          // ======================================================
-
           Padding(
-            padding:
-                const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: child,
           ),
         ],
