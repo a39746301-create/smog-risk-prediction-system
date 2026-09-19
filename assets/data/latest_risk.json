@@ -13,18 +13,18 @@
     "risk_level": "SAFE",
     "recommendation": "Normal Operations"
   },
-  {
-    "city": "Lahore",
-    "datetime": "2025-02-28 23:00:00",
-    "visibility_km": 3.71,
-    "risk_level": "MODERATE",
-    "recommendation": "Speed Limit 60 km/h \u2014 Caution Required"
-  },
-  {
-    "city": "Multan",
-    "datetime": "2025-02-28 23:00:00",
-    "visibility_km": 3.77,
-    "risk_level": "MODERATE",
-    "recommendation": "Speed Limit 60 km/h \u2014 Caution Required"
-  }
+ {
+  "city": "Lahore",
+  "datetime": "2025-02-28 23:00:00",
+  "visibility_km": 3.71,
+  "risk_level": "MODERATE",
+  "recommendation": "Motorway is not recommended at this time. Please plan your own alternate route if travel is necessary."
+},
+{
+  "city": "Multan",
+  "datetime": "2025-02-28 23:00:00",
+  "visibility_km": 3.77,
+  "risk_level": "MODERATE",
+  "recommendation": "Motorway is not recommended at this time. Please plan your own alternate route if travel is necessary."
+}
 ]

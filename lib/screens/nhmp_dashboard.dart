@@ -45,7 +45,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   late AnimationController _pulseController;
 
   // ============================================================
-  // THEME
+  // PROFESSIONAL NHMP THEME
   // ============================================================
 
   static const Color background = Color(0xff06111F);
@@ -106,7 +106,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   }
 
   // ============================================================
-  // LOAD DATA
+  // LOAD BACKEND / JSON DATA
   // ============================================================
 
   Future<void> loadRiskData() async {
@@ -265,28 +265,39 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   // ============================================================
 
   int get safeCount {
-    return riskData.where((item) => riskOf(item) == "SAFE").length;
+    return riskData.where(
+      (item) => riskOf(item) == "SAFE",
+    ).length;
   }
 
   int get lowCount {
-    return riskData.where((item) => riskOf(item) == "LOW").length;
+    return riskData.where(
+      (item) => riskOf(item) == "LOW",
+    ).length;
   }
 
   int get moderateCount {
-    return riskData.where((item) => riskOf(item) == "MODERATE").length;
+    return riskData.where(
+      (item) => riskOf(item) == "MODERATE",
+    ).length;
   }
 
   int get highCount {
-    return riskData.where((item) => riskOf(item) == "HIGH").length;
+    return riskData.where(
+      (item) => riskOf(item) == "HIGH",
+    ).length;
   }
 
   int get criticalCount {
-    return riskData.where((item) => riskOf(item) == "CRITICAL").length;
+    return riskData.where(
+      (item) => riskOf(item) == "CRITICAL",
+    ).length;
   }
 
   int get alertCount => highCount + criticalCount;
 
-  int get attentionCount => moderateCount + highCount + criticalCount;
+  int get attentionCount =>
+      moderateCount + highCount + criticalCount;
 
   double get averageVisibility {
     if (riskData.isEmpty) return 0;
@@ -337,6 +348,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   List<dynamic> get alertItems {
     return riskData.where((item) {
       final risk = riskOf(item);
+
       return risk == "HIGH" || risk == "CRITICAL";
     }).toList();
   }
@@ -345,6 +357,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     if (criticalCount > 0) return "CRITICAL";
     if (highCount > 0) return "HIGH";
     if (moderateCount > 0) return "MODERATE";
+
     return "NORMAL";
   }
 
@@ -386,7 +399,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   }
 
   // ============================================================
-  // LOADING
+  // LOADING SCREEN
   // ============================================================
 
   Widget buildLoading() {
@@ -455,7 +468,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   }
 
   // ============================================================
-  // ERROR
+  // ERROR SCREEN
   // ============================================================
 
   Widget buildError() {
@@ -510,7 +523,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               ),
               const SizedBox(height: 9),
               Text(
-                errorMessage ?? "Unable to load monitoring data.",
+                errorMessage ??
+                    "Unable to load monitoring data.",
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white54,
@@ -553,7 +567,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     return AnimatedBuilder(
       animation: _pageController,
       builder: (context, _) {
-        final progress = Curves.easeOutCubic.transform(
+        final progress =
+            Curves.easeOutCubic.transform(
           _pageController.value,
         );
 
@@ -600,7 +615,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   }
 
   // ============================================================
-  // DESKTOP
+  // DESKTOP DASHBOARD
   // ============================================================
 
   Widget buildDesktopDashboard() {
@@ -619,7 +634,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 50,
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
                 children: [
                   KeyedSubtree(
                     key: overviewKey,
@@ -711,7 +727,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             18,
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -727,7 +744,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                           blue.withAlpha(20),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(13),
+                      borderRadius:
+                          BorderRadius.circular(13),
                       border: Border.all(
                         color: cyan.withAlpha(55),
                       ),
@@ -741,7 +759,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   const SizedBox(width: 11),
                   const Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start,
                       children: [
                         Text(
                           "SMOG RISK",
@@ -838,7 +857,10 @@ class _NHMPDashboardState extends State<NHMPDashboard>
         child: InkWell(
           borderRadius: BorderRadius.circular(11),
           onTap: () {
-            scrollToSection(targetKey, index);
+            scrollToSection(
+              targetKey,
+              index,
+            );
           },
           hoverColor: cyan.withAlpha(10),
           child: AnimatedContainer(
@@ -861,19 +883,24 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             child: Row(
               children: [
                 AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
+                  duration:
+                      const Duration(milliseconds: 220),
                   width: 3,
                   height: selected ? 19 : 0,
                   decoration: BoxDecoration(
                     color: cyan,
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius:
+                        BorderRadius.circular(5),
                   ),
                 ),
-                if (selected) const SizedBox(width: 8),
+                if (selected)
+                  const SizedBox(width: 8),
                 Icon(
                   icon,
                   size: 18,
-                  color: selected ? cyan : Colors.white38,
+                  color: selected
+                      ? cyan
+                      : Colors.white38,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -894,7 +921,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   Container(
                     width: 5,
                     height: 5,
-                    decoration: const BoxDecoration(
+                    decoration:
+                        const BoxDecoration(
                       color: cyan,
                       shape: BoxShape.circle,
                     ),
@@ -908,7 +936,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   }
 
   // ============================================================
-  // SIDEBAR STATUS
+  // SIDEBAR NETWORK STATUS
   // ============================================================
 
   Widget buildSidebarNetworkStatus() {
@@ -952,7 +980,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           const SizedBox(width: 10),
           const Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   "SYSTEM ONLINE",
@@ -1006,7 +1035,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           SizedBox(width: 9),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   "NHMP Officer",
@@ -1036,8 +1066,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       ),
     );
   }
-
-  // ============================================================
+    // ============================================================
   // TOP HEADER
   // ============================================================
 
@@ -1046,7 +1075,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       children: [
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -1149,7 +1179,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           ),
           const SizedBox(width: 7),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Text(
                 "LAST SYNC",
@@ -1186,7 +1217,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     final minute =
         dateTime.minute.toString().padLeft(2, '0');
 
-    final period = dateTime.hour >= 12 ? "PM" : "AM";
+    final period =
+        dateTime.hour >= 12 ? "PM" : "AM";
 
     return "$hour:$minute $period";
   }
@@ -1196,7 +1228,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       animation: _refreshController,
       builder: (context, child) {
         return Transform.rotate(
-          angle: _refreshController.value * 6.283185,
+          angle:
+              _refreshController.value * 6.283185,
           child: child,
         );
       },
@@ -1289,7 +1322,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: overallStatusColor.withAlpha(17),
+              color:
+                  overallStatusColor.withAlpha(17),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -1303,7 +1337,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           const SizedBox(width: 11),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   hasAlerts
@@ -1334,10 +1369,12 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               vertical: 7,
             ),
             decoration: BoxDecoration(
-              color: overallStatusColor.withAlpha(14),
+              color:
+                  overallStatusColor.withAlpha(14),
               borderRadius: BorderRadius.circular(7),
               border: Border.all(
-                color: overallStatusColor.withAlpha(24),
+                color:
+                    overallStatusColor.withAlpha(24),
               ),
             ),
             child: Text(
@@ -1384,7 +1421,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 title: "ACTIVE ALERTS",
                 value: alertCount.toString(),
                 subtitle: "High / critical risk",
-                icon: Icons.notifications_active_outlined,
+                icon:
+                    Icons.notifications_active_outlined,
                 color: alertCount > 0
                     ? criticalColor
                     : safeColor,
@@ -1438,7 +1476,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
         height: 142,
         padding: const EdgeInsets.all(17),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -1447,7 +1486,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   height: 37,
                   decoration: BoxDecoration(
                     color: color.withAlpha(17),
-                    borderRadius: BorderRadius.circular(9),
+                    borderRadius:
+                        BorderRadius.circular(9),
                   ),
                   child: Icon(
                     icon,
@@ -1478,7 +1518,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             ),
             const SizedBox(height: 4),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment:
+                  CrossAxisAlignment.end,
               children: [
                 TweenAnimationBuilder<double>(
                   tween: Tween<double>(
@@ -1491,7 +1532,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                     milliseconds: 1000,
                   ),
                   curve: Curves.easeOutCubic,
-                  builder: (context, animated, _) {
+                  builder:
+                      (context, animated, _) {
                     String display;
 
                     if (value.contains("%")) {
@@ -1501,7 +1543,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       display =
                           "${animated.toStringAsFixed(1)} km";
                     } else {
-                      display = animated.round().toString();
+                      display =
+                          animated.round().toString();
                     }
 
                     return Text(
@@ -1533,7 +1576,10 @@ class _NHMPDashboardState extends State<NHMPDashboard>
 
   double _numericValue(String value) {
     return double.tryParse(
-          value.replaceAll(RegExp(r'[^0-9.]'), ''),
+          value.replaceAll(
+            RegExp(r'[^0-9.]'),
+            '',
+          ),
         ) ??
         0;
   }
@@ -1549,12 +1595,12 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
           colors: [
-            const Color(0xff0B2134),
-            const Color(0xff0B1928),
+            Color(0xff0B2134),
+            Color(0xff0B1928),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -1569,7 +1615,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             height: 42,
             decoration: BoxDecoration(
               color: cyan.withAlpha(13),
-              borderRadius: BorderRadius.circular(11),
+              borderRadius:
+                  BorderRadius.circular(11),
             ),
             child: const Icon(
               Icons.insights_rounded,
@@ -1580,7 +1627,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           const SizedBox(width: 13),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 const Text(
                   "OPERATIONAL SNAPSHOT",
@@ -1637,9 +1685,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       constraints: const BoxConstraints(
         minWidth: 135,
       ),
-      padding: const EdgeInsets.only(
-        left: 18,
-      ),
+      padding:
+          const EdgeInsets.only(left: 18),
       decoration: BoxDecoration(
         border: Border(
           left: BorderSide(
@@ -1648,7 +1695,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Text(
             label,
@@ -1689,7 +1737,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
 
   Widget buildMainAnalytics() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         Expanded(
           flex: 6,
@@ -1722,7 +1771,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           15,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -1802,14 +1852,17 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       animation: _chartController,
                       builder: (context, _) {
                         return CustomPaint(
-                          painter: VisibilityChartPainter(
+                          painter:
+                              VisibilityChartPainter(
                             data: riskData,
                             animationValue:
-                                Curves.easeOutCubic.transform(
+                                Curves.easeOutCubic
+                                    .transform(
                               _chartController.value,
                             ),
                           ),
-                          child: const SizedBox.expand(),
+                          child:
+                              const SizedBox.expand(),
                         );
                       },
                     ),
@@ -1829,7 +1882,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       height: 34,
       decoration: BoxDecoration(
         color: color.withAlpha(14),
-        borderRadius: BorderRadius.circular(9),
+        borderRadius:
+            BorderRadius.circular(9),
       ),
       child: Icon(
         icon,
@@ -1851,7 +1905,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       ),
       decoration: BoxDecoration(
         color: color.withAlpha(13),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius:
+            BorderRadius.circular(8),
         border: Border.all(
           color: color.withAlpha(22),
         ),
@@ -1917,7 +1972,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
         height: 365,
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -1975,22 +2031,28 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                           ),
                         ),
                         Column(
-                          mainAxisSize: MainAxisSize.min,
+                          mainAxisSize:
+                              MainAxisSize.min,
                           children: [
                             Text(
-                              riskData.length.toString(),
-                              style: const TextStyle(
+                              riskData.length
+                                  .toString(),
+                              style:
+                                  const TextStyle(
                                 color: Colors.white,
                                 fontSize: 25,
-                                fontWeight: FontWeight.w900,
+                                fontWeight:
+                                    FontWeight.w900,
                               ),
                             ),
                             const Text(
                               "LOCATIONS",
                               style: TextStyle(
-                                color: Colors.white30,
+                                color:
+                                    Colors.white30,
                                 fontSize: 6,
-                                fontWeight: FontWeight.w900,
+                                fontWeight:
+                                    FontWeight.w900,
                                 letterSpacing: .8,
                               ),
                             ),
@@ -2036,46 +2098,6 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.all(11),
-              decoration: BoxDecoration(
-                color: alertCount == 0
-                    ? safeColor.withAlpha(8)
-                    : criticalColor.withAlpha(10),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: alertCount == 0
-                      ? safeColor.withAlpha(20)
-                      : criticalColor.withAlpha(20),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    alertCount == 0
-                        ? Icons.check_circle_outline
-                        : Icons.notifications_active_outlined,
-                    color: alertCount == 0
-                        ? safeColor
-                        : criticalColor,
-                    size: 17,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      alertCount == 0
-                          ? "No high-risk locations detected."
-                          : "$alertCount high/critical location(s) require attention.",
-                      style: const TextStyle(
-                        color: Colors.white54,
-                        fontSize: 8,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
@@ -2097,7 +2119,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     final percentage = count / total;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
+      padding:
+          const EdgeInsets.only(bottom: 9),
       child: Row(
         children: [
           SizedBox(
@@ -2125,7 +2148,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             ),
           ),
           Expanded(
-            child: TweenAnimationBuilder<double>(
+            child:
+                TweenAnimationBuilder<double>(
               tween: Tween<double>(
                 begin: 0,
                 end: percentage,
@@ -2134,16 +2158,20 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 milliseconds: 1100,
               ),
               curve: Curves.easeOutCubic,
-              builder: (context, value, _) {
+              builder:
+                  (context, value, _) {
                 return ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: LinearProgressIndicator(
+                  borderRadius:
+                      BorderRadius.circular(20),
+                  child:
+                      LinearProgressIndicator(
                     value: value,
                     minHeight: 6,
                     backgroundColor:
                         Colors.white.withAlpha(9),
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(
+                        AlwaysStoppedAnimation<
+                            Color>(
                       color,
                     ),
                   ),
@@ -2168,8 +2196,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       ),
     );
   }
-
-  // ============================================================
+    // ============================================================
   // LOCATION MONITORING
   // ============================================================
 
@@ -2181,7 +2208,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       child: Container(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             buildLocationHeader(),
             const SizedBox(height: 18),
@@ -2192,7 +2220,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               ),
               decoration: BoxDecoration(
                 color: Colors.white.withAlpha(5),
-                borderRadius: BorderRadius.circular(9),
+                borderRadius:
+                    BorderRadius.circular(9),
               ),
               child: const Row(
                 children: [
@@ -2280,7 +2309,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
         const SizedBox(width: 10),
         const Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Text(
                 "Motorway Location Monitoring",
@@ -2318,20 +2348,25 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     final city = cityOf(item);
     final risk = riskOf(item);
     final visibility = visibilityOf(item);
-    final recommendation = recommendationOf(item);
+    final recommendation =
+        recommendationOf(item);
     final color = riskColor(risk);
 
     return Padding(
-      padding: const EdgeInsets.only(top: 5),
+      padding:
+          const EdgeInsets.only(top: 5),
       child: HoverCard(
         color: Colors.white.withAlpha(3),
         borderColor: color.withAlpha(28),
         radius: 11,
         child: InkWell(
-          borderRadius: BorderRadius.circular(11),
-          onTap: () => showLocationDetails(item),
+          borderRadius:
+              BorderRadius.circular(11),
+          onTap: () =>
+              showLocationDetails(item),
           child: Container(
-            padding: const EdgeInsets.symmetric(
+            padding:
+                const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 11,
             ),
@@ -2345,7 +2380,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                         width: 34,
                         height: 34,
                         decoration: BoxDecoration(
-                          color: color.withAlpha(17),
+                          color:
+                              color.withAlpha(17),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -2358,12 +2394,15 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       Expanded(
                         child: Text(
                           city,
-                          style: const TextStyle(
+                          style:
+                              const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
-                            fontWeight: FontWeight.w700,
+                            fontWeight:
+                                FontWeight.w700,
                           ),
-                          overflow: TextOverflow.ellipsis,
+                          overflow:
+                              TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -2371,24 +2410,30 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 ),
                 Expanded(
                   flex: 2,
-                  child: buildRiskBadge(risk),
+                  child:
+                      buildRiskBadge(risk),
                 ),
                 Expanded(
                   flex: 2,
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.visibility_outlined,
-                        color: Colors.white30,
+                        Icons
+                            .visibility_outlined,
+                        color:
+                            Colors.white30,
                         size: 14,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         "${visibility.toStringAsFixed(1)} km",
-                        style: const TextStyle(
-                          color: Colors.white70,
+                        style:
+                            const TextStyle(
+                          color:
+                              Colors.white70,
                           fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                          fontWeight:
+                              FontWeight.w700,
                         ),
                       ),
                     ],
@@ -2398,13 +2443,16 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   flex: 4,
                   child: Text(
                     recommendation,
-                    style: const TextStyle(
-                      color: Colors.white54,
+                    style:
+                        const TextStyle(
+                      color:
+                          Colors.white54,
                       fontSize: 8,
                       height: 1.35,
                     ),
                     maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    overflow:
+                        TextOverflow.ellipsis,
                   ),
                 ),
                 SizedBox(
@@ -2413,15 +2461,22 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                     child: Container(
                       width: 30,
                       height: 30,
-                      decoration: BoxDecoration(
-                        color: cyan.withAlpha(10),
-                        borderRadius: BorderRadius.circular(8),
+                      decoration:
+                          BoxDecoration(
+                        color:
+                            cyan.withAlpha(10),
+                        borderRadius:
+                            BorderRadius.circular(
+                          8,
+                        ),
                         border: Border.all(
-                          color: cyan.withAlpha(18),
+                          color:
+                              cyan.withAlpha(18),
                         ),
                       ),
                       child: const Icon(
-                        Icons.arrow_forward_rounded,
+                        Icons
+                            .arrow_forward_rounded,
                         color: cyan,
                         size: 14,
                       ),
@@ -2448,20 +2503,23 @@ class _NHMPDashboardState extends State<NHMPDashboard>
         ),
         const SizedBox(width: 7),
         Container(
-          padding: const EdgeInsets.symmetric(
+          padding:
+              const EdgeInsets.symmetric(
             horizontal: 7,
             vertical: 4,
           ),
           decoration: BoxDecoration(
             color: color.withAlpha(15),
-            borderRadius: BorderRadius.circular(5),
+            borderRadius:
+                BorderRadius.circular(5),
           ),
           child: Text(
             risk,
             style: TextStyle(
               color: color,
               fontSize: 7,
-              fontWeight: FontWeight.w900,
+              fontWeight:
+                  FontWeight.w900,
               letterSpacing: .3,
             ),
           ),
@@ -2474,36 +2532,59 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   // LOCATION DETAILS
   // ============================================================
 
-  void showLocationDetails(dynamic item) {
+  void showLocationDetails(
+    dynamic item,
+  ) {
     final city = cityOf(item);
     final risk = riskOf(item);
-    final visibility = visibilityOf(item);
-    final recommendation = recommendationOf(item);
+    final visibility =
+        visibilityOf(item);
+    final recommendation =
+        recommendationOf(item);
     final color = riskColor(risk);
 
     final pm25 = valueOf(
       item,
-      ['pm25', 'pm2_5', 'PM2.5', 'PM25'],
+      [
+        'pm25',
+        'pm2_5',
+        'PM2.5',
+        'PM25',
+      ],
     );
 
     final pm10 = valueOf(
       item,
-      ['pm10', 'PM10'],
+      [
+        'pm10',
+        'PM10',
+      ],
     );
 
     final temperature = valueOf(
       item,
-      ['temperature', 'temp', 'temperature_c'],
+      [
+        'temperature',
+        'temp',
+        'temperature_c',
+      ],
     );
 
     final humidity = valueOf(
       item,
-      ['humidity', 'humidity_percent'],
+      [
+        'humidity',
+        'humidity_percent',
+      ],
     );
 
     final wind = valueOf(
       item,
-      ['wind', 'wind_speed', 'wind_speed_kmh'],
+      [
+        'wind',
+        'wind_speed',
+        'wind_speed_kmh',
+      ],
     );
 
     final hasExtraData =
@@ -2517,28 +2598,38 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       context: context,
       builder: (dialogContext) {
         return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(20),
+          backgroundColor:
+              Colors.transparent,
+          insetPadding:
+              const EdgeInsets.all(20),
           child: Container(
             width: 560,
-            constraints: const BoxConstraints(
+            constraints:
+                const BoxConstraints(
               maxHeight: 650,
             ),
-            padding: const EdgeInsets.all(24),
+            padding:
+                const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xff0B1D2E),
-              borderRadius: BorderRadius.circular(20),
+              color:
+                  const Color(0xff0B1D2E),
+              borderRadius:
+                  BorderRadius.circular(20),
               border: Border.all(
                 color: color.withAlpha(40),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(90),
+                  color:
+                      Colors.black.withAlpha(
+                    90,
+                  ),
                   blurRadius: 35,
                 ),
               ],
             ),
-            child: SingleChildScrollView(
+            child:
+                SingleChildScrollView(
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
@@ -2548,10 +2639,17 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       Container(
                         width: 46,
                         height: 46,
-                        decoration: BoxDecoration(
-                          color: color.withAlpha(18),
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              color.withAlpha(
+                            18,
+                          ),
                           borderRadius:
-                              BorderRadius.circular(12),
+                              BorderRadius
+                                  .circular(
+                            12,
+                          ),
                         ),
                         child: Icon(
                           riskIcon(risk),
@@ -2559,30 +2657,43 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                           size: 23,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(
+                        width: 12,
+                      ),
                       Expanded(
                         child: Column(
                           crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              CrossAxisAlignment
+                                  .start,
                           children: [
                             const Text(
                               "LOCATION INTELLIGENCE",
-                              style: TextStyle(
-                                color: cyan,
+                              style:
+                                  TextStyle(
+                                color:
+                                    cyan,
                                 fontSize: 7,
                                 fontWeight:
-                                    FontWeight.w900,
-                                letterSpacing: 1.2,
+                                    FontWeight
+                                        .w900,
+                                letterSpacing:
+                                    1.2,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(
+                              height: 4,
+                            ),
                             Text(
                               city,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style:
+                                  const TextStyle(
+                                color:
+                                    Colors
+                                        .white,
                                 fontSize: 19,
                                 fontWeight:
-                                    FontWeight.w900,
+                                    FontWeight
+                                        .w900,
                               ),
                             ),
                           ],
@@ -2590,37 +2701,50 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       ),
                       IconButton(
                         onPressed: () =>
-                            Navigator.pop(dialogContext),
-                        icon: const Icon(
+                            Navigator.pop(
+                          dialogContext,
+                        ),
+                        icon:
+                            const Icon(
                           Icons.close_rounded,
-                          color: Colors.white54,
+                          color:
+                              Colors.white54,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(
+                    height: 20,
+                  ),
                   Row(
                     children: [
                       Expanded(
-                        child: detailMetric(
+                        child:
+                            detailMetric(
                           "RISK LEVEL",
                           risk,
                           riskIcon(risk),
                           color,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(
+                        width: 10,
+                      ),
                       Expanded(
-                        child: detailMetric(
+                        child:
+                            detailMetric(
                           "VISIBILITY",
                           "${visibility.toStringAsFixed(1)} km",
-                          Icons.visibility_outlined,
+                          Icons
+                              .visibility_outlined,
                           cyan,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(
+                    height: 12,
+                  ),
                   if (hasExtraData)
                     Wrap(
                       spacing: 10,
@@ -2638,17 +2762,20 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                             pm10,
                             Icons.blur_on_rounded,
                           ),
-                        if (temperature != "--")
+                        if (temperature !=
+                            "--")
                           smallDataTile(
                             "TEMPERATURE",
                             temperature,
-                            Icons.thermostat_outlined,
+                            Icons
+                                .thermostat_outlined,
                           ),
                         if (humidity != "--")
                           smallDataTile(
                             "HUMIDITY",
                             humidity,
-                            Icons.water_drop_outlined,
+                            Icons
+                                .water_drop_outlined,
                           ),
                         if (wind != "--")
                           smallDataTile(
@@ -2658,46 +2785,73 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                           ),
                       ],
                     ),
-                  const SizedBox(height: 15),
+                  const SizedBox(
+                    height: 15,
+                  ),
                   Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: color.withAlpha(8),
-                      borderRadius: BorderRadius.circular(13),
+                    width:
+                        double.infinity,
+                    padding:
+                        const EdgeInsets.all(
+                      16,
+                    ),
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          color.withAlpha(8),
+                      borderRadius:
+                          BorderRadius.circular(
+                        13,
+                      ),
                       border: Border.all(
-                        color: color.withAlpha(20),
+                        color:
+                            color.withAlpha(
+                          20,
+                        ),
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                          CrossAxisAlignment
+                              .start,
                       children: [
                         Row(
                           children: [
                             Icon(
-                              Icons.assignment_outlined,
+                              Icons
+                                  .assignment_outlined,
                               color: color,
                               size: 17,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(
+                              width: 8,
+                            ),
                             const Text(
                               "OPERATIONAL RECOMMENDATION",
-                              style: TextStyle(
-                                color: Colors.white54,
+                              style:
+                                  TextStyle(
+                                color:
+                                    Colors
+                                        .white54,
                                 fontSize: 7,
                                 fontWeight:
-                                    FontWeight.w900,
-                                letterSpacing: .8,
+                                    FontWeight
+                                        .w900,
+                                letterSpacing:
+                                    .8,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 9),
+                        const SizedBox(
+                          height: 9,
+                        ),
                         Text(
                           recommendation,
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          style:
+                              const TextStyle(
+                            color:
+                                Colors.white70,
                             fontSize: 10,
                             height: 1.5,
                           ),
@@ -2705,12 +2859,18 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(
+                    height: 18,
+                  ),
                   SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
+                    width:
+                        double.infinity,
+                    child:
+                        ElevatedButton.icon(
                       onPressed: () =>
-                          Navigator.pop(dialogContext),
+                          Navigator.pop(
+                        dialogContext,
+                      ),
                       icon: const Icon(
                         Icons.check_rounded,
                         size: 16,
@@ -2718,17 +2878,26 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       label: const Text(
                         "Close Details",
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: color,
-                        foregroundColor: Colors.white,
+                      style:
+                          ElevatedButton
+                              .styleFrom(
+                        backgroundColor:
+                            color,
+                        foregroundColor:
+                            Colors.white,
                         elevation: 0,
                         padding:
-                            const EdgeInsets.symmetric(
+                            const EdgeInsets
+                                .symmetric(
                           vertical: 13,
                         ),
-                        shape: RoundedRectangleBorder(
+                        shape:
+                            RoundedRectangleBorder(
                           borderRadius:
-                              BorderRadius.circular(10),
+                              BorderRadius
+                                  .circular(
+                            10,
+                          ),
                         ),
                       ),
                     ),
@@ -2749,10 +2918,12 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding:
+          const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white.withAlpha(5),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+            BorderRadius.circular(12),
         border: Border.all(
           color: Colors.white.withAlpha(10),
         ),
@@ -2772,20 +2943,25 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white30,
+                  style:
+                      const TextStyle(
+                    color:
+                        Colors.white30,
                     fontSize: 6,
-                    fontWeight: FontWeight.w900,
+                    fontWeight:
+                        FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
                     color: color,
                     fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontWeight:
+                        FontWeight.w900,
                   ),
                 ),
               ],
@@ -2803,10 +2979,12 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   ) {
     return Container(
       width: 155,
-      padding: const EdgeInsets.all(11),
+      padding:
+          const EdgeInsets.all(11),
       decoration: BoxDecoration(
         color: Colors.white.withAlpha(4),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius:
+            BorderRadius.circular(10),
         border: Border.all(
           color: Colors.white.withAlpha(9),
         ),
@@ -2826,21 +3004,28 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white30,
+                  style:
+                      const TextStyle(
+                    color:
+                        Colors.white30,
                     fontSize: 6,
-                    fontWeight: FontWeight.w900,
+                    fontWeight:
+                        FontWeight.w900,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   value,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style:
+                      const TextStyle(
+                    color:
+                        Colors.white70,
                     fontSize: 9,
-                    fontWeight: FontWeight.w700,
+                    fontWeight:
+                        FontWeight.w700,
                   ),
                 ),
               ],
@@ -2858,38 +3043,46 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   Widget buildAlertSection() {
     return HoverCard(
       color: cardColor,
-      borderColor: criticalColor.withAlpha(24),
+      borderColor:
+          criticalColor.withAlpha(24),
       radius: 17,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding:
+            const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 buildSectionIcon(
-                  Icons.notifications_active_outlined,
+                  Icons
+                      .notifications_active_outlined,
                   criticalColor,
                 ),
                 const SizedBox(width: 10),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        CrossAxisAlignment
+                            .start,
                     children: [
                       Text(
                         "Risk Alerts",
                         style: TextStyle(
-                          color: Colors.white,
+                          color:
+                              Colors.white,
                           fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                          fontWeight:
+                              FontWeight.w800,
                         ),
                       ),
                       SizedBox(height: 3),
                       Text(
                         "Locations requiring operational attention",
                         style: TextStyle(
-                          color: Colors.white30,
+                          color:
+                              Colors.white30,
                           fontSize: 8,
                         ),
                       ),
@@ -2903,7 +3096,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                         ? criticalColor
                         : safeColor,
                     fontSize: 8,
-                    fontWeight: FontWeight.w900,
+                    fontWeight:
+                        FontWeight.w900,
                   ),
                 ),
               ],
@@ -2913,7 +3107,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               buildNoAlerts()
             else
               ...alertItems.map(
-                (item) => buildAlertRow(item),
+                (item) =>
+                    buildAlertRow(item),
               ),
           ],
         ),
@@ -2924,10 +3119,12 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   Widget buildNoAlerts() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding:
+          const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: safeColor.withAlpha(7),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+            BorderRadius.circular(12),
         border: Border.all(
           color: safeColor.withAlpha(20),
         ),
@@ -2954,24 +3151,32 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     );
   }
 
-  Widget buildAlertRow(dynamic item) {
+  Widget buildAlertRow(
+    dynamic item,
+  ) {
     final risk = riskOf(item);
     final city = cityOf(item);
-    final visibility = visibilityOf(item);
+    final visibility =
+        visibilityOf(item);
     final color = riskColor(risk);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 7),
+      padding:
+          const EdgeInsets.only(bottom: 7),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => showLocationDetails(item),
-          borderRadius: BorderRadius.circular(11),
+          onTap: () =>
+              showLocationDetails(item),
+          borderRadius:
+              BorderRadius.circular(11),
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding:
+                const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: color.withAlpha(6),
-              borderRadius: BorderRadius.circular(11),
+              borderRadius:
+                  BorderRadius.circular(11),
               border: Border.all(
                 color: color.withAlpha(20),
               ),
@@ -2982,7 +3187,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: color.withAlpha(16),
+                    color:
+                        color.withAlpha(16),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -2995,21 +3201,28 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 Expanded(
                   child: Column(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        CrossAxisAlignment
+                            .start,
                     children: [
                       Text(
                         city,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style:
+                            const TextStyle(
+                          color:
+                              Colors.white,
                           fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                          fontWeight:
+                              FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(
+                          height: 3),
                       Text(
                         "Visibility ${visibility.toStringAsFixed(1)} km",
-                        style: const TextStyle(
-                          color: Colors.white38,
+                        style:
+                            const TextStyle(
+                          color:
+                              Colors.white38,
                           fontSize: 8,
                         ),
                       ),
@@ -3019,8 +3232,10 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 buildRiskBadge(risk),
                 const SizedBox(width: 10),
                 const Icon(
-                  Icons.chevron_right_rounded,
-                  color: Colors.white30,
+                  Icons
+                      .chevron_right_rounded,
+                  color:
+                      Colors.white30,
                   size: 18,
                 ),
               ],
@@ -3030,8 +3245,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       ),
     );
   }
-
-  // ============================================================
+    // ============================================================
   // OPERATIONAL ANALYSIS
   // ============================================================
 
@@ -3040,7 +3254,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     final highest = highestVisibilityItem;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -3054,13 +3269,15 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             ),
             const SizedBox(width: 9),
             Container(
-              padding: const EdgeInsets.symmetric(
+              padding:
+                  const EdgeInsets.symmetric(
                 horizontal: 7,
                 vertical: 4,
               ),
               decoration: BoxDecoration(
                 color: cyan.withAlpha(12),
-                borderRadius: BorderRadius.circular(5),
+                borderRadius:
+                    BorderRadius.circular(5),
               ),
               child: const Text(
                 "LIVE SUMMARY",
@@ -3152,7 +3369,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               height: 38,
               decoration: BoxDecoration(
                 color: color.withAlpha(14),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius:
+                    BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
@@ -3169,11 +3387,13 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   Text(
                     title,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    overflow:
+                        TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white30,
                       fontSize: 6,
-                      fontWeight: FontWeight.w900,
+                      fontWeight:
+                          FontWeight.w900,
                       letterSpacing: .7,
                     ),
                   ),
@@ -3181,18 +3401,21 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   Text(
                     value,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    overflow:
+                        TextOverflow.ellipsis,
                     style: TextStyle(
                       color: color,
                       fontSize: 16,
-                      fontWeight: FontWeight.w900,
+                      fontWeight:
+                          FontWeight.w900,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    overflow:
+                        TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white30,
                       fontSize: 7,
@@ -3217,9 +3440,11 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       borderColor: cyan.withAlpha(20),
       radius: 17,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding:
+            const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -3231,21 +3456,25 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 const Expanded(
                   child: Column(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        CrossAxisAlignment
+                            .start,
                     children: [
                       Text(
                         "Risk Classification Thresholds",
                         style: TextStyle(
-                          color: Colors.white,
+                          color:
+                              Colors.white,
                           fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                          fontWeight:
+                              FontWeight.w800,
                         ),
                       ),
                       SizedBox(height: 3),
                       Text(
                         "Visibility-based classification used by the monitoring system",
                         style: TextStyle(
-                          color: Colors.white30,
+                          color:
+                              Colors.white30,
                           fontSize: 8,
                         ),
                       ),
@@ -3298,13 +3527,15 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     Color color,
   ) {
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding:
+          const EdgeInsets.symmetric(
         horizontal: 13,
         vertical: 10,
       ),
       decoration: BoxDecoration(
         color: color.withAlpha(10),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius:
+            BorderRadius.circular(10),
         border: Border.all(
           color: color.withAlpha(30),
         ),
@@ -3326,7 +3557,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             style: TextStyle(
               color: color,
               fontSize: 8,
-              fontWeight: FontWeight.w900,
+              fontWeight:
+                  FontWeight.w900,
             ),
           ),
           const SizedBox(width: 7),
@@ -3386,10 +3618,12 @@ class _NHMPDashboardState extends State<NHMPDashboard>
         backgroundColor: cardColor,
         onRefresh: loadRiskData,
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
+          physics:
+              const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics(),
           ),
-          padding: const EdgeInsets.fromLTRB(
+          padding:
+              const EdgeInsets.fromLTRB(
             15,
             15,
             15,
@@ -3468,7 +3702,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           height: 43,
           decoration: BoxDecoration(
             color: cyan.withAlpha(18),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius:
+                BorderRadius.circular(12),
             border: Border.all(
               color: cyan.withAlpha(40),
             ),
@@ -3490,7 +3725,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 13,
-                  fontWeight: FontWeight.w900,
+                  fontWeight:
+                      FontWeight.w900,
                   letterSpacing: .8,
                 ),
               ),
@@ -3516,12 +3752,15 @@ class _NHMPDashboardState extends State<NHMPDashboard>
 
   Widget buildMobileStatus() {
     return Container(
-      padding: const EdgeInsets.all(13),
+      padding:
+          const EdgeInsets.all(13),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(13),
+        borderRadius:
+            BorderRadius.circular(13),
         border: Border.all(
-          color: overallStatusColor.withAlpha(25),
+          color:
+              overallStatusColor.withAlpha(25),
         ),
       ),
       child: Row(
@@ -3542,7 +3781,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
               style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 10,
-                fontWeight: FontWeight.w700,
+                fontWeight:
+                    FontWeight.w700,
               ),
             ),
           ),
@@ -3551,7 +3791,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
             style: TextStyle(
               color: overallStatusColor,
               fontSize: 9,
-              fontWeight: FontWeight.w800,
+              fontWeight:
+                  FontWeight.w800,
             ),
           ),
         ],
@@ -3566,17 +3807,19 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   Widget buildMobileHero() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(17),
+      padding:
+          const EdgeInsets.all(17),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xff0B2337),
+            Color(0xff0B2337),
             cardColor,
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(16),
         border: Border.all(
           color: cyan.withAlpha(22),
         ),
@@ -3592,7 +3835,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 height: 37,
                 decoration: BoxDecoration(
                   color: cyan.withAlpha(14),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius:
+                      BorderRadius.circular(10),
                 ),
                 child: const Icon(
                   Icons.insights_rounded,
@@ -3607,7 +3851,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
-                    fontWeight: FontWeight.w900,
+                    fontWeight:
+                        FontWeight.w900,
                   ),
                 ),
               ),
@@ -3640,7 +3885,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       mainAxisSpacing: 9,
       childAspectRatio: 1.38,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      physics:
+          const NeverScrollableScrollPhysics(),
       children: [
         kpiCard(
           title: "LOCATIONS",
@@ -3653,9 +3899,11 @@ class _NHMPDashboardState extends State<NHMPDashboard>
           title: "ALERTS",
           value: alertCount.toString(),
           subtitle: "High / critical",
-          icon: Icons.notifications_active_outlined,
-          color:
-              alertCount > 0 ? criticalColor : safeColor,
+          icon:
+              Icons.notifications_active_outlined,
+          color: alertCount > 0
+              ? criticalColor
+              : safeColor,
         ),
         kpiCard(
           title: "VISIBILITY",
@@ -3689,7 +3937,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
       borderColor: blue.withAlpha(20),
       radius: 16,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding:
+            const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment:
               CrossAxisAlignment.start,
@@ -3709,16 +3958,19 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                       Text(
                         "Motorway Locations",
                         style: TextStyle(
-                          color: Colors.white,
+                          color:
+                              Colors.white,
                           fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                          fontWeight:
+                              FontWeight.w800,
                         ),
                       ),
                       SizedBox(height: 3),
                       Text(
                         "Current monitoring status",
                         style: TextStyle(
-                          color: Colors.white30,
+                          color:
+                              Colors.white30,
                           fontSize: 8,
                         ),
                       ),
@@ -3730,14 +3982,18 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                   style: const TextStyle(
                     color: cyan,
                     fontSize: 15,
-                    fontWeight: FontWeight.w900,
+                    fontWeight:
+                        FontWeight.w900,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
             ...riskData.map(
-              (item) => buildMobileLocationCard(item),
+              (item) =>
+                  buildMobileLocationCard(
+                item,
+              ),
             ),
           ],
         ),
@@ -3754,22 +4010,29 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   ) {
     final city = cityOf(item);
     final risk = riskOf(item);
-    final visibility = visibilityOf(item);
-    final recommendation = recommendationOf(item);
+    final visibility =
+        visibilityOf(item);
+    final recommendation =
+        recommendationOf(item);
     final color = riskColor(risk);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 9),
+      padding:
+          const EdgeInsets.only(bottom: 9),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(13),
-          onTap: () => showLocationDetails(item),
+          borderRadius:
+              BorderRadius.circular(13),
+          onTap: () =>
+              showLocationDetails(item),
           child: Container(
-            padding: const EdgeInsets.all(13),
+            padding:
+                const EdgeInsets.all(13),
             decoration: BoxDecoration(
               color: Colors.white.withAlpha(4),
-              borderRadius: BorderRadius.circular(13),
+              borderRadius:
+                  BorderRadius.circular(13),
               border: Border.all(
                 color: color.withAlpha(25),
               ),
@@ -3783,9 +4046,12 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                     Container(
                       width: 38,
                       height: 38,
-                      decoration: BoxDecoration(
-                        color: color.withAlpha(18),
-                        shape: BoxShape.circle,
+                      decoration:
+                          BoxDecoration(
+                        color:
+                            color.withAlpha(18),
+                        shape:
+                            BoxShape.circle,
                       ),
                       child: Icon(
                         riskIcon(risk),
@@ -3797,10 +4063,13 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                     Expanded(
                       child: Text(
                         city,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style:
+                            const TextStyle(
+                          color:
+                              Colors.white,
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontWeight:
+                              FontWeight.w800,
                         ),
                       ),
                     ),
@@ -3809,42 +4078,62 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 ),
                 const SizedBox(height: 11),
                 Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding:
+                      const EdgeInsets
+                          .symmetric(
                     horizontal: 9,
                     vertical: 9,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withAlpha(4),
-                    borderRadius: BorderRadius.circular(8),
+                  decoration:
+                      BoxDecoration(
+                    color: Colors.white
+                        .withAlpha(4),
+                    borderRadius:
+                        BorderRadius.circular(
+                      8,
+                    ),
                   ),
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.visibility_outlined,
-                        color: Colors.white30,
+                        Icons
+                            .visibility_outlined,
+                        color:
+                            Colors.white30,
                         size: 14,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(
+                        width: 6,
+                      ),
                       const Text(
                         "Visibility",
-                        style: TextStyle(
-                          color: Colors.white38,
+                        style:
+                            TextStyle(
+                          color:
+                              Colors.white38,
                           fontSize: 8,
                         ),
                       ),
                       const Spacer(),
                       Text(
                         "${visibility.toStringAsFixed(1)} km",
-                        style: const TextStyle(
-                          color: Colors.white70,
+                        style:
+                            const TextStyle(
+                          color:
+                              Colors.white70,
                           fontSize: 9,
-                          fontWeight: FontWeight.w800,
+                          fontWeight:
+                              FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(
+                        width: 6,
+                      ),
                       const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: Colors.white24,
+                        Icons
+                            .arrow_forward_ios_rounded,
+                        color:
+                            Colors.white24,
                         size: 9,
                       ),
                     ],
@@ -3853,13 +4142,16 @@ class _NHMPDashboardState extends State<NHMPDashboard>
                 const SizedBox(height: 9),
                 Text(
                   recommendation,
-                  style: const TextStyle(
-                    color: Colors.white38,
+                  style:
+                      const TextStyle(
+                    color:
+                        Colors.white38,
                     fontSize: 8,
                     height: 1.4,
                   ),
                   maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -3875,7 +4167,8 @@ class _NHMPDashboardState extends State<NHMPDashboard>
 
   Widget buildMobileOperational() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         const Text(
           "Operational Analysis",
@@ -3913,10 +4206,9 @@ class _NHMPDashboardState extends State<NHMPDashboard>
     );
   }
 }
-
-// =================================================================
-// HOVER CARD
-// =================================================================
+ // =================================================================
+ // HOVER CARD
+ // =================================================================
 
 class HoverCard extends StatefulWidget {
   final Widget child;
@@ -3986,7 +4278,7 @@ class _HoverCardState extends State<HoverCard> {
 }
 
 // =================================================================
-// VISIBILITY CHART
+// VISIBILITY CHART PAINTER
 // =================================================================
 
 class VisibilityChartPainter extends CustomPainter {
@@ -4016,11 +4308,21 @@ class VisibilityChartPainter extends CustomPainter {
     final chartHeight =
         size.height - top - bottom;
 
+    if (chartWidth <= 0 || chartHeight <= 0) {
+      return;
+    }
+
     double maxVisibility = 20;
 
     for (final item in data) {
+      final rawValue = item is Map
+          ? (item['visibility_km'] ??
+              item['visibility'] ??
+              item['visibilityKm'])
+          : null;
+
       final value = double.tryParse(
-            item['visibility_km'].toString(),
+            rawValue?.toString() ?? '',
           ) ??
           0;
 
@@ -4029,9 +4331,9 @@ class VisibilityChartPainter extends CustomPainter {
       }
     }
 
-    // ==========================================================
+    // ============================================================
     // GRID
-    // ==========================================================
+    // ============================================================
 
     final gridPaint = Paint()
       ..color = Colors.white.withAlpha(11)
@@ -4043,7 +4345,10 @@ class VisibilityChartPainter extends CustomPainter {
 
       canvas.drawLine(
         Offset(left, y),
-        Offset(size.width - right, y),
+        Offset(
+          size.width - right,
+          y,
+        ),
         gridPaint,
       );
 
@@ -4070,15 +4375,16 @@ class VisibilityChartPainter extends CustomPainter {
       );
     }
 
-    // ==========================================================
-    // THRESHOLD LINE
-    // ==========================================================
+    // ============================================================
+    // SAFE THRESHOLD LINE
+    // ============================================================
 
     if (maxVisibility >= 10) {
       final thresholdY =
           top +
           chartHeight -
-          (10 / maxVisibility) * chartHeight;
+          (10 / maxVisibility) *
+              chartHeight;
 
       final thresholdPaint = Paint()
         ..color = const Color(0x1932C66B)
@@ -4086,14 +4392,17 @@ class VisibilityChartPainter extends CustomPainter {
 
       canvas.drawLine(
         Offset(left, thresholdY),
-        Offset(size.width - right, thresholdY),
+        Offset(
+          size.width - right,
+          thresholdY,
+        ),
         thresholdPaint,
       );
     }
 
-    // ==========================================================
+    // ============================================================
     // BARS
-    // ==========================================================
+    // ============================================================
 
     final count = data.length;
 
@@ -4107,24 +4416,43 @@ class VisibilityChartPainter extends CustomPainter {
       gap = 7;
     }
 
-    final barWidth = count <= 4
-        ? (chartWidth - gap * (count - 1)) /
-            count
-        : ((chartWidth -
-                gap * (count - 1)) /
-            count)
-            .clamp(25.0, 50.0);
+    double barWidth;
+
+    if (count <= 4) {
+      barWidth =
+          (chartWidth -
+                  gap * (count - 1)) /
+              count;
+    } else {
+      barWidth =
+          ((chartWidth -
+                      gap * (count - 1)) /
+                  count)
+              .clamp(25.0, 50.0);
+    }
 
     for (int i = 0; i < count; i++) {
       final item = data[i];
 
+      final rawValue = item is Map
+          ? (item['visibility_km'] ??
+              item['visibility'] ??
+              item['visibilityKm'])
+          : null;
+
       final value = double.tryParse(
-            item['visibility_km'].toString(),
+            rawValue?.toString() ?? '',
           ) ??
           0;
 
+      final rawRisk = item is Map
+          ? (item['risk_level'] ??
+              item['risk'] ??
+              item['riskLevel'])
+          : null;
+
       final risk =
-          (item['risk_level'] ?? "SAFE")
+          (rawRisk ?? "SAFE")
               .toString()
               .toUpperCase();
 
@@ -4135,21 +4463,26 @@ class VisibilityChartPainter extends CustomPainter {
               chartHeight;
 
       final barHeight =
-          targetHeight * animationValue;
+          targetHeight *
+          animationValue.clamp(0.0, 1.0);
 
       final x =
-          left + i * (barWidth + gap);
+          left +
+          i * (barWidth + gap);
 
       final y =
           top +
           chartHeight -
           barHeight;
 
+      // ----------------------------------------------------------
       // SHADOW
+      // ----------------------------------------------------------
 
       final shadowPaint = Paint()
         ..color = color.withAlpha(18)
-        ..maskFilter = const MaskFilter.blur(
+        ..maskFilter =
+            const MaskFilter.blur(
           BlurStyle.normal,
           7,
         );
@@ -4167,7 +4500,9 @@ class VisibilityChartPainter extends CustomPainter {
         shadowPaint,
       );
 
+      // ----------------------------------------------------------
       // BAR
+      // ----------------------------------------------------------
 
       final barPaint = Paint()
         ..shader = LinearGradient(
@@ -4199,37 +4534,47 @@ class VisibilityChartPainter extends CustomPainter {
         barPaint,
       );
 
+      // ----------------------------------------------------------
       // TOP HIGHLIGHT
+      // ----------------------------------------------------------
 
-      final highlightPaint = Paint()
-        ..color = Colors.white.withAlpha(35);
+      if (barWidth > 4) {
+        final highlightPaint = Paint()
+          ..color =
+              Colors.white.withAlpha(35);
 
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            x + 2,
-            y + 2,
-            barWidth - 4,
-            2,
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(
+              x + 2,
+              y + 2,
+              barWidth - 4,
+              2,
+            ),
+            const Radius.circular(3),
           ),
-          const Radius.circular(3),
-        ),
-        highlightPaint,
-      );
+          highlightPaint,
+        );
+      }
 
+      // ----------------------------------------------------------
       // VALUE
+      // ----------------------------------------------------------
 
       if (animationValue > 0.65) {
         final valuePainter = TextPainter(
           text: TextSpan(
-            text: value.toStringAsFixed(1),
+            text:
+                value.toStringAsFixed(1),
             style: TextStyle(
               color: color,
               fontSize: 8,
-              fontWeight: FontWeight.w800,
+              fontWeight:
+                  FontWeight.w800,
             ),
           ),
-          textDirection: TextDirection.ltr,
+          textDirection:
+              TextDirection.ltr,
         );
 
         valuePainter.layout();
@@ -4245,10 +4590,18 @@ class VisibilityChartPainter extends CustomPainter {
         );
       }
 
+      // ----------------------------------------------------------
       // CITY
+      // ----------------------------------------------------------
+
+      final rawCity = item is Map
+          ? (item['city'] ??
+              item['location'] ??
+              item['name'])
+          : null;
 
       final city =
-          (item['city'] ?? "").toString();
+          (rawCity ?? "").toString();
 
       String shortCity = city;
 
@@ -4288,15 +4641,20 @@ class VisibilityChartPainter extends CustomPainter {
   }
 
   Color _riskColor(String risk) {
-    switch (risk) {
+    switch (risk.toUpperCase()) {
       case "CRITICAL":
         return const Color(0xffF04444);
+
       case "HIGH":
         return const Color(0xffFF922E);
+
       case "MODERATE":
         return const Color(0xffF5B82E);
+
       case "LOW":
         return const Color(0xff8CC63F);
+
+      case "SAFE":
       default:
         return const Color(0xff32C66B);
     }
@@ -4337,7 +4695,11 @@ class RiskDonutPainter extends CustomPainter {
     Size size,
   ) {
     final total =
-        safe + low + moderate + high + critical;
+        safe +
+        low +
+        moderate +
+        high +
+        critical;
 
     final center = Offset(
       size.width / 2,
@@ -4348,10 +4710,12 @@ class RiskDonutPainter extends CustomPainter {
         (size.shortestSide / 2) - 13;
 
     final backgroundPaint = Paint()
-      ..style = PaintingStyle.stroke
+      ..style =
+          PaintingStyle.stroke
       ..strokeWidth = 14
       ..strokeCap = StrokeCap.butt
-      ..color = Colors.white.withAlpha(8);
+      ..color =
+          Colors.white.withAlpha(8);
 
     canvas.drawCircle(
       center,
@@ -4379,16 +4743,23 @@ class RiskDonutPainter extends CustomPainter {
 
     double startAngle = -1.5708;
 
-    for (int i = 0; i < values.length; i++) {
-      if (values[i] == 0) continue;
+    for (int i = 0;
+        i < values.length;
+        i++) {
+      if (values[i] == 0) {
+        continue;
+      }
 
       final sweep =
-          (values[i] / total) * 6.283185;
+          (values[i] / total) *
+              6.283185;
 
       final paint = Paint()
-        ..style = PaintingStyle.stroke
+        ..style =
+            PaintingStyle.stroke
         ..strokeWidth = 14
-        ..strokeCap = StrokeCap.butt
+        ..strokeCap =
+            StrokeCap.butt
         ..color = colors[i];
 
       canvas.drawArc(
@@ -4406,7 +4777,8 @@ class RiskDonutPainter extends CustomPainter {
     }
 
     final innerPaint = Paint()
-      ..color = const Color(0xff0C1D2E);
+      ..color =
+          const Color(0xff0C1D2E);
 
     canvas.drawCircle(
       center,
@@ -4423,6 +4795,7 @@ class RiskDonutPainter extends CustomPainter {
         oldDelegate.low != low ||
         oldDelegate.moderate != moderate ||
         oldDelegate.high != high ||
-        oldDelegate.critical != critical;
+        oldDelegate.critical !=
+            critical;
   }
 }
