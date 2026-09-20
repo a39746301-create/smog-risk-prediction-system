@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'signup_page.dart';
 import 'forgot_password_page.dart';
@@ -20,1112 +22,96 @@ class _LoginPageState extends State<LoginPage> {
   final emailFocusNode = FocusNode();
   final passwordFocusNode = FocusNode();
 
-  String selectedRole = "User Login";
+  String selectedRole = 'User Login';
 
   bool hidePassword = true;
   bool isLoading = false;
   bool rememberMe = false;
 
   static const Color dark = Color(0xff071525);
+  static const Color card = Color(0xff0D2035);
   static const Color blue = Color(0xff1687E8);
   static const Color cyan = Color(0xff20C4E8);
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        emailFocusNode.requestFocus();
+      }
+    });
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-
     emailFocusNode.dispose();
     passwordFocusNode.dispose();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: dark,
       resizeToAvoidBottomInset: true,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 850) {
-            return buildMobileLayout();
-          }
+      body: Stack(
+        children: [
+          // =========================
+          // BACKGROUND IMAGE
+          // =========================
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/cover-image-7.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  color: dark,
+                );
+              },
+            ),
+          ),
 
-          return buildDesktopLayout();
-        },
-      ),
-    );
-  }
+          // =========================
+          // DARK OVERLAY
+          // =========================
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    dark.withValues(alpha: 0.88),
+                    const Color(0xff061321).withValues(alpha: 0.72),
+                    const Color(0xff082A40).withValues(alpha: 0.84),
+                  ],
+                ),
+              ),
+            ),
+          ),
 
-  // =========================================================
-  // DESKTOP / WEB LAYOUT
-  // =========================================================
-
-  Widget buildDesktopLayout() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 11,
-          child: buildLeftSide(),
-        ),
-        Expanded(
-          flex: 9,
-          child: Container(
-            color: const Color(0xff091A2D),
-            child: SafeArea(
+          // =========================
+          // LOGIN CARD
+          // =========================
+          SafeArea(
+            child: Center(
               child: SingleChildScrollView(
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 45,
-                  vertical: 35,
+                  horizontal: 20,
+                  vertical: 30,
                 ),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 455,
-                    ),
-                    child: buildLoginPanel(),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 480,
                   ),
+                  child: _buildLoginCard(),
                 ),
               ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // =========================================================
-  // LEFT SIDE
-  // =========================================================
-
-  Widget buildLeftSide() {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: Image.asset(
-            'assets/images/motorway_bg.png',
-            fit: BoxFit.cover,
-          ),
-        ),
-
-        Positioned.fill(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xff020B14).withValues(alpha: 0.90),
-                  dark.withValues(alpha: 0.70),
-                  const Color(0xff062A43).withValues(alpha: 0.84),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
-        ),
-
-        Positioned(
-          right: -120,
-          top: 80,
-          child: Container(
-            width: 330,
-            height: 330,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: cyan.withValues(alpha: 0.06),
-              boxShadow: [
-                BoxShadow(
-                  color: cyan.withValues(alpha: 0.08),
-                  blurRadius: 100,
-                  spreadRadius: 30,
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              48,
-              35,
-              42,
-              32,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // =====================================================
-                // BRAND
-                // =====================================================
-
-                Row(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(15),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.16),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: cyan.withValues(alpha: 0.10),
-                            blurRadius: 20,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.cloud_outlined,
-                        color: cyan,
-                        size: 28,
-                      ),
-                    ),
-
-                    const SizedBox(width: 13),
-
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "SMOG RISK",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.6,
-                          ),
-                        ),
-                        SizedBox(height: 3),
-                        Text(
-                          "PREDICTION SYSTEM",
-                          style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const Spacer(),
-
-                // =====================================================
-                // AI BADGE
-                // =====================================================
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 13,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: cyan.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: cyan.withValues(alpha: 0.28),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.auto_awesome,
-                        color: cyan,
-                        size: 15,
-                      ),
-                      SizedBox(width: 7),
-                      Text(
-                        "AI-POWERED ENVIRONMENTAL MONITORING",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.7,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // =====================================================
-                // MAIN HEADING
-                // =====================================================
-
-                const Text(
-                  "Smog Risk\nPrediction",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 44,
-                    height: 1.06,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -1.3,
-                  ),
-                ),
-
-                const SizedBox(height: 14),
-
-                const SizedBox(
-                  width: 520,
-                  child: Text(
-                    "An intelligent environmental monitoring system designed to analyze air quality and predict smog-related risks across Punjab motorways.",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13.5,
-                      height: 1.6,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 25),
-
-                // =====================================================
-                // FEATURE CARDS
-                // =====================================================
-
-                Row(
-                  children: [
-                    featureBox(
-                      Icons.air_rounded,
-                      "AQI",
-                      "Monitoring",
-                    ),
-                    const SizedBox(width: 9),
-                    featureBox(
-                      Icons.psychology_outlined,
-                      "AI",
-                      "Prediction",
-                    ),
-                    const SizedBox(width: 9),
-                    featureBox(
-                      Icons.route_outlined,
-                      "Motorway",
-                      "Safety",
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // =====================================================
-                // BOTTOM TEXT
-                // =====================================================
-
-                Row(
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: cyan,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text(
-                      "Intelligent data-driven environmental monitoring",
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // =========================================================
-  // MOBILE LAYOUT
-  // =========================================================
-
-  Widget buildMobileLayout() {
-    return Container(
-      width: double.infinity,
-      color: dark,
-      child: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final screenWidth = constraints.maxWidth;
-
-            final horizontalPadding =
-                screenWidth < 360 ? 16.0 : 20.0;
-
-            return SingleChildScrollView(
-              keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                horizontalPadding,
-                22,
-                horizontalPadding,
-                MediaQuery.of(context).viewInsets.bottom + 30,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // =====================================================
-                  // MOBILE BRAND
-                  // =====================================================
-
-                  Row(
-                    children: [
-                      Container(
-                        width: 46,
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.10),
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: const Icon(
-                          Icons.cloud_outlined,
-                          color: cyan,
-                          size: 25,
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "SMOG RISK",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.3,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              "PREDICTION SYSTEM",
-                              style: TextStyle(
-                                color: Colors.white54,
-                                fontSize:
-                                    screenWidth < 360 ? 7 : 8,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // =====================================================
-                  // MOBILE HEADING
-                  // =====================================================
-
-                  Text(
-                    "Smog Risk\nPrediction",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: screenWidth < 360 ? 30 : 34,
-                      height: 1.08,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  const Text(
-                    "Intelligent air-quality monitoring and smog-risk prediction for safer motorway travel.",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                      height: 1.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // =====================================================
-                  // MOBILE FEATURES
-                  // =====================================================
-
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      children: [
-                        featureBox(
-                          Icons.air_rounded,
-                          "AQI",
-                          "Monitoring",
-                        ),
-                        const SizedBox(width: 9),
-                        featureBox(
-                          Icons.psychology_outlined,
-                          "AI",
-                          "Prediction",
-                        ),
-                        const SizedBox(width: 9),
-                        featureBox(
-                          Icons.route_outlined,
-                          "Motorway",
-                          "Safety",
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // =====================================================
-                  // LOGIN
-                  // =====================================================
-
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: 0,
-                      maxWidth: 600,
-                    ),
-                    child: buildLoginPanel(),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // LOGIN PANEL
-  // =========================================================
-
-  Widget buildLoginPanel() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Sign In",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 32,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.8,
-          ),
-        ),
-
-        const SizedBox(height: 6),
-
-        const Text(
-          "Choose your role and sign in to continue",
-          style: TextStyle(
-            color: Colors.white54,
-            fontSize: 13,
-          ),
-        ),
-
-        const SizedBox(height: 23),
-
-        const Text(
-          "SELECT YOUR ROLE",
-          style: TextStyle(
-            color: Colors.white54,
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-          ),
-        ),
-
-        const SizedBox(height: 10),
-
-        // =====================================================
-        // USER ROLE
-        // =====================================================
-
-        roleCard(
-          "User Login",
-          "Access user dashboard",
-          Icons.person_outline,
-          const Color(0xff2878F0),
-        ),
-
-        // =====================================================
-        // NHMP ROLE
-        // =====================================================
-
-        roleCard(
-          "NHMP Login",
-          "National Highway Management",
-          Icons.shield_outlined,
-          const Color(0xff16B65B),
-        ),
-
-        // =====================================================
-        // ADMIN ROLE
-        // =====================================================
-
-        roleCard(
-          "Admin Login",
-          "System administration",
-          Icons.settings_outlined,
-          const Color(0xff9A45F5),
-        ),
-
-        const SizedBox(height: 15),
-
-        // =====================================================
-        // INPUT BOX
-        // =====================================================
-
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.035),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.08),
-            ),
-          ),
-          child: Column(
-            children: [
-              // EMAIL
-              inputField(
-                controller: emailController,
-                focusNode: emailFocusNode,
-                hint: "Email address",
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                onSubmitted: (_) {
-                  passwordFocusNode.requestFocus();
-                },
-              ),
-
-              const SizedBox(height: 12),
-
-              // PASSWORD
-              inputField(
-                controller: passwordController,
-                focusNode: passwordFocusNode,
-                hint: "Password",
-                icon: Icons.lock_outline,
-                obscureText: hidePassword,
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    setState(() {
-                      hidePassword = !hidePassword;
-                    });
-                  },
-                  icon: Icon(
-                    hidePassword
-                        ? Icons.visibility_off_outlined
-                        : Icons.visibility_outlined,
-                    color: Colors.grey.shade600,
-                    size: 19,
-                  ),
-                ),
-                onSubmitted: (_) {
-                  handleLogin();
-                },
-              ),
-
-              const SizedBox(height: 3),
-
-              // =====================================================
-              // REMEMBER + FORGOT
-              // =====================================================
-
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  if (constraints.maxWidth < 330) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: rememberMe,
-                              activeColor: blue,
-                              checkColor: Colors.white,
-                              side: BorderSide(
-                                color: Colors.white
-                                    .withValues(alpha: 0.30),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(4),
-                              ),
-                              onChanged: (value) {
-                                setState(() {
-                                  rememberMe = value ?? false;
-                                });
-                              },
-                            ),
-                            const Text(
-                              "Remember me",
-                              style: TextStyle(
-                                color: Colors.white60,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgotPasswordPage(),
-                                ),
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                            ),
-                            child: const Text(
-                              "Forgot password?",
-                              style: TextStyle(
-                                color: cyan,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-
-                  return Row(
-                    children: [
-                      Checkbox(
-                        value: rememberMe,
-                        activeColor: blue,
-                        checkColor: Colors.white,
-                        side: BorderSide(
-                          color: Colors.white
-                              .withValues(alpha: 0.30),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            rememberMe = value ?? false;
-                          });
-                        },
-                      ),
-
-                      const Text(
-                        "Remember me",
-                        style: TextStyle(
-                          color: Colors.white60,
-                          fontSize: 11,
-                        ),
-                      ),
-
-                      const Spacer(),
-
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const ForgotPasswordPage(),
-                            ),
-                          );
-                        },
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                          ),
-                        ),
-                        child: const Text(
-                          "Forgot password?",
-                          style: TextStyle(
-                            color: cyan,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-
-              const SizedBox(height: 5),
-
-              // =====================================================
-              // SIGN IN BUTTON
-              // =====================================================
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: handleLogin,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: blue,
-                    foregroundColor: Colors.white,
-                    elevation: 5,
-                    shadowColor: blue.withValues(alpha: 0.30),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                  ),
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Row(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Sign In",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // =====================================================
-        // CREATE ACCOUNT
-        // =====================================================
-
-        Center(
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            children: [
-              Text(
-                "Don't have an account? ",
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.45),
-                  fontSize: 11,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SignupPage(),
-                    ),
-                  );
-                },
-                child: const Text(
-                  "Create Account",
-                  style: TextStyle(
-                    color: cyan,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 13),
-
-        // =====================================================
-        // SECURITY TEXT
-        // =====================================================
-
-        Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.verified_user_outlined,
-                color: Colors.white.withValues(alpha: 0.25),
-                size: 12,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                "Secure system access",
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.25),
-                  fontSize: 9,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // =========================================================
-  // ROLE CARD
-  // =========================================================
-
-  Widget roleCard(
-    String title,
-    String subtitle,
-    IconData icon,
-    Color color,
-  ) {
-    final bool selected = selectedRole == title;
-
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedRole = title;
-        });
-
-        Future.delayed(
-          const Duration(milliseconds: 100),
-          () {
-            if (mounted) {
-              emailFocusNode.requestFocus();
-            }
-          },
-        );
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: 70,
-        margin: const EdgeInsets.only(bottom: 9),
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: selected
-              ? color.withValues(alpha: 0.10)
-              : Colors.white.withValues(alpha: 0.035),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(
-            color: selected
-                ? color
-                : Colors.white.withValues(alpha: 0.09),
-            width: selected ? 1.7 : 1,
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.08),
-                    blurRadius: 18,
-                  ),
-                ]
-              : [],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 43,
-              height: 43,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 22,
-              ),
-            ),
-
-            const SizedBox(width: 13),
-
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color:
-                          selected ? color : Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontSize: 10,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              color:
-                  selected ? color : Colors.white30,
-              size: 13,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // INPUT FIELD
-  // =========================================================
-
-  Widget inputField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-    bool obscureText = false,
-    Widget? suffixIcon,
-    void Function(String)? onSubmitted,
-  }) {
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      onSubmitted: onSubmitted,
-      style: const TextStyle(
-        color: Color(0xff172033),
-        fontSize: 13,
-      ),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-
-        hintText: hint,
-
-        hintStyle: const TextStyle(
-          color: Colors.black38,
-          fontSize: 12,
-        ),
-
-        prefixIcon: Icon(
-          icon,
-          color: Colors.black45,
-          size: 19,
-        ),
-
-        suffixIcon: suffixIcon,
-
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11),
-          borderSide: BorderSide.none,
-        ),
-
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11),
-          borderSide: BorderSide.none,
-        ),
-
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(11),
-          borderSide: const BorderSide(
-            color: blue,
-            width: 2,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // =========================================================
-  // FEATURE BOX
-  // =========================================================
-
-  Widget featureBox(
-    IconData icon,
-    String title,
-    String subtitle,
-  ) {
-    return Container(
-      width: 112,
-      height: 70,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.065),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.10),
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: cyan,
-            size: 21,
-          ),
-
-          const SizedBox(height: 5),
-
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-
-          const SizedBox(height: 1),
-
-          Text(
-            subtitle,
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 8,
             ),
           ),
         ],
@@ -1133,154 +119,657 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // =========================================================
-  // LOGIN FUNCTION
-  // =========================================================
+  // ============================================================
+  // LOGIN CARD
+  // ============================================================
 
-  void handleLogin() {
+  Widget _buildLoginCard() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        30,
+        30,
+        30,
+        25,
+      ),
+      decoration: BoxDecoration(
+        color: card.withValues(alpha: 0.96),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.12),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 35,
+            spreadRadius: 4,
+            offset: const Offset(0, 18),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // =========================
+          // ICON
+          // =========================
+          Center(
+            child: Container(
+              width: 66,
+              height: 66,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    blue.withValues(alpha: 0.28),
+                    cyan.withValues(alpha: 0.12),
+                  ],
+                ),
+                border: Border.all(
+                  color: cyan.withValues(alpha: 0.35),
+                ),
+              ),
+              child: const Icon(
+                Icons.cloud_outlined,
+                color: cyan,
+                size: 34,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          // =========================
+          // TITLE
+          // =========================
+          const Text(
+            'Sign In',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.2,
+            ),
+          ),
+
+          const SizedBox(height: 7),
+
+          Text(
+            'Smog Risk Prediction System',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.62),
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          // =========================
+          // ROLE TITLE
+          // =========================
+          Text(
+            'SELECT YOUR ROLE',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.65),
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+            ),
+          ),
+
+          const SizedBox(height: 10),
+
+          // =========================
+          // ROLE CARDS
+          // =========================
+          Row(
+            children: [
+              Expanded(
+                child: _roleCard(
+                  title: 'User',
+                  icon: Icons.person_outline_rounded,
+                  value: 'User Login',
+                ),
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: _roleCard(
+                  title: 'NHMP',
+                  icon: Icons.local_police_outlined,
+                  value: 'NHMP Login',
+                ),
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: _roleCard(
+                  title: 'Admin',
+                  icon: Icons.admin_panel_settings_outlined,
+                  value: 'Admin Login',
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // =========================
+          // EMAIL LABEL
+          // =========================
+          Text(
+            'EMAIL ADDRESS',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.65),
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // =========================
+          // EMAIL FIELD
+          // =========================
+          _inputField(
+            controller: emailController,
+            focusNode: emailFocusNode,
+            hint: 'Enter your email',
+            icon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+            onSubmitted: (_) {
+              passwordFocusNode.requestFocus();
+            },
+          ),
+
+          const SizedBox(height: 18),
+
+          // =========================
+          // PASSWORD LABEL
+          // =========================
+          Text(
+            'PASSWORD',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.65),
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // =========================
+          // PASSWORD FIELD
+          // =========================
+          _inputField(
+            controller: passwordController,
+            focusNode: passwordFocusNode,
+            hint: 'Enter your password',
+            icon: Icons.lock_outline_rounded,
+            obscureText: hidePassword,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) {
+              if (!isLoading) {
+                handleLogin();
+              }
+            },
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() {
+                  hidePassword = !hidePassword;
+                });
+              },
+              icon: Icon(
+                hidePassword
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: const Color(0xff526170),
+                size: 20,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 13),
+
+          // =========================
+          // REMEMBER + FORGOT
+          // =========================
+          Row(
+            children: [
+              SizedBox(
+                height: 30,
+                width: 30,
+                child: Checkbox(
+                  value: rememberMe,
+                  activeColor: blue,
+                  checkColor: Colors.white,
+                  side: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.35),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      rememberMe = value ?? false;
+                    });
+                  },
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'Remember me',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.65),
+                  fontSize: 12,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ForgotPasswordPage(),
+                    ),
+                  );
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                  ),
+                ),
+                child: const Text(
+                  'Forgot Password?',
+                  style: TextStyle(
+                    color: cyan,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
+          // =========================
+          // LOGIN BUTTON
+          // =========================
+          SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: isLoading ? null : handleLogin,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: blue,
+                disabledBackgroundColor: blue.withValues(
+                  alpha: 0.45,
+                ),
+                foregroundColor: Colors.white,
+                elevation: 8,
+                shadowColor: blue.withValues(alpha: 0.30),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: isLoading
+                  ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    )
+                  : const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.login_rounded,
+                          size: 20,
+                        ),
+                        SizedBox(width: 9),
+                        Text(
+                          'Sign In',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+
+          const SizedBox(height: 22),
+
+          // =========================
+          // CREATE ACCOUNT
+          // =========================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Don't have an account? ",
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.58),
+                  fontSize: 12,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SignupPage(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Create Account',
+                  style: TextStyle(
+                    color: cyan,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
+          // =========================
+          // SECURITY FOOTER
+          // =========================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.verified_user_outlined,
+                color: Colors.white.withValues(alpha: 0.42),
+                size: 15,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Secure Firebase authentication',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.42),
+                  fontSize: 10.5,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================================
+  // ROLE CARD
+  // ============================================================
+
+  Widget _roleCard({
+    required String title,
+    required IconData icon,
+    required String value,
+  }) {
+    final selected = selectedRole == value;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedRole = value;
+        });
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            FocusScope.of(context).requestFocus(emailFocusNode);
+          }
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(
+          vertical: 12,
+          horizontal: 5,
+        ),
+        decoration: BoxDecoration(
+          color: selected
+              ? blue.withValues(alpha: 0.18)
+              : Colors.white.withValues(alpha: 0.045),
+          borderRadius: BorderRadius.circular(13),
+          border: Border.all(
+            color: selected
+                ? cyan.withValues(alpha: 0.80)
+                : Colors.white.withValues(alpha: 0.10),
+            width: selected ? 1.4 : 1,
+          ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: cyan.withValues(alpha: 0.10),
+                    blurRadius: 12,
+                    spreadRadius: 1,
+                  ),
+                ]
+              : [],
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: selected ? cyan : Colors.white60,
+              size: 22,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              title,
+              style: TextStyle(
+                color: selected
+                    ? Colors.white
+                    : Colors.white70,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // INPUT FIELD
+  // ============================================================
+
+  Widget _inputField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String hint,
+    required IconData icon,
+    TextInputType? keyboardType,
+    TextInputAction? textInputAction,
+    ValueChanged<String>? onSubmitted,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      onSubmitted: onSubmitted,
+      obscureText: obscureText,
+
+      // DARK TEXT INSIDE WHITE BOX
+      style: const TextStyle(
+        color: Color(0xff071525),
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+      ),
+
+      cursorColor: blue,
+
+      decoration: InputDecoration(
+        hintText: hint,
+
+        hintStyle: const TextStyle(
+          color: Color(0xff7A8794),
+          fontSize: 13,
+        ),
+
+        // ICON
+        prefixIcon: Icon(
+          icon,
+          color: const Color(0xff526170),
+          size: 20,
+        ),
+
+        suffixIcon: suffixIcon,
+
+        // =========================
+        // WHITE INPUT BOX
+        // =========================
+        filled: true,
+        fillColor: Colors.white,
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+
+        // NORMAL BORDER
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: const BorderSide(
+            color: Color(0xffD7E0E8),
+            width: 1,
+          ),
+        ),
+
+        // BLUE BORDER WHEN FOCUSED
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(13),
+          ),
+          borderSide: BorderSide(
+            color: blue,
+            width: 1.8,
+          ),
+        ),
+
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(13),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // FIREBASE LOGIN
+  // ============================================================
+
+  Future<void> handleLogin() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      showMessage(
+        'Please enter your email and password.',
+      );
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
 
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-
-    // Empty fields
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill all fields"),
-        ),
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
 
-      return;
-    }
+      if (!mounted) return;
 
-    // Email validation
-    if (!RegExp(
-      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-    ).hasMatch(email)) {
-      setState(() {
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Please enter a valid email address",
+      if (selectedRole == 'User Login') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const UserDashboard(),
           ),
-        ),
-      );
-
-      return;
-    }
-
-    // Password validation
-    if (password.length < 8 ||
-        !RegExp(r'[A-Z]').hasMatch(password) ||
-        !RegExp(r'[a-z]').hasMatch(password) ||
-        !RegExp(r'[0-9]').hasMatch(password)) {
-      setState(() {
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Password must contain capital, small letter and number",
+        );
+      } else if (selectedRole == 'NHMP Login') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const NHMPDashboard(),
           ),
-        ),
-      );
-
-      return;
-    }
-
-    // =====================================================
-    // NHMP LOGIN
-    // =====================================================
-
-    if (selectedRole == "NHMP Login" &&
-        email == "nhmp@gmail.com" &&
-        password == "Nhmp1234") {
-      loginSuccess();
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => NHMPDashboard(),
-        ),
-      );
-    }
-
-    // =====================================================
-    // USER LOGIN
-    // =====================================================
-
-    else if (selectedRole == "User Login" &&
-        email == "user@gmail.com" &&
-        password == "User1234") {
-      loginSuccess();
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => UserDashboard(),
-        ),
-      );
-    }
-
-    // =====================================================
-    // ADMIN LOGIN
-    // =====================================================
-
-    else if (selectedRole == "Admin Login" &&
-        email == "admin@gmail.com" &&
-        password == "Admin1234") {
-      loginSuccess();
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AdminDashboard(),
-        ),
-      );
-    }
-
-    // =====================================================
-    // INVALID LOGIN
-    // =====================================================
-
-    else {
-      setState(() {
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Invalid email or password",
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminDashboard(),
           ),
-        ),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String message =
+          'Login failed. Please try again.';
+
+      if (e.code == 'user-not-found') {
+        message =
+            'No account found with this email.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Incorrect password.';
+      } else if (e.code == 'invalid-credential') {
+        message =
+            'Email or password is incorrect.';
+      } else if (e.code == 'invalid-email') {
+        message =
+            'Please enter a valid email address.';
+      } else if (e.code == 'too-many-requests') {
+        message =
+            'Too many attempts. Please try again later.';
+      }
+
+      showMessage(message);
+    } catch (e) {
+      showMessage(
+        'Something went wrong. Please try again.',
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
-  // =========================================================
-  // LOGIN SUCCESS
-  // =========================================================
+  // ============================================================
+  // MESSAGE
+  // ============================================================
 
-  void loginSuccess() {
-    setState(() {
-      isLoading = false;
-    });
+  void showMessage(String message) {
+    if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Login Successful"),
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xff102A43),
       ),
     );
   }
