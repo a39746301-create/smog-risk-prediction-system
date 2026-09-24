@@ -1023,7 +1023,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           Switch(
             value: value,
-            activeColor: cyan,
+         activeThumbColor: cyan,
             activeTrackColor: cyan.withValues(alpha: 0.25),
             inactiveThumbColor: Colors.white38,
             inactiveTrackColor: Colors.white10,
@@ -1954,11 +1954,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: logs.length,
-                separatorBuilder: (_, __) {
-                  return Divider(
-                    color: Colors.white.withValues(alpha: 0.06),
-                  );
-                },
+               separatorBuilder: (_, _) {
+  return Divider(
+    color: Colors.white.withValues(alpha: 0.06),
+  );
+},
                 itemBuilder: (context, index) {
                   return ListTile(
                     contentPadding: EdgeInsets.zero,

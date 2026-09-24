@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class AlertScreen extends StatefulWidget {
@@ -14,7 +15,6 @@ class _AlertScreenState extends State<AlertScreen> {
 
   static const Color backgroundColor = Color(0xff081426);
   static const Color cardColor = Color(0xff102A43);
-  static const Color cardLightColor = Color(0xff132B43);
   static const Color cyanColor = Colors.cyanAccent;
 
   final TextEditingController searchController =
@@ -131,7 +131,7 @@ class _AlertScreenState extends State<AlertScreen> {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.12),
+                    color: Colors.redAccent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(11),
                   ),
                   child: const Icon(
@@ -246,9 +246,7 @@ class _AlertScreenState extends State<AlertScreen> {
                   : tablet
                       ? 20
                       : 25,
-              vertical: mobile
-                  ? 16
-                  : 22,
+              vertical: mobile ? 16 : 22,
             ),
 
             child: Center(
@@ -431,12 +429,12 @@ class _AlertScreenState extends State<AlertScreen> {
         ),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -493,7 +491,7 @@ class _AlertScreenState extends State<AlertScreen> {
       height: 54,
 
       decoration: BoxDecoration(
-        color: Colors.redAccent.withOpacity(0.12),
+        color: Colors.redAccent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(15),
       ),
 
@@ -544,10 +542,10 @@ class _AlertScreenState extends State<AlertScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: Colors.redAccent.withOpacity(0.12),
+        color: Colors.redAccent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.redAccent.withOpacity(0.18),
+          color: Colors.redAccent.withValues(alpha: 0.18),
         ),
       ),
 
@@ -723,12 +721,12 @@ class _AlertScreenState extends State<AlertScreen> {
             BorderRadius.circular(18),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -742,7 +740,7 @@ class _AlertScreenState extends State<AlertScreen> {
             height: 44,
 
             decoration: BoxDecoration(
-              color: stat.color.withOpacity(0.11),
+              color: stat.color.withValues(alpha: 0.11),
               borderRadius:
                   BorderRadius.circular(13),
             ),
@@ -838,7 +836,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
                       side: BorderSide(
                         color: Colors.white
-                            .withOpacity(0.12),
+                            .withValues(alpha: 0.12),
                       ),
 
                       minimumSize:
@@ -905,7 +903,7 @@ class _AlertScreenState extends State<AlertScreen> {
             BorderRadius.circular(13),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
 
@@ -1021,7 +1019,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
           border: Border.all(
             color:
-                Colors.white.withOpacity(0.08),
+                Colors.white.withValues(alpha: 0.08),
           ),
         ),
 
@@ -1147,7 +1145,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
               decoration: BoxDecoration(
                 color:
-                    cyanColor.withOpacity(0.08),
+                    cyanColor.withValues(alpha: 0.08),
                 borderRadius:
                     BorderRadius.circular(8),
               ),
@@ -1209,7 +1207,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
         border: Border.all(
           color:
-              Colors.white.withOpacity(0.07),
+              Colors.white.withValues(alpha: 0.07),
         ),
       ),
 
@@ -1284,15 +1282,15 @@ class _AlertScreenState extends State<AlertScreen> {
         border: Border.all(
           color: severity == "High"
               ? Colors.redAccent
-                  .withOpacity(0.20)
+                  .withValues(alpha: 0.20)
               : Colors.white
-                  .withOpacity(0.08),
+                  .withValues(alpha: 0.08),
         ),
 
         boxShadow: [
           BoxShadow(
             color:
-                Colors.black.withOpacity(0.12),
+                Colors.black.withValues(alpha: 0.12),
             blurRadius: 12,
             offset:
                 const Offset(0, 5),
@@ -1319,7 +1317,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
           Divider(
             color:
-                Colors.white.withOpacity(0.07),
+                Colors.white.withValues(alpha: 0.07),
             height: 1,
           ),
 
@@ -1472,7 +1470,7 @@ class _AlertScreenState extends State<AlertScreen> {
       height: 52,
 
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius:
             BorderRadius.circular(15),
       ),
@@ -1635,7 +1633,7 @@ class _AlertScreenState extends State<AlertScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius:
             BorderRadius.circular(11),
       ),
@@ -1780,7 +1778,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
               side: BorderSide(
                 color: Colors.redAccent
-                    .withOpacity(0.35),
+                    .withValues(alpha: 0.35),
               ),
 
               minimumSize:
@@ -1832,7 +1830,7 @@ class _AlertScreenState extends State<AlertScreen> {
 
         side: BorderSide(
           color:
-              cyanColor.withOpacity(0.45),
+              cyanColor.withValues(alpha: 0.45),
         ),
 
         minimumSize: fullWidth
@@ -1886,7 +1884,7 @@ class _AlertScreenState extends State<AlertScreen> {
       style:
           ElevatedButton.styleFrom(
         backgroundColor:
-            Colors.green.withOpacity(0.85),
+            Colors.green.withValues(alpha: 0.85),
 
         foregroundColor:
             Colors.white,
@@ -1950,13 +1948,13 @@ class _AlertScreenState extends State<AlertScreen> {
       ),
 
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
 
         borderRadius:
             BorderRadius.circular(20),
 
         border: Border.all(
-          color: color.withOpacity(0.18),
+          color: color.withValues(alpha: 0.18),
         ),
       ),
 
@@ -2240,8 +2238,8 @@ class _AlertScreenState extends State<AlertScreen> {
                               BoxDecoration(
                             color:
                                 severityColor
-                                    .withOpacity(
-                              0.12,
+                                    .withValues(
+                              alpha: 0.12,
                             ),
                             borderRadius:
                                 BorderRadius
@@ -2296,8 +2294,8 @@ class _AlertScreenState extends State<AlertScreen> {
 
                   Divider(
                     color:
-                        Colors.white.withOpacity(
-                      0.07,
+                        Colors.white.withValues(
+                      alpha: 0.07,
                     ),
                     height: 1,
                   ),
@@ -2380,8 +2378,8 @@ class _AlertScreenState extends State<AlertScreen> {
                             decoration:
                                 BoxDecoration(
                               color: Colors.white
-                                  .withOpacity(
-                                0.04,
+                                  .withValues(
+                                alpha: 0.04,
                               ),
 
                               borderRadius:
@@ -2411,8 +2409,8 @@ class _AlertScreenState extends State<AlertScreen> {
 
                   Divider(
                     color:
-                        Colors.white.withOpacity(
-                      0.07,
+                        Colors.white.withValues(
+                      alpha: 0.07,
                     ),
                     height: 1,
                   ),
@@ -2603,3 +2601,4 @@ class _AlertStat {
     this.color,
   );
 }
+

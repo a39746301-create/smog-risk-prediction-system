@@ -53,7 +53,7 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   static const Color sidebarColor = Color(0xff071522);
 
   static const Color cardColor = Color(0xff0C1D2E);
-  static const Color cardColor2 = Color(0xff10263A);
+
 
   static const Color cyan = Color(0xff25C7E8);
   static const Color blue = Color(0xff238BE8);
@@ -590,29 +590,29 @@ class _NHMPDashboardState extends State<NHMPDashboard>
   // SCROLL NAVIGATION
   // ============================================================
 
-  Future<void> scrollToSection(
-    GlobalKey key,
-    int index,
-  ) async {
-    setState(() {
-      selectedMenu = index;
-    });
+  void scrollToSection(
+  GlobalKey key,
+  int index,
+) {
+  setState(() {
+    selectedMenu = index;
+  });
 
-    await Future.delayed(
-      const Duration(milliseconds: 30),
-    );
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
 
     final targetContext = key.currentContext;
 
     if (targetContext == null) return;
 
-    await Scrollable.ensureVisible(
+    Scrollable.ensureVisible(
       targetContext,
       duration: const Duration(milliseconds: 650),
       curve: Curves.easeOutCubic,
       alignment: 0.04,
     );
-  }
+  });
+}
 
   // ============================================================
   // DESKTOP DASHBOARD
@@ -4799,3 +4799,4 @@ class RiskDonutPainter extends CustomPainter {
             critical;
   }
 }
+

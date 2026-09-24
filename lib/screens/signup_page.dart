@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -15,6 +16,7 @@ class _SignupPageState extends State<SignupPage> {
   static const Color blue = Color(0xff1687E8);
   static const Color cyan = Color(0xff20C4E8);
   static const Color errorRed = Color(0xffE5485D);
+  static const Color successGreen = Colors.greenAccent;
 
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -33,9 +35,17 @@ class _SignupPageState extends State<SignupPage> {
   bool obscureConfirmPassword = true;
   bool isLoading = false;
 
+  bool hasMinLength = false;
+  bool hasUppercase = false;
+  bool hasLowercase = false;
+  bool hasNumber = false;
+  bool hasSpecialCharacter = false;
+
   @override
   void initState() {
     super.initState();
+
+    passwordController.addListener(_updatePasswordStrength);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -46,6 +56,8 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   void dispose() {
+    passwordController.removeListener(_updatePasswordStrength);
+
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
@@ -59,8 +71,36 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
+  void _updatePasswordStrength() {
+    final password = passwordController.text;
+
+    final minLength = password.length >= 8;
+    final uppercase = RegExp(r'[A-Z]').hasMatch(password);
+    final lowercase = RegExp(r'[a-z]').hasMatch(password);
+    final number = RegExp(r'[0-9]').hasMatch(password);
+    final special = RegExp(r'[^A-Za-z0-9]').hasMatch(password);
+
+    if (mounted) {
+      setState(() {
+        hasMinLength = minLength;
+        hasUppercase = uppercase;
+        hasLowercase = lowercase;
+        hasNumber = number;
+        hasSpecialCharacter = special;
+      });
+    }
+  }
+
+  bool get isPasswordStrong {
+    return hasMinLength &&
+        hasUppercase &&
+        hasLowercase &&
+        hasNumber &&
+        hasSpecialCharacter;
+  }
+
   void _clearError() {
-    if (activeError != null) {
+    if (activeError != null || errorField != null) {
       setState(() {
         activeError = null;
         errorField = null;
@@ -81,11 +121,31 @@ class _SignupPageState extends State<SignupPage> {
     FocusScope.of(context).requestFocus(focusNode);
   }
 
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
+    );
+
+    return emailRegex.hasMatch(email);
+  }
+
+  bool _isValidName(String name) {
+    if (name.length < 2) return false;
+
+    final nameRegex = RegExp(
+      r"^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'\-]*$",
+    );
+
+    return nameRegex.hasMatch(name);
+  }
+
   Future<void> createAccount() async {
+    if (isLoading) return;
+
     FocusScope.of(context).unfocus();
 
     final name = nameController.text.trim();
-    final email = emailController.text.trim();
+    final email = emailController.text.trim().toLowerCase();
     final password = passwordController.text;
     final confirmPassword = confirmPasswordController.text;
 
@@ -93,16 +153,52 @@ class _SignupPageState extends State<SignupPage> {
     // EMPTY FIELD VALIDATION
     // --------------------------------------------------
 
-    if (name.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty) {
-      setState(() {
-        errorField = 'name';
-        activeError = 'Please fill all fields';
-      });
+    if (name.isEmpty) {
+      _showValidationError(
+        'name',
+        'Please enter your full name',
+        nameFocusNode,
+      );
+      return;
+    }
 
-      FocusScope.of(context).requestFocus(nameFocusNode);
+    if (email.isEmpty) {
+      _showValidationError(
+        'email',
+        'Please enter your email address',
+        emailFocusNode,
+      );
+      return;
+    }
+
+    if (password.isEmpty) {
+      _showValidationError(
+        'password',
+        'Please create a password',
+        passwordFocusNode,
+      );
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      _showValidationError(
+        'confirm',
+        'Please confirm your password',
+        confirmPasswordFocusNode,
+      );
+      return;
+    }
+
+    // --------------------------------------------------
+    // NAME VALIDATION
+    // --------------------------------------------------
+
+    if (!_isValidName(name)) {
+      _showValidationError(
+        'name',
+        'Please enter a valid name',
+        nameFocusNode,
+      );
       return;
     }
 
@@ -110,7 +206,16 @@ class _SignupPageState extends State<SignupPage> {
     // EMAIL VALIDATION
     // --------------------------------------------------
 
-    if (!email.contains('@') || !email.contains('.')) {
+    if (email.contains(' ')) {
+      _showValidationError(
+        'email',
+        'Email address cannot contain spaces',
+        emailFocusNode,
+      );
+      return;
+    }
+
+    if (!_isValidEmail(email)) {
       _showValidationError(
         'email',
         'Please enter a valid email address',
@@ -120,13 +225,49 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     // --------------------------------------------------
-    // PASSWORD VALIDATION
+    // STRONG PASSWORD VALIDATION
     // --------------------------------------------------
 
-    if (password.length < 6) {
+    if (!hasMinLength) {
       _showValidationError(
         'password',
-        'Password must be at least 6 characters',
+        'Password must be at least 8 characters',
+        passwordFocusNode,
+      );
+      return;
+    }
+
+    if (!hasUppercase) {
+      _showValidationError(
+        'password',
+        'Password must contain at least one uppercase letter',
+        passwordFocusNode,
+      );
+      return;
+    }
+
+    if (!hasLowercase) {
+      _showValidationError(
+        'password',
+        'Password must contain at least one lowercase letter',
+        passwordFocusNode,
+      );
+      return;
+    }
+
+    if (!hasNumber) {
+      _showValidationError(
+        'password',
+        'Password must contain at least one number',
+        passwordFocusNode,
+      );
+      return;
+    }
+
+    if (!hasSpecialCharacter) {
+      _showValidationError(
+        'password',
+        'Password must contain at least one special character',
         passwordFocusNode,
       );
       return;
@@ -146,7 +287,7 @@ class _SignupPageState extends State<SignupPage> {
     }
 
     // --------------------------------------------------
-    // START FIREBASE ACCOUNT CREATION
+    // START ACCOUNT CREATION
     // --------------------------------------------------
 
     setState(() {
@@ -156,10 +297,45 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // Create account in Firebase Authentication.
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      final user = credential.user;
+
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'account-creation-failed',
+          message: 'User account could not be created.',
+        );
+      }
+
+      // Save display name in Firebase Authentication.
+      await user.updateDisplayName(name);
+
+      // Create the user's Firestore profile.
+      //
+      // IMPORTANT:
+      // Every account created through normal Signup
+      // automatically receives the "user" role.
+      //
+      // The person signing up cannot choose Admin or NHMP.
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .set({
+        'name': name,
+        'email': email,
+        'role': 'user',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Sign out after signup so the new user goes
+      // through the normal Login page.
+      await FirebaseAuth.instance.signOut();
 
       if (!mounted) return;
 
@@ -167,6 +343,7 @@ class _SignupPageState extends State<SignupPage> {
         isLoading = false;
       });
 
+      // Success dialog.
       await showDialog(
         context: context,
         barrierDismissible: false,
@@ -180,7 +357,7 @@ class _SignupPageState extends State<SignupPage> {
               children: [
                 Icon(
                   Icons.check_circle,
-                  color: Colors.greenAccent,
+                  color: successGreen,
                   size: 28,
                 ),
                 SizedBox(width: 10),
@@ -196,10 +373,11 @@ class _SignupPageState extends State<SignupPage> {
               ],
             ),
             content: const Text(
-              'Your account has been created successfully.',
+              'Your account has been created successfully. You can now sign in using your email and password.',
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 14,
+                height: 1.4,
               ),
             ),
             actions: [
@@ -245,13 +423,45 @@ class _SignupPageState extends State<SignupPage> {
       } else if (e.code == 'weak-password') {
         _showValidationError(
           'password',
-          'Password is too weak',
+          'Firebase rejected this password as too weak',
           passwordFocusNode,
+        );
+      } else if (e.code == 'operation-not-allowed') {
+        _showValidationError(
+          'email',
+          'Email/password authentication is disabled in Firebase',
+          emailFocusNode,
+        );
+      } else if (e.code == 'network-request-failed') {
+        _showValidationError(
+          'email',
+          'Network error. Please check your internet connection',
+          emailFocusNode,
         );
       } else {
         _showValidationError(
           'email',
           'Unable to create account. Please try again',
+          emailFocusNode,
+        );
+      }
+    } on FirebaseException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (e.code == 'permission-denied') {
+        _showValidationError(
+          'email',
+          'Account created, but user profile could not be saved. Please check Firestore Rules.',
+          emailFocusNode,
+        );
+      } else {
+        _showValidationError(
+          'email',
+          'Database error. Please try again',
           emailFocusNode,
         );
       }
@@ -268,6 +478,123 @@ class _SignupPageState extends State<SignupPage> {
         emailFocusNode,
       );
     }
+  }
+
+  Widget _passwordRequirement({
+    required bool valid,
+    required String text,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Icon(
+            valid
+                ? Icons.check_circle_rounded
+                : Icons.radio_button_unchecked_rounded,
+            size: 15,
+            color: valid ? successGreen : Colors.white38,
+          ),
+          const SizedBox(width: 7),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: valid ? successGreen : Colors.white54,
+                fontSize: 11.5,
+                fontWeight:
+                    valid ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _passwordStrengthBox() {
+    if (passwordController.text.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final requirements = [
+      hasMinLength,
+      hasUppercase,
+      hasLowercase,
+      hasNumber,
+      hasSpecialCharacter,
+    ];
+
+    final score =
+        requirements.where((requirement) => requirement).length;
+
+    String strengthText;
+
+    if (score <= 2) {
+      strengthText = 'Weak password';
+    } else if (score <= 4) {
+      strengthText = 'Medium password';
+    } else {
+      strengthText = 'Strong password';
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withAlpha(20),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.security_rounded,
+                color: cyan,
+                size: 17,
+              ),
+              const SizedBox(width: 7),
+              Text(
+                strengthText,
+                style: TextStyle(
+                  color: score == 5
+                      ? successGreen
+                      : Colors.white70,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 9),
+          _passwordRequirement(
+            valid: hasMinLength,
+            text: 'At least 8 characters',
+          ),
+          _passwordRequirement(
+            valid: hasUppercase,
+            text: 'One uppercase letter (A-Z)',
+          ),
+          _passwordRequirement(
+            valid: hasLowercase,
+            text: 'One lowercase letter (a-z)',
+          ),
+          _passwordRequirement(
+            valid: hasNumber,
+            text: 'One number (0-9)',
+          ),
+          _passwordRequirement(
+            valid: hasSpecialCharacter,
+            text: 'One special character (@, #, !, etc.)',
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _inputField({
@@ -294,6 +621,11 @@ class _SignupPageState extends State<SignupPage> {
           textInputAction: textInputAction,
           obscureText: obscureText,
           onEditingComplete: onEditingComplete,
+          autocorrect: false,
+          enableSuggestions: fieldName == 'name',
+          textCapitalization: fieldName == 'name'
+              ? TextCapitalization.words
+              : TextCapitalization.none,
           onChanged: (_) {
             if (hasError) {
               _clearError();
@@ -344,8 +676,6 @@ class _SignupPageState extends State<SignupPage> {
             ),
           ),
         ),
-
-        // Only the current error is displayed.
         if (hasError && activeError != null) ...[
           const SizedBox(height: 5),
           Padding(
@@ -372,10 +702,6 @@ class _SignupPageState extends State<SignupPage> {
       backgroundColor: dark,
       body: Stack(
         children: [
-          // --------------------------------------------------
-          // BACKGROUND IMAGE
-          // --------------------------------------------------
-
           Positioned.fill(
             child: Image.asset(
               'assets/images/cover-image-7.jpg',
@@ -383,19 +709,11 @@ class _SignupPageState extends State<SignupPage> {
             ),
           ),
 
-          // --------------------------------------------------
-          // DARK OVERLAY
-          // --------------------------------------------------
-
           Positioned.fill(
             child: Container(
               color: dark.withAlpha(180),
             ),
           ),
-
-          // --------------------------------------------------
-          // MAIN CONTENT
-          // --------------------------------------------------
 
           SafeArea(
             child: Center(
@@ -430,10 +748,6 @@ class _SignupPageState extends State<SignupPage> {
                       crossAxisAlignment:
                           CrossAxisAlignment.stretch,
                       children: [
-                        // --------------------------------------------------
-                        // ICON
-                        // --------------------------------------------------
-
                         const Icon(
                           Icons.person_add_alt_1_rounded,
                           color: cyan,
@@ -441,10 +755,6 @@ class _SignupPageState extends State<SignupPage> {
                         ),
 
                         const SizedBox(height: 12),
-
-                        // --------------------------------------------------
-                        // TITLE
-                        // --------------------------------------------------
 
                         const Text(
                           'Create Account',
@@ -470,10 +780,6 @@ class _SignupPageState extends State<SignupPage> {
 
                         const SizedBox(height: 28),
 
-                        // --------------------------------------------------
-                        // FULL NAME
-                        // --------------------------------------------------
-
                         const Text(
                           'Full Name',
                           style: TextStyle(
@@ -491,8 +797,7 @@ class _SignupPageState extends State<SignupPage> {
                           hint: 'Enter your full name',
                           icon: Icons.person_outline,
                           fieldName: 'name',
-                          textInputAction:
-                              TextInputAction.next,
+                          textInputAction: TextInputAction.next,
                           onEditingComplete: () {
                             FocusScope.of(context)
                                 .requestFocus(emailFocusNode);
@@ -500,10 +805,6 @@ class _SignupPageState extends State<SignupPage> {
                         ),
 
                         const SizedBox(height: 18),
-
-                        // --------------------------------------------------
-                        // EMAIL
-                        // --------------------------------------------------
 
                         const Text(
                           'Email Address',
@@ -524,8 +825,7 @@ class _SignupPageState extends State<SignupPage> {
                           fieldName: 'email',
                           keyboardType:
                               TextInputType.emailAddress,
-                          textInputAction:
-                              TextInputAction.next,
+                          textInputAction: TextInputAction.next,
                           onEditingComplete: () {
                             FocusScope.of(context)
                                 .requestFocus(passwordFocusNode);
@@ -533,10 +833,6 @@ class _SignupPageState extends State<SignupPage> {
                         ),
 
                         const SizedBox(height: 18),
-
-                        // --------------------------------------------------
-                        // PASSWORD
-                        // --------------------------------------------------
 
                         const Text(
                           'Password',
@@ -552,17 +848,15 @@ class _SignupPageState extends State<SignupPage> {
                         _inputField(
                           controller: passwordController,
                           focusNode: passwordFocusNode,
-                          hint: 'Create a password',
+                          hint: 'Create a strong password',
                           icon: Icons.lock_outline,
                           fieldName: 'password',
-                          textInputAction:
-                              TextInputAction.next,
+                          textInputAction: TextInputAction.next,
                           obscureText: obscurePassword,
                           onEditingComplete: () {
-                            FocusScope.of(context)
-                                .requestFocus(
-                                  confirmPasswordFocusNode,
-                                );
+                            FocusScope.of(context).requestFocus(
+                              confirmPasswordFocusNode,
+                            );
                           },
                           suffixIcon: IconButton(
                             onPressed: () {
@@ -575,18 +869,15 @@ class _SignupPageState extends State<SignupPage> {
                               obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color:
-                                  const Color(0xff526170),
+                              color: const Color(0xff526170),
                               size: 20,
                             ),
                           ),
                         ),
 
-                        const SizedBox(height: 18),
+                        _passwordStrengthBox(),
 
-                        // --------------------------------------------------
-                        // CONFIRM PASSWORD
-                        // --------------------------------------------------
+                        const SizedBox(height: 18),
 
                         const Text(
                           'Confirm Password',
@@ -600,15 +891,12 @@ class _SignupPageState extends State<SignupPage> {
                         const SizedBox(height: 8),
 
                         _inputField(
-                          controller:
-                              confirmPasswordController,
-                          focusNode:
-                              confirmPasswordFocusNode,
+                          controller: confirmPasswordController,
+                          focusNode: confirmPasswordFocusNode,
                           hint: 'Confirm your password',
                           icon: Icons.lock_reset_outlined,
                           fieldName: 'confirm',
-                          textInputAction:
-                              TextInputAction.done,
+                          textInputAction: TextInputAction.done,
                           obscureText:
                               obscureConfirmPassword,
                           onEditingComplete: createAccount,
@@ -623,18 +911,13 @@ class _SignupPageState extends State<SignupPage> {
                               obscureConfirmPassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color:
-                                  const Color(0xff526170),
+                              color: const Color(0xff526170),
                               size: 20,
                             ),
                           ),
                         ),
 
                         const SizedBox(height: 25),
-
-                        // --------------------------------------------------
-                        // CREATE ACCOUNT BUTTON
-                        // --------------------------------------------------
 
                         SizedBox(
                           height: 52,
@@ -666,18 +949,13 @@ class _SignupPageState extends State<SignupPage> {
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 15,
-                                      fontWeight:
-                                          FontWeight.bold,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                           ),
                         ),
 
                         const SizedBox(height: 20),
-
-                        // --------------------------------------------------
-                        // SIGN IN
-                        // --------------------------------------------------
 
                         Row(
                           mainAxisAlignment:
@@ -691,9 +969,11 @@ class _SignupPageState extends State<SignupPage> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
+                              onTap: isLoading
+                                  ? null
+                                  : () {
+                                      Navigator.pop(context);
+                                    },
                               child: const Text(
                                 'Sign In',
                                 style: TextStyle(
@@ -708,17 +988,13 @@ class _SignupPageState extends State<SignupPage> {
 
                         const SizedBox(height: 20),
 
-                        // --------------------------------------------------
-                        // FIREBASE SECURITY
-                        // --------------------------------------------------
-
                         const Row(
                           mainAxisAlignment:
                               MainAxisAlignment.center,
                           children: [
                             Icon(
                               Icons.verified_user_outlined,
-                              color: Colors.greenAccent,
+                              color: successGreen,
                               size: 15,
                             ),
                             SizedBox(width: 6),

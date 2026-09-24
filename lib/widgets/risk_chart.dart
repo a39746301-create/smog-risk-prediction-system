@@ -13,10 +13,10 @@ class RiskChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 10, 16, 8),
       decoration: BoxDecoration(
-        color: cardColor.withOpacity(0.65),
+        color: cardColor.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Column(
@@ -53,7 +53,7 @@ class RiskChart extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: purpleColor.withOpacity(0.10),
+                    color: purpleColor.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
@@ -85,7 +85,7 @@ class RiskChart extends StatelessWidget {
                   horizontalInterval: 20,
                   getDrawingHorizontalLine: (value) {
                     return FlLine(
-                      color: Colors.white.withOpacity(0.05),
+                      color: Colors.white.withValues(alpha: 0.05),
                       strokeWidth: 1,
                     );
                   },
@@ -163,8 +163,8 @@ class RiskChart extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          purpleColor.withOpacity(0.18),
-                          cyanColor.withOpacity(0.02),
+                          purpleColor.withValues(alpha: 0.18),
+                          cyanColor.withValues(alpha: 0.02),
                         ],
                       ),
                     ),

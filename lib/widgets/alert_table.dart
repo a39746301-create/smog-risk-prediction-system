@@ -69,10 +69,10 @@ class AlertTable extends StatelessWidget {
         vertical: 13,
       ),
       decoration: BoxDecoration(
-        color: cardColor.withOpacity(0.72),
+        color: cardColor.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
@@ -82,7 +82,7 @@ class AlertTable extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.10),
+              color: color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(
@@ -159,10 +159,10 @@ class AlertTable extends StatelessWidget {
               vertical: 5,
             ),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.10),
+              color: color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: color.withOpacity(0.18),
+                color: color.withValues(alpha: 0.18),
               ),
             ),
             child: Text(

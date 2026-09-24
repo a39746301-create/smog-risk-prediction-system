@@ -119,7 +119,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
                   width: mobile ? 36 : 40,
                   height: mobile ? 36 : 40,
                   decoration: BoxDecoration(
-                    color: cyanColor.withOpacity(0.12),
+                    color: cyanColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(11),
                   ),
                   child: const Icon(
@@ -258,7 +258,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: mobile
@@ -297,7 +297,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        color: cyanColor.withOpacity(0.12),
+        color: cyanColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(15),
       ),
       child: const Icon(
@@ -339,7 +339,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
         vertical: 8,
       ),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.12),
+        color: Colors.green.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -465,7 +465,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: Row(
@@ -474,7 +474,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
             width: 45,
             height: 45,
             decoration: BoxDecoration(
-              color: data.color.withOpacity(0.11),
+              color: data.color.withValues(alpha: 0.11),
               borderRadius: BorderRadius.circular(13),
             ),
             child: Icon(
@@ -583,7 +583,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
           color: cardColor,
           borderRadius: BorderRadius.circular(13),
           border: Border.all(
-            color: Colors.white.withOpacity(0.08),
+            color: Colors.white.withValues(alpha: 0.08),
           ),
         ),
         child: Row(
@@ -623,7 +623,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: TextField(
@@ -761,12 +761,12 @@ class _NHMPScreenState extends State<NHMPScreen> {
         borderRadius: BorderRadius.circular(19),
         border: Border.all(
           color: highRisk
-              ? Colors.redAccent.withOpacity(0.25)
-              : Colors.white.withOpacity(0.08),
+              ? Colors.redAccent.withValues(alpha: 0.25)
+              : Colors.white.withValues(alpha: 0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -796,7 +796,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
           const SizedBox(height: 17),
 
           Divider(
-            color: Colors.white.withOpacity(0.07),
+            color: Colors.white.withValues(alpha: 0.07),
             height: 1,
           ),
 
@@ -869,7 +869,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: riskColor.withOpacity(0.11),
+                color: riskColor.withValues(alpha: 0.11),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
@@ -975,7 +975,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
           width: 55,
           height: 55,
           decoration: BoxDecoration(
-            color: riskColor.withOpacity(0.11),
+            color: riskColor.withValues(alpha: 0.11),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(
@@ -1109,7 +1109,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
             value: progress,
             minHeight: 6,
             backgroundColor:
-                Colors.white.withOpacity(0.07),
+                Colors.white.withValues(alpha: 0.07),
             valueColor:
                 AlwaysStoppedAnimation<Color>(
               riskColor,
@@ -1223,7 +1223,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
                       const Size.fromHeight(44),
                   foregroundColor: cyanColor,
                   side: BorderSide(
-                    color: cyanColor.withOpacity(0.5),
+                    color: cyanColor.withValues(alpha: 0.5),
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius:
@@ -1272,7 +1272,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
           style: OutlinedButton.styleFrom(
             foregroundColor: cyanColor,
             side: BorderSide(
-              color: cyanColor.withOpacity(0.5),
+              color: cyanColor.withValues(alpha: 0.5),
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
@@ -1302,10 +1302,10 @@ class _NHMPScreenState extends State<NHMPScreen> {
         horizontal: 10,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.035),
+        color: Colors.white.withValues(alpha: 0.035),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
@@ -1456,7 +1456,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
                 color: cardColor,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                 ),
               ),
               child: Column(
@@ -1469,7 +1469,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
                         height: 42,
                         decoration: BoxDecoration(
                           color:
-                              cyanColor.withOpacity(0.10),
+                              cyanColor.withValues(alpha: 0.10),
                           borderRadius:
                               BorderRadius.circular(12),
                         ),
@@ -1577,7 +1577,7 @@ class _NHMPScreenState extends State<NHMPScreen> {
                       style: TextButton.styleFrom(
                         foregroundColor: cyanColor,
                         backgroundColor:
-                            cyanColor.withOpacity(0.07),
+                            cyanColor.withValues(alpha: 0.07),
                         padding:
                             const EdgeInsets.symmetric(
                           vertical: 12,

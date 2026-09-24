@@ -84,10 +84,10 @@ class MotorwayMonitor extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cardColor.withOpacity(0.72),
+        color: cardColor.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
@@ -96,7 +96,7 @@ class MotorwayMonitor extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: data.color.withOpacity(0.10),
+              color: data.color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(11),
             ),
             child: Icon(

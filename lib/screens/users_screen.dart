@@ -15,9 +15,7 @@ class _UsersScreenState extends State<UsersScreen> {
   static const Color backgroundColor = Color(0xff081426);
   static const Color sidebarColor = Color(0xff102A43);
   static const Color cardColor = Color(0xff102A43);
-  static const Color cardLightColor = Color(0xff163B5C);
-
-  static const Color cyanColor = Colors.cyanAccent;
+static const Color cyanColor = Colors.cyanAccent;
   static const Color whiteColor = Colors.white;
   static const Color secondaryColor = Colors.white70;
 
@@ -86,7 +84,7 @@ class _UsersScreenState extends State<UsersScreen> {
                   width: mobile ? 36 : 40,
                   height: mobile ? 36 : 40,
                   decoration: BoxDecoration(
-                    color: cyanColor.withOpacity(0.12),
+                    color: cyanColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -148,10 +146,10 @@ class _UsersScreenState extends State<UsersScreen> {
                   horizontal: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
+                  color: Colors.white.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.06),
+                    color: Colors.white.withValues(alpha: 0.06),
                   ),
                 ),
                 child: const Row(
@@ -265,11 +263,11 @@ class _UsersScreenState extends State<UsersScreen> {
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 18,
             offset: const Offset(0, 7),
           ),
@@ -281,7 +279,7 @@ class _UsersScreenState extends State<UsersScreen> {
             width: mobile ? 48 : 58,
             height: mobile ? 48 : 58,
             decoration: BoxDecoration(
-              color: cyanColor.withOpacity(0.12),
+              color: cyanColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
@@ -440,11 +438,11 @@ class _UsersScreenState extends State<UsersScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -456,7 +454,7 @@ class _UsersScreenState extends State<UsersScreen> {
             width: compact ? 42 : 45,
             height: compact ? 42 : 45,
             decoration: BoxDecoration(
-              color: stat.color.withOpacity(0.11),
+              color: stat.color.withValues(alpha: 0.11),
               borderRadius: BorderRadius.circular(13),
             ),
             child: Icon(
@@ -561,7 +559,7 @@ class _UsersScreenState extends State<UsersScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: TextField(
@@ -689,7 +687,7 @@ class _UsersScreenState extends State<UsersScreen> {
             vertical: 3,
           ),
           decoration: BoxDecoration(
-            color: cyanColor.withOpacity(0.10),
+            color: cyanColor.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
@@ -760,12 +758,12 @@ class _UsersScreenState extends State<UsersScreen> {
         borderRadius: BorderRadius.circular(18),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -868,10 +866,10 @@ class _UsersScreenState extends State<UsersScreen> {
       height: 54,
 
       decoration: BoxDecoration(
-        color: cyanColor.withOpacity(0.12),
+        color: cyanColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: cyanColor.withOpacity(0.10),
+          color: cyanColor.withValues(alpha: 0.10),
         ),
       ),
 
@@ -984,13 +982,13 @@ class _UsersScreenState extends State<UsersScreen> {
 
       decoration: BoxDecoration(
         color: active
-            ? Colors.green.withOpacity(0.13)
-            : Colors.red.withOpacity(0.13),
+            ? Colors.green.withValues(alpha: 0.13)
+            : Colors.red.withValues(alpha: 0.13),
 
         borderRadius: BorderRadius.circular(20),
 
         border: Border.all(
-          color: statusColor.withOpacity(0.10),
+          color: statusColor.withValues(alpha: 0.10),
         ),
       ),
 
@@ -1149,7 +1147,7 @@ class _UsersScreenState extends State<UsersScreen> {
         borderRadius: BorderRadius.circular(18),
 
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
 
@@ -1217,7 +1215,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 height: 40,
 
                 decoration: BoxDecoration(
-                  color: cyanColor.withOpacity(0.12),
+                  color: cyanColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
 
@@ -1680,7 +1678,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 height: 40,
 
                 decoration: BoxDecoration(
-                  color: Colors.redAccent.withOpacity(0.12),
+                  color: Colors.redAccent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
 
@@ -1807,12 +1805,12 @@ class _UsersScreenState extends State<UsersScreen> {
 
         filled: true,
 
-        fillColor: Colors.white.withOpacity(0.06),
+        fillColor: Colors.white.withValues(alpha: 0.06),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(11),
           borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.06),
+            color: Colors.white.withValues(alpha: 0.06),
           ),
         ),
 
@@ -1845,3 +1843,5 @@ class _Stat {
     this.color,
   );
 }
+
+

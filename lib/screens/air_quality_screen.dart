@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class AirQualityScreen extends StatefulWidget {
@@ -109,23 +110,17 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                       mobile: mobile,
                       tablet: tablet,
                     ),
-
                     const SizedBox(height: 20),
-
                     _buildSummary(
                       mobile: mobile,
                       tablet: tablet,
                     ),
-
                     const SizedBox(height: 20),
-
                     _buildControls(
                       mobile: mobile,
                       tablet: tablet,
                     ),
-
                     const SizedBox(height: 18),
-
                     _buildLocationList(
                       mobile: mobile,
                       tablet: tablet,
@@ -139,10 +134,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       ),
     );
   }
-
-  // ============================================================
-  // APP BAR
-  // ============================================================
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
@@ -162,7 +153,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                 width: 38,
                 height: 38,
                 decoration: BoxDecoration(
-                  color: cyanColor.withOpacity(0.12),
+                  color: cyanColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(11),
                 ),
                 child: const Icon(
@@ -171,9 +162,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                   size: 21,
                 ),
               ),
-
               const SizedBox(width: 10),
-
               if (!small)
                 const Text(
                   "Air Quality",
@@ -208,10 +197,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       ],
     );
   }
-
-  // ============================================================
-  // REFRESH
-  // ============================================================
 
   Future<void> _refreshData() async {
     setState(() {
@@ -253,10 +238,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
     );
   }
 
-  // ============================================================
-  // HEADER
-  // ============================================================
-
   Widget _buildHeader({
     required bool mobile,
     required bool tablet,
@@ -281,7 +262,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
           mobile ? 17 : 20,
         ),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: mobile
@@ -291,9 +272,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                 Row(
                   children: [
                     _headerIcon(),
-
                     const SizedBox(width: 12),
-
                     const Expanded(
                       child: Text(
                         "Air Quality Monitoring",
@@ -306,9 +285,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 10),
-
                 const Text(
                   "Monitor AQI, pollutants and environmental conditions",
                   style: TextStyle(
@@ -317,22 +294,17 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                     height: 1.4,
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
                 _liveDataBadge(),
               ],
             )
           : Row(
               children: [
                 _headerIcon(),
-
                 const SizedBox(width: 15),
-
                 const Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "Air Quality Monitoring",
@@ -353,7 +325,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                     ],
                   ),
                 ),
-
                 _liveDataBadge(),
               ],
             ),
@@ -365,7 +336,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        color: cyanColor.withOpacity(0.12),
+        color: cyanColor.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(15),
       ),
       child: const Icon(
@@ -383,7 +354,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
         vertical: 8,
       ),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.12),
+        color: Colors.green.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: const Row(
@@ -407,10 +378,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       ),
     );
   }
-
-  // ============================================================
-  // SUMMARY
-  // ============================================================
 
   Widget _buildSummary({
     required bool mobile,
@@ -506,7 +473,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(17),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: Row(
@@ -515,7 +482,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: data.color.withOpacity(0.11),
+              color: data.color.withValues(alpha: 0.11),
               borderRadius: BorderRadius.circular(13),
             ),
             child: Icon(
@@ -524,9 +491,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
               size: 22,
             ),
           ),
-
           const SizedBox(width: 11),
-
           Expanded(
             child: Column(
               crossAxisAlignment:
@@ -540,9 +505,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                     fontSize: 11,
                   ),
                 ),
-
                 const SizedBox(height: 3),
-
                 Text(
                   data.value,
                   style: const TextStyle(
@@ -559,10 +522,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
     );
   }
 
-  // ============================================================
-  // CONTROLS
-  // ============================================================
-
   Widget _buildControls({
     required bool mobile,
     required bool tablet,
@@ -576,9 +535,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
               Expanded(
                 child: _buildSearchBox(),
               ),
-
               const SizedBox(width: 8),
-
               _buildSortButton(),
             ],
           )
@@ -588,15 +545,11 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
               Expanded(
                 child: _buildSearchBox(),
               ),
-
               const SizedBox(width: 10),
-
               _buildSortButton(),
             ],
           ),
-
         const SizedBox(height: 12),
-
         SizedBox(
           width: double.infinity,
           child: SingleChildScrollView(
@@ -624,7 +577,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: TextField(
@@ -677,7 +630,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(13),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: IconButton(
@@ -746,10 +699,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
     );
   }
 
-  // ============================================================
-  // LOCATION LIST
-  // ============================================================
-
   Widget _buildLocationList({
     required bool mobile,
     required bool tablet,
@@ -813,7 +762,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: const Column(
@@ -845,10 +794,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
     );
   }
 
-  // ============================================================
-  // LOCATION CARD
-  // ============================================================
-
   Widget _locationCard(
     Map<String, dynamic> location, {
     required bool mobile,
@@ -865,11 +810,11 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
         color: cardColor,
         borderRadius: BorderRadius.circular(19),
         border: Border.all(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withValues(alpha: 0.12),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -889,23 +834,17 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
               aqi,
               aqiColor,
             ),
-
           const SizedBox(height: 16),
-
           Divider(
-            color: Colors.white.withOpacity(0.07),
+            color: Colors.white.withValues(alpha: 0.07),
             height: 1,
           ),
-
           const SizedBox(height: 14),
-
           _buildEnvironmentGrid(
             location,
             mobile,
           ),
-
           const SizedBox(height: 15),
-
           Align(
             alignment: Alignment.centerRight,
             child: _buildAnalysisButton(location),
@@ -915,10 +854,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
     );
   }
 
-  // ============================================================
-  // DESKTOP LOCATION HEADER
-  // ============================================================
-
   Widget _buildDesktopLocationHeader(
     Map<String, dynamic> location,
     int aqi,
@@ -927,15 +862,11 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
     return Row(
       children: [
         _locationIcon(aqiColor),
-
         const SizedBox(width: 15),
-
         Expanded(
           child: _locationInfo(location),
         ),
-
         const SizedBox(width: 10),
-
         _aqiDisplay(
           aqi,
           location["status"],
@@ -944,10 +875,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       ],
     );
   }
-
-  // ============================================================
-  // MOBILE LOCATION HEADER
-  // ============================================================
 
   Widget _buildMobileLocationHeader(
     Map<String, dynamic> location,
@@ -961,17 +888,13 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
               CrossAxisAlignment.start,
           children: [
             _locationIcon(aqiColor),
-
             const SizedBox(width: 12),
-
             Expanded(
               child: _locationInfo(location),
             ),
           ],
         ),
-
         const SizedBox(height: 14),
-
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(
@@ -979,10 +902,10 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
             vertical: 11,
           ),
           decoration: BoxDecoration(
-            color: aqiColor.withOpacity(0.07),
+            color: aqiColor.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: aqiColor.withOpacity(0.15),
+              color: aqiColor.withValues(alpha: 0.15),
             ),
           ),
           child: Row(
@@ -1029,7 +952,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       width: 55,
       height: 55,
       decoration: BoxDecoration(
-        color: aqiColor.withOpacity(0.11),
+        color: aqiColor.withValues(alpha: 0.11),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Icon(
@@ -1056,9 +979,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
         const SizedBox(height: 5),
-
         Wrap(
           spacing: 10,
           runSpacing: 4,
@@ -1082,7 +1003,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                 ),
               ],
             ),
-
             Text(
               "Updated ${location["updated"]}",
               style: const TextStyle(
@@ -1131,10 +1051,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       ],
     );
   }
-
-  // ============================================================
-  // ENVIRONMENT GRID
-  // ============================================================
 
   Widget _buildEnvironmentGrid(
     Map<String, dynamic> location,
@@ -1205,10 +1121,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
     );
   }
 
-  // ============================================================
-  // ENVIRONMENT ITEM
-  // ============================================================
-
   Widget _environmentItem(
     IconData icon,
     String title,
@@ -1221,9 +1133,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
           color: cyanColor,
           size: 17,
         ),
-
         const SizedBox(width: 7),
-
         Expanded(
           child: Column(
             crossAxisAlignment:
@@ -1237,9 +1147,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                   fontSize: 9,
                 ),
               ),
-
               const SizedBox(height: 2),
-
               Text(
                 value,
                 overflow: TextOverflow.ellipsis,
@@ -1255,10 +1163,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       ],
     );
   }
-
-  // ============================================================
-  // ANALYSIS BUTTON
-  // ============================================================
 
   Widget _buildAnalysisButton(
     Map<String, dynamic> location,
@@ -1277,7 +1181,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       style: OutlinedButton.styleFrom(
         foregroundColor: cyanColor,
         side: BorderSide(
-          color: cyanColor.withOpacity(0.5),
+          color: cyanColor.withValues(alpha: 0.5),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -1293,10 +1197,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
       ),
     );
   }
-
-  // ============================================================
-  // AQI COLOR
-  // ============================================================
 
   Color _getAQIColor(int aqi) {
     if (aqi <= 50) {
@@ -1317,10 +1217,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
 
     return Colors.purpleAccent;
   }
-
-  // ============================================================
-  // DETAILS DIALOG
-  // ============================================================
 
   void _showAirQualityDetails(
     Map<String, dynamic> location,
@@ -1347,7 +1243,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                 color: cardColor,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withValues(alpha: 0.08),
                 ),
               ),
               child: Padding(
@@ -1361,7 +1257,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: aqiColor.withOpacity(0.12),
+                            color: aqiColor.withValues(alpha: 0.12),
                             borderRadius:
                                 BorderRadius.circular(12),
                           ),
@@ -1370,9 +1266,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                             color: aqiColor,
                           ),
                         ),
-
                         const SizedBox(width: 10),
-
                         Expanded(
                           child: Text(
                             "${location["name"]} Air Quality",
@@ -1383,7 +1277,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                             ),
                           ),
                         ),
-
                         IconButton(
                           onPressed: () {
                             Navigator.pop(
@@ -1397,9 +1290,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 14),
-
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
@@ -1410,12 +1301,12 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                                   const EdgeInsets.all(15),
                               decoration: BoxDecoration(
                                 color:
-                                    aqiColor.withOpacity(0.08),
+                                    aqiColor.withValues(alpha: 0.08),
                                 borderRadius:
                                     BorderRadius.circular(14),
                                 border: Border.all(
                                   color:
-                                      aqiColor.withOpacity(0.2),
+                                      aqiColor.withValues(alpha: 0.2),
                                 ),
                               ),
                               child: Row(
@@ -1429,9 +1320,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                                           FontWeight.bold,
                                     ),
                                   ),
-
                                   const SizedBox(width: 12),
-
                                   Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -1457,34 +1346,27 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                                 ],
                               ),
                             ),
-
                             const SizedBox(height: 18),
-
                             _dialogRow(
                               "PM2.5",
                               location["pm25"],
                             ),
-
                             _dialogRow(
                               "PM10",
                               location["pm10"],
                             ),
-
                             _dialogRow(
                               "CO",
                               location["co"],
                             ),
-
                             _dialogRow(
                               "Temperature",
                               location["temperature"],
                             ),
-
                             _dialogRow(
                               "Humidity",
                               location["humidity"],
                             ),
-
                             _dialogRow(
                               "Last Updated",
                               location["updated"],
@@ -1493,9 +1375,7 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -1544,7 +1424,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
               ),
             ),
           ),
-
           Expanded(
             child: Text(
               value,
@@ -1561,10 +1440,6 @@ class _AirQualityScreenState extends State<AirQualityScreen> {
   }
 }
 
-// ================================================================
-// SUMMARY MODEL
-// ================================================================
-
 class _SummaryData {
   final String title;
   final String value;
@@ -1578,3 +1453,4 @@ class _SummaryData {
     this.color,
   );
 }
+

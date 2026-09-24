@@ -87,10 +87,10 @@ class AIPrediction extends StatelessWidget {
                 vertical: 13,
               ),
               decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.08),
+                color: Colors.redAccent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: Colors.redAccent.withOpacity(0.18),
+                  color: Colors.redAccent.withValues(alpha: 0.18),
                 ),
               ),
               child: Row(
@@ -99,7 +99,7 @@ class AIPrediction extends StatelessWidget {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color: Colors.redAccent.withOpacity(0.10),
+                      color: Colors.redAccent.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(
@@ -146,7 +146,7 @@ class AIPrediction extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.redAccent.withOpacity(0.10),
+                      color: Colors.redAccent.withValues(alpha: 0.10),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
@@ -171,10 +171,10 @@ class AIPrediction extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(
-        color: cardColor.withOpacity(0.72),
+        color: cardColor.withValues(alpha: 0.72),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
         ),
       ),
       child: Row(
@@ -183,7 +183,7 @@ class AIPrediction extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: data.color.withOpacity(0.10),
+              color: data.color.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(

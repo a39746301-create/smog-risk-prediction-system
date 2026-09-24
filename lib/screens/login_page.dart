@@ -1,12 +1,13 @@
 
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
-import 'signup_page.dart';
-import 'forgot_password_page.dart';
-import 'user_dashboard.dart';
-import 'nhmp_dashboard.dart';
 import 'admin_dashboard.dart';
+import 'forgot_password_page.dart';
+import 'nhmp_dashboard.dart';
+import 'signup_page.dart';
+import 'user_dashboard.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,22 +17,49 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  final emailFocusNode = FocusNode();
-  final passwordFocusNode = FocusNode();
-
-  String selectedRole = 'User Login';
-
-  bool hidePassword = true;
-  bool isLoading = false;
-  bool rememberMe = false;
+  // ============================================================
+  // THEME
+  // ============================================================
 
   static const Color dark = Color(0xff071525);
   static const Color card = Color(0xff0D2035);
   static const Color blue = Color(0xff1687E8);
   static const Color cyan = Color(0xff20C4E8);
+  static const Color errorRed = Color(0xffE5485D);
+
+  // ============================================================
+  // CONTROLLERS
+  // ============================================================
+
+  final TextEditingController emailController =
+      TextEditingController();
+
+  final TextEditingController passwordController =
+      TextEditingController();
+
+  // ============================================================
+  // FOCUS NODES
+  // ============================================================
+
+  final FocusNode emailFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
+
+  // ============================================================
+  // STATE
+  // ============================================================
+
+  bool isPasswordVisible = false;
+  bool rememberMe = false;
+  bool isLoading = false;
+
+  String selectedRole = 'User Login';
+
+  String? activeError;
+  String? errorField;
+
+  // ============================================================
+  // INIT
+  // ============================================================
 
   @override
   void initState() {
@@ -39,83 +67,536 @@ class _LoginPageState extends State<LoginPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        emailFocusNode.requestFocus();
+        FocusScope.of(context).requestFocus(emailFocusNode);
       }
     });
   }
+
+  // ============================================================
+  // DISPOSE
+  // ============================================================
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+
     emailFocusNode.dispose();
     passwordFocusNode.dispose();
+
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: Stack(
-        children: [
-          // =========================
-          // BACKGROUND IMAGE
-          // =========================
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/cover-image-7.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: dark,
-                );
+  // ============================================================
+  // SHOW MESSAGE
+  // ============================================================
+
+  void showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  // ============================================================
+  // CLEAR ERROR
+  // ============================================================
+
+  void clearError() {
+    if (activeError != null || errorField != null) {
+      setState(() {
+        activeError = null;
+        errorField = null;
+      });
+    }
+  }
+
+  // ============================================================
+  // VALIDATION ERROR
+  // ============================================================
+
+  void showValidationError(
+    String field,
+    String message,
+    FocusNode focusNode,
+  ) {
+    setState(() {
+      errorField = field;
+      activeError = message;
+    });
+
+    FocusScope.of(context).requestFocus(focusNode);
+  }
+
+  // ============================================================
+  // EMAIL VALIDATION
+  // ============================================================
+
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(
+      r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
+    );
+
+    return emailRegex.hasMatch(email);
+  }
+
+  // ============================================================
+  // LOGIN
+  // ============================================================
+
+  Future<void> handleLogin() async {
+    if (isLoading) return;
+
+    FocusScope.of(context).unfocus();
+
+    final email = emailController.text.trim().toLowerCase();
+    final password = passwordController.text;
+
+    // EMPTY EMAIL
+    if (email.isEmpty) {
+      showValidationError(
+        'email',
+        'Please enter your email address',
+        emailFocusNode,
+      );
+      return;
+    }
+
+    // EMAIL SPACE
+    if (email.contains(' ')) {
+      showValidationError(
+        'email',
+        'Email address cannot contain spaces',
+        emailFocusNode,
+      );
+      return;
+    }
+
+    // INVALID EMAIL
+    if (!isValidEmail(email)) {
+      showValidationError(
+        'email',
+        'Please enter a valid email address',
+        emailFocusNode,
+      );
+      return;
+    }
+
+    // EMPTY PASSWORD
+    if (password.isEmpty) {
+      showValidationError(
+        'password',
+        'Please enter your password',
+        passwordFocusNode,
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+      activeError = null;
+      errorField = null;
+    });
+
+    try {
+      // ========================================================
+      // FIREBASE AUTH
+      // ========================================================
+
+      final credential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = credential.user;
+
+      if (user == null) {
+        if (!mounted) return;
+
+        showMessage(
+          'Unable to sign in. Please try again.',
+        );
+
+        return;
+      }
+
+      // ========================================================
+      // GET USER ROLE
+      // ========================================================
+
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      String role = 'user';
+
+      if (userDoc.exists) {
+        final data = userDoc.data();
+
+        final storedRole = data?['role'];
+
+        if (storedRole is String &&
+            storedRole.trim().isNotEmpty) {
+          role = storedRole.trim().toLowerCase();
+        }
+      }
+
+      // ========================================================
+      // ADMIN LOGIN
+      // ========================================================
+
+      if (selectedRole == 'Admin Login') {
+        if (role != 'admin') {
+          await FirebaseAuth.instance.signOut();
+
+          if (!mounted) return;
+
+          showMessage(
+            'This account is not registered as Admin.',
+          );
+
+          return;
+        }
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AdminDashboard(),
+          ),
+        );
+
+        return;
+      }
+
+      // ========================================================
+      // NHMP LOGIN
+      // ========================================================
+
+      if (selectedRole == 'NHMP Login') {
+        if (role != 'nhmp') {
+          await FirebaseAuth.instance.signOut();
+
+          if (!mounted) return;
+
+          showMessage(
+            'This account is not registered as NHMP.',
+          );
+
+          return;
+        }
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const NHMPDashboard(),
+          ),
+        );
+
+        return;
+      }
+
+      // ========================================================
+      // USER LOGIN
+      // ========================================================
+
+      if (role != 'user') {
+        await FirebaseAuth.instance.signOut();
+
+        if (!mounted) return;
+
+        showMessage(
+          'Please select the correct login role.',
+        );
+
+        return;
+      }
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const UserDashboard(),
+        ),
+      );
+    }
+
+    // ============================================================
+    // FIREBASE AUTH ERROR
+    // ============================================================
+
+    on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      if (e.code == 'user-not-found') {
+        showValidationError(
+          'email',
+          'No account found with this email.',
+          emailFocusNode,
+        );
+      } else if (e.code == 'wrong-password') {
+        showValidationError(
+          'password',
+          'Incorrect password.',
+          passwordFocusNode,
+        );
+      } else if (e.code == 'invalid-credential') {
+        showValidationError(
+          'email',
+          'Email or password is incorrect.',
+          emailFocusNode,
+        );
+      } else if (e.code == 'invalid-email') {
+        showValidationError(
+          'email',
+          'Please enter a valid email address.',
+          emailFocusNode,
+        );
+      } else if (e.code == 'too-many-requests') {
+        showMessage(
+          'Too many attempts. Please try again later.',
+        );
+      } else if (e.code == 'user-disabled') {
+        showMessage(
+          'This account has been disabled.',
+        );
+      } else {
+        showMessage(
+          'Login failed. Please try again.',
+        );
+      }
+    }
+
+    // ============================================================
+    // FIRESTORE ERROR
+    // ============================================================
+
+    on FirebaseException catch (e) {
+      if (!mounted) return;
+
+      if (e.code == 'permission-denied') {
+        showMessage(
+          'Firestore permission denied. Please check Firestore Rules.',
+        );
+      } else {
+        showMessage(
+          'Database error. Please try again.',
+        );
+      }
+    }
+
+    // ============================================================
+    // OTHER ERROR
+    // ============================================================
+
+    catch (e) {
+      if (!mounted) return;
+
+      showMessage(
+        'Something went wrong. Please try again.',
+      );
+    }
+
+    // ============================================================
+    // STOP LOADING
+    // ============================================================
+
+    finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  // ============================================================
+  // ROLE BUTTON
+  // ============================================================
+
+  Widget roleButton({
+    required String title,
+    required IconData icon,
+  }) {
+    final bool isSelected = selectedRole == title;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: isLoading
+            ? null
+            : () {
+                setState(() {
+                  selectedRole = title;
+                  activeError = null;
+                  errorField = null;
+                });
+
+                // IMPORTANT:
+                // Role select karte hi cursor Email field par.
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    FocusScope.of(context).requestFocus(
+                      emailFocusNode,
+                    );
+                  }
+                });
               },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          margin: const EdgeInsets.symmetric(
+            horizontal: 4,
+          ),
+          padding: const EdgeInsets.symmetric(
+            vertical: 10,
+            horizontal: 3,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? cyan
+                : Colors.white.withAlpha(10),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected
+                  ? cyan
+                  : Colors.white.withAlpha(25),
             ),
           ),
-
-          // =========================
-          // DARK OVERLAY
-          // =========================
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    dark.withValues(alpha: 0.88),
-                    const Color(0xff061321).withValues(alpha: 0.72),
-                    const Color(0xff082A40).withValues(alpha: 0.84),
-                  ],
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                size: 21,
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white70,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isSelected
+                      ? Colors.white
+                      : Colors.white70,
+                  fontSize: 10.5,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================================
+  // INPUT FIELD
+  // ============================================================
+
+  Widget inputField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String hint,
+    required IconData icon,
+    required String fieldName,
+    TextInputType? keyboardType,
+    TextInputAction? textInputAction,
+    VoidCallback? onEditingComplete,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    final bool hasError = errorField == fieldName;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          focusNode: focusNode,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          obscureText: obscureText,
+          onEditingComplete: onEditingComplete,
+          autocorrect: false,
+          enableSuggestions: false,
+          style: const TextStyle(
+            color: dark,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+          cursorColor: blue,
+          onChanged: (_) {
+            if (hasError) {
+              clearError();
+            }
+          },
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(
+              color: Color(0xff7A8794),
+              fontSize: 13,
+            ),
+            prefixIcon: Icon(
+              icon,
+              color: const Color(0xff526170),
+              size: 20,
+            ),
+            suffixIcon: suffixIcon,
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(13),
+              borderSide: BorderSide(
+                color: hasError
+                    ? errorRed
+                    : const Color(0xffD7E0E8),
+                width: hasError ? 1.5 : 1,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(13),
+              borderSide: BorderSide(
+                color: hasError ? errorRed : blue,
+                width: 1.8,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(13),
             ),
           ),
-
-          // =========================
-          // LOGIN CARD
-          // =========================
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 30,
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: 480,
-                  ),
-                  child: _buildLoginCard(),
-                ),
+        ),
+        if (hasError && activeError != null) ...[
+          const SizedBox(height: 5),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(
+              activeError!,
+              style: const TextStyle(
+                color: errorRed,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 
@@ -123,266 +604,276 @@ class _LoginPageState extends State<LoginPage> {
   // LOGIN CARD
   // ============================================================
 
-  Widget _buildLoginCard() {
+  Widget buildLoginCard(double screenWidth) {
+    final double cardWidth =
+        screenWidth < 520 ? screenWidth - 40 : 470;
+
+    final double cardPadding =
+        screenWidth < 500 ? 24 : 32;
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-        30,
-        30,
-        30,
-        25,
+      width: cardWidth,
+      margin: const EdgeInsets.symmetric(
+        horizontal: 20,
       ),
+      padding: EdgeInsets.all(cardPadding),
       decoration: BoxDecoration(
-        color: card.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(26),
+        color: card.withAlpha(248),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.12),
-          width: 1,
+          color: Colors.white.withAlpha(25),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
+            color: Colors.black.withAlpha(120),
             blurRadius: 35,
-            spreadRadius: 4,
-            offset: const Offset(0, 18),
+            offset: const Offset(0, 15),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // =========================
-          // ICON
-          // =========================
-          Center(
-            child: Container(
-              width: 66,
-              height: 66,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    blue.withValues(alpha: 0.28),
-                    cyan.withValues(alpha: 0.12),
-                  ],
-                ),
-                border: Border.all(
-                  color: cyan.withValues(alpha: 0.35),
-                ),
-              ),
-              child: const Icon(
-                Icons.cloud_outlined,
-                color: cyan,
-                size: 34,
-              ),
+          // ======================================================
+          // SMOG CLOUD ICON
+          // ======================================================
+
+          const Icon(
+            Icons.cloud_queue_rounded,
+            color: cyan,
+            size: 43,
+          ),
+
+          const SizedBox(height: 8),
+
+          // ======================================================
+          // SMOG RISK TITLE
+          // ======================================================
+
+          const Text(
+            'SMOG RISK',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 25,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 3,
             ),
+          ),
+
+          const SizedBox(height: 2),
+
+          const Text(
+            'PREDICTION SYSTEM',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: cyan,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 2,
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          Divider(
+            color: Colors.white.withAlpha(25),
+            height: 1,
           ),
 
           const SizedBox(height: 18),
 
-          // =========================
-          // TITLE
-          // =========================
+          // ======================================================
+          // WELCOME
+          // ======================================================
+
           const Text(
-            'Sign In',
+            'Welcome Back',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 28,
+              fontSize: 27,
               fontWeight: FontWeight.w800,
-              letterSpacing: 0.2,
             ),
           ),
 
-          const SizedBox(height: 7),
+          const SizedBox(height: 6),
 
-          Text(
-            'Smog Risk Prediction System',
+          const Text(
+            'Sign in to continue to the Smog Risk Prediction System',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.62),
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              color: Colors.white70,
+              fontSize: 12.5,
+              height: 1.4,
             ),
           ),
 
-          const SizedBox(height: 28),
+          const SizedBox(height: 25),
 
-          // =========================
-          // ROLE TITLE
-          // =========================
-          Text(
-            'SELECT YOUR ROLE',
+          // ======================================================
+          // LOGIN AS
+          // ======================================================
+
+          const Text(
+            'Login As',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.65),
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
-          // =========================
-          // ROLE CARDS
-          // =========================
           Row(
             children: [
-              Expanded(
-                child: _roleCard(
-                  title: 'User',
-                  icon: Icons.person_outline_rounded,
-                  value: 'User Login',
-                ),
+              roleButton(
+                title: 'User Login',
+                icon: Icons.person_outline,
               ),
-              const SizedBox(width: 9),
-              Expanded(
-                child: _roleCard(
-                  title: 'NHMP',
-                  icon: Icons.local_police_outlined,
-                  value: 'NHMP Login',
-                ),
+              roleButton(
+                title: 'NHMP Login',
+                icon: Icons.local_police_outlined,
               ),
-              const SizedBox(width: 9),
-              Expanded(
-                child: _roleCard(
-                  title: 'Admin',
-                  icon: Icons.admin_panel_settings_outlined,
-                  value: 'Admin Login',
-                ),
+              roleButton(
+                title: 'Admin Login',
+                icon: Icons.admin_panel_settings_outlined,
               ),
             ],
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
 
-          // =========================
-          // EMAIL LABEL
-          // =========================
-          Text(
-            'EMAIL ADDRESS',
+          // ======================================================
+          // EMAIL
+          // ======================================================
+
+          const Text(
+            'Email Address',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.65),
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.1,
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // =========================
-          // EMAIL FIELD
-          // =========================
-          _inputField(
+          inputField(
             controller: emailController,
             focusNode: emailFocusNode,
             hint: 'Enter your email',
             icon: Icons.email_outlined,
+            fieldName: 'email',
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
-            onSubmitted: (_) {
-              passwordFocusNode.requestFocus();
+            onEditingComplete: () {
+              FocusScope.of(context).requestFocus(
+                passwordFocusNode,
+              );
             },
           ),
 
           const SizedBox(height: 18),
 
-          // =========================
-          // PASSWORD LABEL
-          // =========================
-          Text(
-            'PASSWORD',
+          // ======================================================
+          // PASSWORD
+          // ======================================================
+
+          const Text(
+            'Password',
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.65),
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.1,
+              color: Colors.white,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
             ),
           ),
 
           const SizedBox(height: 8),
 
-          // =========================
-          // PASSWORD FIELD
-          // =========================
-          _inputField(
+          inputField(
             controller: passwordController,
             focusNode: passwordFocusNode,
             hint: 'Enter your password',
-            icon: Icons.lock_outline_rounded,
-            obscureText: hidePassword,
+            icon: Icons.lock_outline,
+            fieldName: 'password',
             textInputAction: TextInputAction.done,
-            onSubmitted: (_) {
-              if (!isLoading) {
-                handleLogin();
-              }
-            },
+            obscureText: !isPasswordVisible,
+            onEditingComplete: handleLogin,
             suffixIcon: IconButton(
+              tooltip: isPasswordVisible
+                  ? 'Hide password'
+                  : 'Show password',
               onPressed: () {
                 setState(() {
-                  hidePassword = !hidePassword;
+                  isPasswordVisible =
+                      !isPasswordVisible;
                 });
               },
               icon: Icon(
-                hidePassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined,
+                isPasswordVisible
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
                 color: const Color(0xff526170),
                 size: 20,
               ),
             ),
           ),
 
-          const SizedBox(height: 13),
+          const SizedBox(height: 9),
 
-          // =========================
-          // REMEMBER + FORGOT
-          // =========================
+          // ======================================================
+          // REMEMBER ME + FORGOT PASSWORD
+          // ======================================================
+
           Row(
             children: [
               SizedBox(
-                height: 30,
-                width: 30,
+                width: 24,
+                height: 24,
                 child: Checkbox(
                   value: rememberMe,
+                  onChanged: isLoading
+                      ? null
+                      : (value) {
+                          setState(() {
+                            rememberMe =
+                                value ?? false;
+                          });
+                        },
                   activeColor: blue,
                   checkColor: Colors.white,
                   side: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.35),
+                    color: Colors.white.withAlpha(100),
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      rememberMe = value ?? false;
-                    });
-                  },
                 ),
               ),
-              const SizedBox(width: 4),
-              Text(
+
+              const SizedBox(width: 5),
+
+              const Text(
                 'Remember me',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.65),
+                  color: Colors.white70,
                   fontSize: 12,
                 ),
               ),
+
               const Spacer(),
+
               TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ForgotPasswordPage(),
-                    ),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                  ),
-                ),
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const ForgotPasswordPage(),
+                          ),
+                        );
+                      },
                 child: const Text(
                   'Forgot Password?',
                   style: TextStyle(
@@ -395,117 +886,102 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
-          // =========================
+          // ======================================================
           // LOGIN BUTTON
-          // =========================
+          // ======================================================
+
           SizedBox(
             height: 52,
             child: ElevatedButton(
-              onPressed: isLoading ? null : handleLogin,
+              onPressed: isLoading
+                  ? null
+                  : handleLogin,
               style: ElevatedButton.styleFrom(
                 backgroundColor: blue,
-                disabledBackgroundColor: blue.withValues(
-                  alpha: 0.45,
-                ),
-                foregroundColor: Colors.white,
-                elevation: 8,
-                shadowColor: blue.withValues(alpha: 0.30),
+                disabledBackgroundColor:
+                    blue.withAlpha(100),
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(13),
                 ),
               ),
               child: isLoading
                   ? const SizedBox(
-                      width: 22,
                       height: 22,
+                      width: 22,
                       child: CircularProgressIndicator(
                         strokeWidth: 2.5,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(
-                          Colors.white,
-                        ),
+                        color: Colors.white,
                       ),
                     )
-                  : const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.login_rounded,
-                          size: 20,
-                        ),
-                        SizedBox(width: 9),
-                        Text(
-                          'Sign In',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ],
+                  : const Text(
+                      'LOGIN',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
                     ),
             ),
           ),
 
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
 
-          // =========================
+          // ======================================================
           // CREATE ACCOUNT
-          // =========================
+          // ======================================================
+
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 "Don't have an account? ",
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.58),
-                  fontSize: 12,
+                  color: Colors.white70,
+                  fontSize: 12.5,
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const SignupPage(),
-                    ),
-                  );
-                },
+                onTap: isLoading
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const SignupPage(),
+                          ),
+                        );
+                      },
                 child: const Text(
                   'Create Account',
                   style: TextStyle(
                     color: cyan,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 20),
 
-          // =========================
-          // SECURITY FOOTER
-          // =========================
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.verified_user_outlined,
-                color: Colors.white.withValues(alpha: 0.42),
-                size: 15,
+          // ======================================================
+          // ORIGINAL FIREBASE FOOTER
+          // ======================================================
+
+          Center(
+            child: Text(
+              'Secure authentication powered by Firebase',
+              style: TextStyle(
+                color: Colors.white.withAlpha(76),
+                fontSize: 10,
               ),
-              const SizedBox(width: 6),
-              Text(
-                'Secure Firebase authentication',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.42),
-                  fontSize: 10.5,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -513,263 +989,54 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   // ============================================================
-  // ROLE CARD
+  // BUILD
   // ============================================================
 
-  Widget _roleCard({
-    required String title,
-    required IconData icon,
-    required String value,
-  }) {
-    final selected = selectedRole == value;
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
 
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedRole = value;
-        });
+    return Scaffold(
+      backgroundColor: dark,
+      body: Stack(
+        children: [
+          // ======================================================
+          // SAME BACKGROUND IMAGE AS SIGNUP PAGE
+          // ======================================================
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            FocusScope.of(context).requestFocus(emailFocusNode);
-          }
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(
-          vertical: 12,
-          horizontal: 5,
-        ),
-        decoration: BoxDecoration(
-          color: selected
-              ? blue.withValues(alpha: 0.18)
-              : Colors.white.withValues(alpha: 0.045),
-          borderRadius: BorderRadius.circular(13),
-          border: Border.all(
-            color: selected
-                ? cyan.withValues(alpha: 0.80)
-                : Colors.white.withValues(alpha: 0.10),
-            width: selected ? 1.4 : 1,
-          ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: cyan.withValues(alpha: 0.10),
-                    blurRadius: 12,
-                    spreadRadius: 1,
-                  ),
-                ]
-              : [],
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: selected ? cyan : Colors.white60,
-              size: 22,
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/cover-image-7.jpg',
+              fit: BoxFit.cover,
             ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              style: TextStyle(
-                color: selected
-                    ? Colors.white
-                    : Colors.white70,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+          ),
+
+          // ======================================================
+          // DARK OVERLAY
+          // ======================================================
+
+          Positioned.fill(
+            child: Container(
+              color: dark.withAlpha(180),
+            ),
+          ),
+
+          // ======================================================
+          // CENTER LOGIN CARD
+          // ======================================================
+
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 25,
+                ),
+                child: buildLoginCard(size.width),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // INPUT FIELD
-  // ============================================================
-
-  Widget _inputField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-    TextInputAction? textInputAction,
-    ValueChanged<String>? onSubmitted,
-    bool obscureText = false,
-    Widget? suffixIcon,
-  }) {
-    return TextField(
-      controller: controller,
-      focusNode: focusNode,
-      keyboardType: keyboardType,
-      textInputAction: textInputAction,
-      onSubmitted: onSubmitted,
-      obscureText: obscureText,
-
-      // DARK TEXT INSIDE WHITE BOX
-      style: const TextStyle(
-        color: Color(0xff071525),
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-      ),
-
-      cursorColor: blue,
-
-      decoration: InputDecoration(
-        hintText: hint,
-
-        hintStyle: const TextStyle(
-          color: Color(0xff7A8794),
-          fontSize: 13,
-        ),
-
-        // ICON
-        prefixIcon: Icon(
-          icon,
-          color: const Color(0xff526170),
-          size: 20,
-        ),
-
-        suffixIcon: suffixIcon,
-
-        // =========================
-        // WHITE INPUT BOX
-        // =========================
-        filled: true,
-        fillColor: Colors.white,
-
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-
-        // NORMAL BORDER
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(13),
-          borderSide: const BorderSide(
-            color: Color(0xffD7E0E8),
-            width: 1,
           ),
-        ),
-
-        // BLUE BORDER WHEN FOCUSED
-        focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(13),
-          ),
-          borderSide: BorderSide(
-            color: blue,
-            width: 1.8,
-          ),
-        ),
-
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(13),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ============================================================
-  // FIREBASE LOGIN
-  // ============================================================
-
-  Future<void> handleLogin() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      showMessage(
-        'Please enter your email and password.',
-      );
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      if (!mounted) return;
-
-      if (selectedRole == 'User Login') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const UserDashboard(),
-          ),
-        );
-      } else if (selectedRole == 'NHMP Login') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const NHMPDashboard(),
-          ),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const AdminDashboard(),
-          ),
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      String message =
-          'Login failed. Please try again.';
-
-      if (e.code == 'user-not-found') {
-        message =
-            'No account found with this email.';
-      } else if (e.code == 'wrong-password') {
-        message = 'Incorrect password.';
-      } else if (e.code == 'invalid-credential') {
-        message =
-            'Email or password is incorrect.';
-      } else if (e.code == 'invalid-email') {
-        message =
-            'Please enter a valid email address.';
-      } else if (e.code == 'too-many-requests') {
-        message =
-            'Too many attempts. Please try again later.';
-      }
-
-      showMessage(message);
-    } catch (e) {
-      showMessage(
-        'Something went wrong. Please try again.',
-      );
-    } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
-
-  // ============================================================
-  // MESSAGE
-  // ============================================================
-
-  void showMessage(String message) {
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: const Color(0xff102A43),
+        ],
       ),
     );
   }

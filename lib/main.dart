@@ -22,7 +22,7 @@ class SmogRiskApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Smog Risk Prediction System',
-      home: const LoginPage(),
+      home: LoginPage(),
     );
   }
 }

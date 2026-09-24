@@ -93,7 +93,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
           final mobile = width < 600;
           final tablet = width >= 600 && width < 1000;
-          final desktop = width >= 1000;
+         
 
           final horizontalPadding = mobile
               ? 12.0
